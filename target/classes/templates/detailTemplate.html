@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${user.userName}"></span><br>
+			<span th:text = "${manager.classArea}"></span>教室
+		</div>
+		<div>
+			テンプレート詳細
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>タイトル</th><td><div><span th:text = "${template.title}"></span></div></td></tr>
+				<tr>
+					<th>勤務コマ</th>
+					<td>
+						<div>
+						<th:block th:if = "${template.classM}"><span th:text = "'M'"></span></th:block>
+						<th:block th:if = "${template.classK}"><span th:text = "'K'"></span></th:block>
+						<th:block th:if = "${template.classS}"><span th:text = "'S'"></span></th:block>
+						<th:block th:if = "${template.classA}"><span th:text = "'A'"></span></th:block>
+						<th:block th:if = "${template.classB}"><span th:text = "'B'"></span></th:block>
+						<th:block th:if = "${template.classC}"><span th:text = "'C'"></span></th:block>
+						<th:block th:if = "${template.classD}"><span th:text = "'D'"></span></th:block>
+						<th:block th:if = "${!template.classM && !template.classK && !template.classS && !template.classA && !template.classB && !template.classC && !template.classD}">
+							<span th:text = "'-'"></span>
+						</th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>ヘルプ勤務教室</th>
+					<td>
+						<div>
+							<th:block th:if = "${!template.helpArea.equals('')}"><span th:text = "${template.helpArea}"></span></th:block>
+							<th:block th:if = "${template.helpArea.equals('')}"><span th:text = "'-'"></span></th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>授業業務</th>
+					<td>
+						<th:block th:if = "${!template.timeStart.equals('     ') && !template.timeEnd.equals('     ')}">
+							<div><label for = "timeStart">開始 - </label><span id = "timeStart" th:text = "${template.timeStart}"></span></div>
+							<div><label for = "timeEnd">終了 - </label><span id = "timeEnd" th:text = "${template.timeEnd}"></span></div>
+						</th:block>
+						<th:block th:if = "${!(!template.timeStart.equals('     ') && !template.timeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>休憩</th>
+					<td><div>
+						<th:block th:if="${template.breakTime != 0}"><span th:text = "${template.breakTime}"></span>分</th:block>
+						<th:block th:if="${template.breakTime == 0}"><span th:text = "'-'"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>交通費</th>
+					<td><div>
+						<th:block th:if="${template.carfare != 0}"><span th:text = "${carfareFormatted}"></span>円</th:block>
+						<th:block th:if="${template.carfare == 0}"><span th:text = "'-'"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>事務業務</th>
+					<td>
+						<th:block th:if = "${!template.officeTimeStart.equals('     ') && !template.officeTimeEnd.equals('     ')}">
+							<div><label for = "officeTimeStart">開始 - </label><span id = "officeTimeStart" th:text = "${template.officeTimeStart}"></span></div>
+							<div><label for = "officeTimeEnd">終了 - </label><span id = "officeTimeEnd" th:text = "${template.officeTimeEnd}"></span></div>
+						</th:block>
+						<th:block th:if = "${!(!template.officeTimeStart.equals('     ') && !template.officeTimeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>研修/自習室</th>
+					<td>
+						<th:block th:if = "${!template.otherTimeStart.equals('     ') && !template.otherTimeEnd.equals('     ')}">
+							<div><span id = "otherWork" th:text = "${template.otherWork}"></span></div>
+							<div><label for = "otherTimeStart">開始 - </label><span id = "otherTimeStart" th:text = "${template.otherTimeStart}"></span></div>
+							<div><label for = "otherTimeEnd">終了 - </label><span id = "otherTimeEnd" th:text = "${template.otherTimeEnd}"></span></div>
+							<th:block th:if="${template.otherBreakTime != 0}"><div><label for = "otherBreakTime">休憩 - </label><span id = "otherBreakTime" th:text = "${template.otherBreakTime}"></span>分</div></th:block>
+						</th:block>
+						<th:block th:if = "${!(!template.otherTimeStart.equals('     ') && !template.otherTimeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+			</table>
+			<br>
+			<div>
+				<button><a th:href = "@{/editTemplateForm(user=${user.id}, edit=${template.id}, year=${year}, month=${month})}">修正</a></button>
+			</div>
+			<div>
+				<form th:action = "@{/deleteTemplate}" method = "post">
+					<div style = "display: none;">
+						<input type = "text" name = "deleteId" th:value = "${template.id}">
+						<input type = "text" name = "userId" th:value = "${template.userId}">
+						<input type = "text" name = "year" th:value = "${year}">
+						<input type = "text" name = "month" th:value = "${month}">
+					</div>
+					<div><input type = "submit" value = "削除"></div>
+				</form>
+			</div>
+		</div>
+		<div>
+			<a th:href = "@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}">戻る</a>
+		</div>
+	</body>
+</html>

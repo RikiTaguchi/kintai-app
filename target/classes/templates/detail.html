@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+		<script th:src="@{/js/tax.js}" defer></script>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${manager.classArea}"></span>教室<br>
+			<span th:text = "${user.userName}"></span>
+		</div>
+		<br>
+		<div>
+			<span th:text = "${year}"></span>年
+			<span th:text = "${month}"></span>月分
+		</div>
+		<div>
+			<span th:text = "${monthBefore}"></span>月26日
+			-
+			<span th:text = "${month}"></span>月25日
+		</div>
+		<div>
+			<a th:href = "@{/detail(user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax})}">先月</a>
+			<a th:href = "@{/detail(user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax})}">次月</a>
+		</div>
+		<br>
+		<div>
+			所得税
+			<input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
+			<input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
+			<div style="display: none;">
+				<a id="tax-button" th:href="@{/detail(user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
+			</div>
+		</div>
+		<br>
+		<div>
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>コマ給</th><td>¥<span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
+				<tr><th>コマ数</th><td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td></tr>
+				<tr><th>①コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
+				<tr><th>②日時手当</th><td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td></tr>
+				<tr><th>③事務給</th><td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td></tr>
+				<tr><th>④研修費・時間外</th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
+				<tr><th>⑤その他</th><td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td></tr>
+				<tr><th>所得税</th><td>¥<span th:text = "${incomeTaxFormatted}"></span></td></tr>
+				<tr><th>交通費計</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
+			</table>
+			<br>
+			※「④研修費・時間外」内訳
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>研修・自習室(円/分)</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
+				<tr><th>時間外勤務(円/分)</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
+				<tr><th>超過勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
+				<tr><th>深夜勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td></tr>
+			</table>
+			<br>
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
+			</table>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
+		</div>
+	</body>
+</html>

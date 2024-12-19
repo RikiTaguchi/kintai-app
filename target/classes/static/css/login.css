@@ -1,0 +1,68 @@
+body {
+    background-color: rgba(240, 240, 240, 0.772);
+    padding-top: 30px;
+}
+
+.loginTeacher {
+    font-family: "MS ゴシック";
+    text-align: center;
+    color:rgb(76, 76, 78);
+}
+
+.main {
+    background-color: white;
+    margin:  0 auto;
+    padding:50px;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    width: 350px;
+    height: 250px;
+    border: solid;
+    border-color: rgb(230, 230, 230);
+    border-radius: 8px;
+    text-align: center;
+}
+
+label, input {
+    display: block;
+    margin-top: 20px; 
+  }
+
+label {
+    margin-right: 220px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+input {
+    width: 300px;
+    height: 35px;
+    margin: 0 auto;
+    border-color: rgb(230, 230, 230);
+    border-width: 1.5px;
+    border-radius: 5px;
+}  
+
+input #loginButton {
+    border: none;
+}
+
+#loginButton {
+    background-color: rgb(20, 111, 201);
+    width: 300px;
+    height:35px;
+    margin-top: 30px
+
+}
+
+#loginButton:hover {
+    background-color: rgb(22, 92, 162);
+}
+
+.tradeMark {
+    position: absolute;
+    right: 15px;
+    bottom: 0;
+    font-size: 15px;
+    opacity: 0.8;
+}

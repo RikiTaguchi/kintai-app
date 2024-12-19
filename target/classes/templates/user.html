@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${manager.classArea}"></span>教室<br>
+			<span th:text = "${user.userName}"></span>
+		</div>
+		<br>
+		<div>
+			給与情報<br>
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>コマ給(100分)</th><td><div>¥<span th:text = "${salaryFormatted[0]}"></span></div></td></tr>
+				<tr><th>事務給(60分)</th><td><div>¥<span th:text = "${salaryFormatted[1]}"></span></div></td></tr>
+				<tr><th>日時手当</th><td><div>¥<span th:text = "${salaryFormatted[2]}"></span></div></td></tr>
+				<tr><th>交通費(往復)</th><td><div>¥<span th:text = "${salaryFormatted[3]}"></span></div></td></tr>
+			</table>
+			<div>
+				<a th:href = "@{/detailSalary(user=${user.id}, year=${year}, month=${month})}">給与推移</a>
+			</div>
+		</div>
+		<br>
+		<div>
+			アカウント情報<br>
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>ログインID</th><td><div><span th:text = "${user.loginId}"></span></div></td></tr>
+				<tr><th>パスワード</th><td><div><span th:text = "${user.password}"></span></div></td></tr>
+			</table>
+			<div>
+				<a th:href = "@{/userForm(user=${user.id}, year=${year}, month=${month})}">変更</a>
+			</div>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
+		</div>
+	</body>
+</html>

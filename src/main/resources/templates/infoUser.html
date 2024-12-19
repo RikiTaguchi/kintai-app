@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${manager.classArea}"></span>教室<br>
+			<span th:text = "${user.userName}"></span>
+		</div>
+		<br>
+		<div>
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>コマ給(100分)</th><td th:text = "${'¥'+salaryFormatted[0]}"></td></tr>
+				<tr><th>事務給(60分)</th><td th:text = "${'¥'+salaryFormatted[1]}"></td></tr>
+				<tr><th>日時手当</th><td th:text = "${'¥'+salaryFormatted[2]}"></td></tr>
+				<tr><th>交通費(往復)</th><td th:text = "${'¥'+salaryFormatted[3]}"></td></tr>
+			</table>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/infoSalary(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">給与推移</a>
+		</div>
+		<div>
+			<a th:href = "@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">昇給・減給・基本交通費変更</a>
+		</div>
+		<br>
+		<div>
+			<a th:href="@{/deleteUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">この講師アカウントを削除</a>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/indexManager(manager=${manager.id})}">ホームに戻る</a>
+		</div>
+	</body>
+</html>

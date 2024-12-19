@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${manager.classArea}"></span>教室<br>
+		</div>
+		<br>
+        <div>
+            教室情報
+            <table border="1" style="border-collapse: collapse">
+                <tr><th>在籍講師数</th><td th:text="${userList.size()}"></td></tr>
+            </table>
+        </div>
+        <br>
+        <div>
+            アカウント情報
+            <table border="1" style="border-collapse: collapse">
+                <tr><th>教室名</th><td th:text="${manager.classArea}"></td></tr>
+                <tr><th>ログインID</th><td th:text="${manager.loginId}"></td></tr>
+                <tr><th>パスワード</th><td th:text="${manager.password}"></td></tr>
+            </table>
+            <a th:href="@{/editManagerForm(edit=${manager.id})}">変更</a>
+        </div>
+        <br>
+        <div>
+            <a th:href="@{/deleteManager(delete=${manager.id})}">削除</a>
+        </div>
+        <br>
+		<div>
+			<a th:href = "@{/indexManager(manager=${manager.id})}">ホームに戻る</a>
+		</div>
+	</body>
+</html>

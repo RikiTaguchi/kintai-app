@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${user.userName}"></span><br>
+			<span th:text = "${manager.classArea}"></span>教室
+		</div>
+		<br>
+		<div>
+			テンプレート一覧
+			<table border="1" style="border-collapse: collapse">
+				<tr th:each = "t : ${templateList}">
+					<td>
+						<a th:href = "@{/detailTemplate(user=${user.id}, template=${t.id}, year=${year}, month=${month})}"><span th:text = "${t.title}"></span></a>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/templateForm(user=${user.id}, year=${year}, month=${month})}">テンプレート登録</a>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
+		</div>
+	</body>
+</html>

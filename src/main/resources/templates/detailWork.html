@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${user.userName}"></span><br>
+			<span th:text = "${manager.classArea}"></span>教室
+		</div>
+		<br>
+		<div>
+			<table border="1" style="border-collapse: collapse">
+				<tr><th>勤務日</th><td><div><span th:text = "${work.date.substring(0, 5).replace('-','/')+work.date.substring(5,10).replace('-','/')+'/'+work.dayOfWeek}"></span></div></td></tr>
+				<tr>
+					<th>勤務コマ</th>
+					<td>
+						<div>
+						<th:block th:if = "${work.classM}"><span th:text = "'M'"></span></th:block>
+						<th:block th:if = "${work.classK}"><span th:text = "'K'"></span></th:block>
+						<th:block th:if = "${work.classS}"><span th:text = "'S'"></span></th:block>
+						<th:block th:if = "${work.classA}"><span th:text = "'A'"></span></th:block>
+						<th:block th:if = "${work.classB}"><span th:text = "'B'"></span></th:block>
+						<th:block th:if = "${work.classC}"><span th:text = "'C'"></span></th:block>
+						<th:block th:if = "${work.classD}"><span th:text = "'D'"></span></th:block>
+						<th:block th:if = "${work.classCount == 0}"><span th:text = "'-'"></span></th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>コマ数</th>
+					<td>
+						<div>
+							<th:block th:if="${work.classCount != 0}"><span th:text = "${work.classCount}"></span></th:block>
+							<th:block th:if="${work.classCount == 0}"><span th:text = "'-'"></span></th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>ヘルプ勤務教室</th>
+					<td>
+						<div>
+							<th:block th:if = "${!work.helpArea.equals('')}"><span th:text = "${work.helpArea}"></span></th:block>
+							<th:block th:if = "${work.helpArea.equals('')}"><span th:text = "'-'"></span></th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>授業業務</th>
+					<td>
+						<th:block th:if = "${!work.timeStart.equals('     ') && !work.timeEnd.equals('     ')}">
+							<div><label for = "timeStart">開始 - </label><span id = "timeStart" th:text = "${work.timeStart}"></span></div>
+							<div><label for = "timeEnd">終了 - </label><span id = "timeEnd" th:text = "${work.timeEnd}"></span></div>
+						</th:block>
+						<th:block th:if = "${!(!work.timeStart.equals('     ') && !work.timeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>休憩</th>
+					<td><div>
+						<th:block th:if="${work.breakTime != 0}"><span th:text = "${work.breakTime}"></span>分</th:block>
+						<th:block th:if="${work.breakTime == 0}"><span th:text = "'-'"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>日時手当</th>
+					<td>
+						<th:block th:if = "${work.supportSalary == 'true'}"><div><span th:text = "${supportSalaryFormatted}"></span>円</div></th:block>
+						<th:block th:if = "${work.supportSalary != 'true'}"><div><span th:text = "${'-'}"></span></div></th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>交通費</th>
+					<td><div>
+						<th:block th:if="${work.carfare != 0}"><span th:text = "${carfareFormatted}"></span>円</th:block>
+						<th:block th:if="${work.carfare == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>事務業務</th>
+					<td>
+						<th:block th:if = "${!work.officeTimeStart.equals('     ') && !work.officeTimeEnd.equals('     ')}">
+							<div><label for = "officeTimeStart">開始 - </label><span id = "officeTimeStart" th:text = "${work.officeTimeStart}"></span></div>
+							<div><label for = "officeTimeEnd">終了 - </label><span id = "officeTimeEnd" th:text = "${work.officeTimeEnd}"></span></div>
+						</th:block>
+						<th:block th:if = "${!(!work.officeTimeStart.equals('     ') && !work.officeTimeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>研修/自習室</th>
+					<td>
+						<th:block th:if = "${!work.otherTimeStart.equals('     ') && !work.otherTimeEnd.equals('     ')}">
+							<div><span id = "otherWork" th:text = "${work.otherWork}"></span></div>
+							<div><label for = "otherTimeStart">開始 - </label><span id = "otherTimeStart" th:text = "${work.otherTimeStart}"></span></div>
+							<div><label for = "otherTimeEnd">終了 - </label><span id = "otherTimeEnd" th:text = "${work.otherTimeEnd}"></span></div>
+							<th:block th:if="${work.otherBreakTime != 0}"><div><label for = "otherBreakTime">休憩 - </label><span id = "otherBreakTime" th:text = "${work.otherBreakTime}"></span>分</div></th:block>
+						</th:block>
+						<th:block th:if = "${!(!work.otherTimeStart.equals('     ') && !work.otherTimeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>時間外</th>
+					<td><div>
+						<th:block th:if="${work.outOfTime != 0}"><span th:text = "${work.outOfTime}"></span>分</th:block>
+						<th:block th:if="${work.outOfTime == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>超過</th>
+					<td><div>
+						<th:block th:if="${work.overTime != 0}"><span th:text = "${work.overTime}"></span>分</th:block>
+						<th:block th:if="${work.overTime == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>深夜</th>
+					<td><div>
+						<th:block th:if="${work.nightTime != 0}"><span th:text = "${work.nightTime}"></span>分</th:block>
+						<th:block th:if="${work.nightTime == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+			</table>
+			<br>
+			<div>
+				<button><a th:href = "@{/editForm(user=${user.id}, edit=${work.id}, year=${year}, month=${month})}">修正</a></button>
+			</div>
+			<div>
+				<form th:action = "@{/deleteWork}" method = "post">
+					<div style = "display: none;">
+						<input type = "text" name = "deleteId" th:value = "${work.id}">
+						<input type = "text" name = "userId" th:value = "${work.userId}">
+					</div>
+					<div><input type = "submit" value = "削除"></div>
+				</form>
+			</div>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
+		</div>
+	</body>
+</html>

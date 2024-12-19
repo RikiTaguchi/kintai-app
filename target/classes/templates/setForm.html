@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${manager.classArea}"></span>教室<br>
+			<span th:text = "${user.userName}"></span>
+		</div>
+		<div>
+			シフト修正
+			<form th:action = "@{/setForm}" method = "post" th:object = "${workUpdateForm}">
+				<table border="1" style="border-collapse: collapse">
+					<tr><th>勤務日</th><td><div><span th:text = "${workUpdateForm.date.substring(0, 5).replace('-','年')+workUpdateForm.date.substring(5,10).replace('-','月')+'日('+workUpdateForm.dayOfWeek+')'}"></span></div></td></tr>
+					<tr>
+						<th>勤務コマ</th>
+						<td>
+							<div>
+							<input id = "classM" type = "checkbox" th:field = "*{classM}" value = "true">
+							<label for = "classM">M　</label>
+							<input id = "classK" type = "checkbox" th:field = "*{classK}" value = "true">
+							<label for = "classK">K　</label>
+							<input id = "classS" type = "checkbox" th:field = "*{classS}" value = "true">
+							<label for = "classS">S　</label>
+							<input id = "classA" type = "checkbox" th:field = "*{classA}" value = "true">
+							<label for = "classA">A　</label>
+							<br>
+							<input id = "classB" type = "checkbox" th:field = "*{classB}" value = "true">
+							<label for = "classB">B　</label>
+							<input id = "classC" type = "checkbox" th:field = "*{classC}" value = "true">
+							<label for = "classC">C　</label>
+							<input id = "classD" type = "checkbox" th:field = "*{classD}" value = "true">
+							<label for = "classD">D　</label>
+							</div>
+						</td>
+					</tr>
+					<tr><th>ヘルプ勤務教室</th><td><div><input id = "helpArea" type = "text" th:field = "*{helpArea}"></div></td></tr>
+					<tr>
+						<th>授業業務</th>
+						<td>
+							<div><label for = "timeStart">開始 - </label><input id = "timeStart" type = "time" th:field = "*{timeStart}"></div>
+							<div><label for = "timeEnd">終了 - </label><input id = "timeEnd" type = "time" th:field = "*{timeEnd}"></div>
+						</td>
+					</tr>
+					<tr><th>休憩</th><td><div><input id = "breakTime" type = "number" th:field = "*{breakTime}" required> 分</div></td></tr>
+					<tr><th>交通費</th><td><div><input id = "carfare" type = "number" th:field = "*{carfare}" required> 円</div></td></tr>
+					<tr>
+						<th>事務</th>
+						<td>
+							<div><label for = "officeTimeStart">開始 - </label><input id = "officeTimeStart" type = "time" th:field = "*{officeTimeStart}"></div>
+							<div><label for = "officeTimeEnd">終了 - </label><input id = "officeTimeEnd" type = "time" th:field = "*{officeTimeEnd}"></div>
+						</td>
+					</tr>
+					<tr>
+						<th>研修/自習教室</th>
+						<td>
+							<div><label for = "otherWork">内容 - </label><input id = "otherWork" type = "text" th:field = "*{otherWork}"></div>
+							<div><label for = "otherTimeStart">開始 - </label><input id = "otherTimeStart" type = "time" th:field = "*{otherTimeStart}"></div>
+							<div><label for = "otherTimeEnd">終了 - </label><input id = "otherTimeEnd" type = "time" th:field = "*{otherTimeEnd}"></div>
+							<div><label for = "otherBreakTime">休憩 - </label><input id = "otherBreakTime" type = "number" th:field = "*{otherBreakTime}" required> 分</div>
+						</td>
+					</tr>
+				</table>
+				<div style = "display: none;">
+					<input id = "userId" type = "text" th:field = "*{userId}">
+					<input id = "id" type = "text" th:field = "*{id}">
+					<input id = "date" type = "date" th:field = "*{date}">
+					<input id = "dayOfWeek" type = "text" th:field = "*{dayOfWeek}">
+					<input type="text" name="tax" th:value="${tax}">
+				</div>
+				<div>
+					<input type = "submit" value = "修正">
+				</div>
+			</form>
+			<form th:action = "@{/clearWork}" method = "post">
+				<div style = "display: none;">
+					<input type = "text" name = "deleteId" th:value = "${workUpdateForm.id}">
+					<input type = "text" name = "userId" th:value = "${user.id}">
+					<input type = "text" name = "managerId" th:value = "${manager.id}">
+					<input type="text" name="tax" th:value="${tax}">
+				</div>
+				<div><input type = "submit" value = "削除"></div>
+			</form>
+		</div>
+		<br>
+		<div>
+			<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}">戻る</a>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>勤怠管理システム</title>
+	</head>
+	<body>
+		<div>
+			<span th:text = "${manager.classArea}"></span>教室
+		</div>
+		<br>
+		<div>
+			<table border="1" style="border-collapse: collapse">
+				<tr><th colspan="3">在籍講師</th></tr>
+				<tr th:each = "u : ${userList}">
+					<td th:text = "${u.userName}"></td>
+					<td><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}">給与明細</a></td>
+					<td><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}">基本情報</a></td>
+				</tr>
+			</table>
+		</div>
+		<br>
+		<div>
+			<a th:href="@{/signUp(manager=${manager.id})}">新規講師登録</a>
+		</div>
+		<br>
+		<div>
+			<a th:href="@{/infoManager(manager=${manager.id})}">教室情報</a>
+		</div>
+		<br>
+		<div>
+			<a th:href="@{/loginManager}">ログアウト</a>
+		</div>
+	</body>
+</html>
