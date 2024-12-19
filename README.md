@@ -20,21 +20,11 @@
   - username: postgres
   - password: postgres
 - pgAdmin4の「Servers/PostgreSQL/データベース」内に、DBを作成する
-  - DB名: kintai_systemで登録する（アンダーバーなのでハイフンにしないよう注意！）
+  - DB名: kintaisystemdbで登録する
 - あとは、初回のサーバー起動（アプリケーション実行）時に自動で必要なテーブルが作成される
 - 初回以降は、保存されたレコードがそのまま使える
 
 ## Appの起動（サーバーの起動）について
-### Eclipse
-- Eclipse内で、KintaiSystemフォルダにカーソルを合わせる
-- 右クリック
-- 「実行 > SpringBootアプリケーション」でサーバー起動
-- コンソールにログが出力されるので、エラーが起きてないか確認
-- 起動が完了したら、以下のリンクにアクセスし、ログイン完了後に各画面に遷移できる
-- 講師ログイン
-  - http://localhost:8080/login
-- 社員ログイン
-  - http://localhost:8080/loginManager
 ### VsCode
 - VSCodeで下記プラグインをインストール
   - Java Extension Pack
