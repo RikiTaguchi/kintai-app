@@ -78,3 +78,10 @@ CREATE TABLE IF NOT EXISTS worktemplates (
 	otherBreakTime int,
 	carfare int
 );
+
+CREATE TABLE IF NOT EXISTS incometaxes (
+	id int,
+	min int,
+	max int,
+	tax int
+);
