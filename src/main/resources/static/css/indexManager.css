@@ -1,0 +1,190 @@
+body {
+    background-color: rgba(240, 240, 240, 0.772);
+}
+
+.header {
+    position:relative;
+    width: 420px;
+    margin-left: 25px;
+}
+
+h1 {
+    font-family: "MS ゴシック";
+    color:rgb(76, 76, 78);
+}
+
+.header a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}    
+
+.main {
+    position: absolute;
+    left:330px;
+    top:130px;
+    width:800px;
+    height:1000px;
+}
+
+.teacherTable {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.teacherTable p {
+    width: 300px;
+    border-bottom: solid;
+    border-color:rgba(117, 115, 115, 0.937);
+    padding-bottom: 10px;
+}
+
+table {
+    border-collapse: separate;
+    width: auto;
+    height: auto;
+    background-color: white;
+    border-color: rgb(230, 230, 230);
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.mainTable {
+    text-align: center;
+    margin-top: 30px;
+}
+
+td {
+    height: 80px;
+    width: 1200px;
+}
+
+.side {
+    position:absolute;
+    position: fixed;
+    background-color: white;
+    left: 0;
+    top: 150px;
+    width: 200px;
+    height: 350px;   
+    border: solid;
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-color: rgb(230, 230, 230);
+    box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+#sideContents {
+    text-align: center;
+}
+
+.className {
+    width: 180px;
+    margin:0 auto;
+    margin-top: 20px;
+    border-bottom: solid;
+    border-color:rgb(230, 230, 230);
+    color:darkblue;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+
+.newAccount {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.newAccount a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}
+
+.newAccount p {
+    position: absolute;
+    top:-6px;
+    left:26px;
+}
+
+.newAccount:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+.classInformation {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.classInformation a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.classInformation p {
+    position: absolute;
+    top:-6px;
+    left:42px
+}
+
+.classInformation:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+.logout {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.logout a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.logout p {
+    position: absolute;
+    top:-6px;
+    left:48px
+}
+
+.logout p::before {
+    content: url(../img/logout.svg);
+    position: absolute;
+    left: -25px;
+    top: 2px;
+    display: inline-block;
+}
+
+.logout:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
