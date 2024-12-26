@@ -30,6 +30,7 @@ import com.meikokintai.kintai_app.model.Salary;
 import com.meikokintai.kintai_app.model.User;
 import com.meikokintai.kintai_app.model.Work;
 import com.meikokintai.kintai_app.model.WorkTemplate;
+import com.meikokintai.kintai_app.service.IncomeTaxService;
 import com.meikokintai.kintai_app.service.ManagerService;
 import com.meikokintai.kintai_app.service.SalaryService;
 import com.meikokintai.kintai_app.service.UserService;
@@ -49,6 +50,7 @@ public class HomeController {
     private final ManagerService managerService;
     private final SalaryService salaryService;
     private final WorkTemplateService workTemplateService;
+    private final IncomeTaxService incomeTaxService;
 
     // ドメイン名(ローカル用)
     private final String domainLocal = "localhost:8080";
@@ -56,12 +58,13 @@ public class HomeController {
     // ドメイン名(AWS本番環境用)
     private final String domainAWS = "meikokintai.com";
     
-    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService) {
+    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService, IncomeTaxService incomeTaxService) {
         this.workService = workService;
         this.userService = userService;
         this.managerService = managerService;
         this.salaryService = salaryService;
         this.workTemplateService = workTemplateService;
+        this.incomeTaxService = incomeTaxService;
     }
     
     // 講師ホーム画面
@@ -199,9 +202,14 @@ public class HomeController {
                 }
             }
             if (tax.equals("on")) {
-                if (sumSalary[1] + sumSalary[4] + sumSalary[8] + sumSalary[6] + sumSalary[9] + sumSalary[10] + sumSalary[13]  + sumSalary[15] >= 88000) {
-                    incomeTax = (int)(((int)((sumSalary[1] + sumSalary[4] + sumSalary[8] + sumSalary[6] + sumSalary[9] + sumSalary[10] + sumSalary[13]  + sumSalary[15] - 88000) / 1000)) * 1000 * 0.05);
-                    sumSalary[16] -= incomeTax;
+                int totalIncome = sumSalary[1] + sumSalary[4] + sumSalary[8] + sumSalary[6] + sumSalary[9] + sumSalary[10] + sumSalary[13]  + sumSalary[15];
+                if (totalIncome >= 88000) {
+                    if (incomeTaxService.getByTotalIncome(totalIncome) != null) {
+                        incomeTax = incomeTaxService.getByTotalIncome(totalIncome).getTax();
+                        sumSalary[16] -= incomeTax;
+                    } else {
+                        incomeTax = 0;
+                    }
                 } else {
                     incomeTax = 0;
                 }
@@ -358,9 +366,14 @@ public class HomeController {
                 }
             }
             if (tax.equals("on")) {
-                if (sumSalary[1] + sumSalary[4] + sumSalary[8] + sumSalary[6] + sumSalary[9] + sumSalary[10] + sumSalary[13]  + sumSalary[15] >= 88000) {
-                    incomeTax = (int)(((int)((sumSalary[1] + sumSalary[4] + sumSalary[8] + sumSalary[6] + sumSalary[9] + sumSalary[10] + sumSalary[13]  + sumSalary[15] - 88000) / 1000)) * 1000 * 0.05);
-                    sumSalary[16] -= incomeTax;
+                int totalIncome = sumSalary[1] + sumSalary[4] + sumSalary[8] + sumSalary[6] + sumSalary[9] + sumSalary[10] + sumSalary[13]  + sumSalary[15];
+                if (totalIncome >= 88000) {
+                    if (incomeTaxService.getByTotalIncome(totalIncome) != null) {
+                        incomeTax = incomeTaxService.getByTotalIncome(totalIncome).getTax();
+                        sumSalary[16] -= incomeTax;
+                    } else {
+                        incomeTax = 0;
+                    }
                 } else {
                     incomeTax = 0;
                 }
