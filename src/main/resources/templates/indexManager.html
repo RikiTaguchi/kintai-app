@@ -20,7 +20,7 @@
 			<table border="1" style="border-spacing: 0;">
 				<tr colspan="3" th:each = "u : ${userList}">
 					<td th:text = "${u.userName}"></td>
-					<td><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month})}">給与明細</a></td>
+					<td><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}">給与明細</a></td>
 					<td><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}">基本情報</a></td>
 				</tr>
 			</table>

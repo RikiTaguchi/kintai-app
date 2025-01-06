@@ -5,11 +5,13 @@ com/meikokintai/kintai_app/repository/SalaryRepository.class
 com/meikokintai/kintai_app/service/ManagerService.class
 com/meikokintai/kintai_app/repository/ManagerRepository.class
 com/meikokintai/kintai_app/model/Salary.class
+com/meikokintai/kintai_app/model/IncomeTax.class
 com/meikokintai/kintai_app/service/UserService.class
 com/meikokintai/kintai_app/util/DateSet.class
 com/meikokintai/kintai_app/repository/UserRepository.class
 com/meikokintai/kintai_app/controller/HomeController.class
 com/meikokintai/kintai_app/service/SalaryService.class
+com/meikokintai/kintai_app/repository/IncomeTaxRepository.class
 com/meikokintai/kintai_app/repository/WorkRepository.class
 com/meikokintai/kintai_app/model/WorkTemplate.class
 com/meikokintai/kintai_app/util/ClassSet.class
@@ -18,3 +20,4 @@ com/meikokintai/kintai_app/service/WorkTemplateService.class
 com/meikokintai/kintai_app/model/Manager.class
 com/meikokintai/kintai_app/model/Work.class
 com/meikokintai/kintai_app/util/TimeSet.class
+com/meikokintai/kintai_app/service/IncomeTaxService.class
