@@ -5,7 +5,6 @@
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/signUp.css}" rel="stylesheet">
 	</head>
-	</head>
 	<body>
 		<div class="header">
 		    <h1>勤怠管理システムfor学習塾</h1>
@@ -20,7 +19,6 @@
 		<h1>新しく講師を登録</h1>
         </div>
 		<div class="main">
-			<!-- th:object = "${createForm}が必要？（登録ボタンエラー）-->
 			<form th:action = "@{/signUp}" method = "post">
 				<div>
 					<label for = "userName">講師名</label>
@@ -57,6 +55,9 @@
 			    <div>
 				    <input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 			    </div>
+				<div style="display: none;">
+					<input id="manager" type="text" th:field="*{userCreateForm.classAreaId}">
+				</div>
 		    </form>
 		</div>
 		<div class="goHome">
