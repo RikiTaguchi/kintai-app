@@ -3,13 +3,20 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/editManagerForm.css}" rel="stylesheet">
 	</head>
 	<body>
-        <div>
+		<div class="header">
+            <h1>勤怠管理システムfor学習塾</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-        <br>
-		<div>
+
+        <div>
+        <h1 class="editInformation">登録情報を修正</h1>
+		<div class="main">
 			<form th:action = "@{/editManagerForm}" method = "post" th:object = "${managerUpdateForm}">
 				<div>
                     <label for="classArea">教室名</label>
@@ -27,13 +34,14 @@
                     <input id="id" type="text" th:field="*{id}">
                 </div>
 				<div>
-					<input type = "submit" value = "更新">
+					<input id = "updateButton" type = "submit" value = "更新" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
 		</div>
-		<br>
-		<div>
+		
+		<div class="goback">
 			<a th:href="@{/infoManager(manager=${manager.id})}">戻る</a>
+		</div>
 		</div>
 	</body>
 </html>

@@ -1,0 +1,90 @@
+body {
+    background-color: rgba(240, 240, 240, 0.772);
+}
+
+.header {
+    position:relative;
+    width: 420px;
+    margin-left: 25px;
+}
+
+h1 {
+    font-family: "MS ゴシック";
+    color:rgb(76, 76, 78);
+}
+
+.header a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}  
+
+.headerClass {
+    position: absolute;
+    top:27px;
+    left:460px;
+    width: 180px;
+    color:darkblue;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.editInformation {
+    padding-top:30px;
+    font-family: "MS ゴシック";
+    text-align: center;
+    color:rgb(76, 76, 78);
+}
+
+.main {
+    background-color: white;
+    margin:  0 auto;
+    padding:50px;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    width: 350px;
+    height: 370px;
+    border: solid;
+    border-color: rgb(230, 230, 230);
+    border-radius: 8px;
+    text-align: center;
+}
+
+label, input {
+    display: block;
+    margin-top: 20px; 
+  }
+
+label {
+    margin-right: 220px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+input {
+    width: 300px;
+    height: 35px;
+    margin: 0 auto;
+    border-color: rgb(230, 230, 230);
+    border-width: 1.5px;
+    border-radius: 5px;
+}  
+
+#updateButton {
+    background-color: rgb(20, 111, 201);
+    width: 300px;
+    height:35px;
+    margin-top: 30px
+
+}
+
+#updateButton:hover {
+    background-color: rgb(22, 92, 162);
+}
+
+.goback {
+    padding-top:20px;
+    text-align: center;
+}

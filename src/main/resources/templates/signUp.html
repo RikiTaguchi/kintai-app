@@ -3,33 +3,63 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/signUp.css}" rel="stylesheet">
+	</head>
 	</head>
 	<body>
-		<div>
+		<div class="header">
+		    <h1>勤怠管理システムfor学習塾</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+		</div>
+
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室
 		</div>
-		<div>講師登録</div>
-		<div>
+
+        <div class="createAccount">
+		<h1>新しく講師を登録</h1>
+        </div>
+		<div class="main">
+			<!-- th:object = "${createForm}が必要？（登録ボタンエラー）-->
 			<form th:action = "@{/signUp}" method = "post">
-				<table border="1" style="border-collapse: collapse">
-					<tr><th>講師名</th><td><div><input id = "userName" type = "text" th:field = "*{userCreateForm.userName}" required></div></td></tr>
-					<tr><th>雇用開始日</th><td><div><input id = "dateFrom" type = "date" th:field = "*{salaryCreateForm.dateFrom}" required></div></td></tr>
-					<tr><th>コマ給(90分)</th><td><div><input id = "classSalary" type = "number" th:field = "*{salaryCreateForm.classSalary}" required> 円</div></td></tr>
-					<tr><th>事務給(60分)</th><td><div><input id = "officeSalary" type = "number" th:field = "*{salaryCreateForm.officeSalary}" required> 円</div></td></tr>
-					<tr><th>日時手当</th><td><div><input id = "supportSalary" type = "number" th:field = "*{salaryCreateForm.supportSalary}" required> 円</div></td></tr>
-					<tr><th>交通費(往復)</th><td><div><input id = "carfare" type = "number" th:field = "*{salaryCreateForm.carfare}" required> 円</div></td></tr>
-					<tr><th>ログインID</th><td><div><input id = "loginId" type = "text" th:field = "*{userCreateForm.loginId}" required></div></td></tr>
-					<tr><th>パスワード</th><td><div><input id = "password" type = "text" th:field = "*{userCreateForm.password}" required></div></td></tr>
-				</table>
-				<div style = "display: none;">
-					<input id = "classAreaId" type = "text" th:field = "*{userCreateForm.classAreaId}">
+				<div>
+					<label for = "userName">講師名</label>
+					<input id = "userName" type = "text" th:field = "*{userCreateForm.userName}"  required>
 				</div>
 				<div>
-					<input type = "submit" value = "登録">
+					<label for = "dateFrom">雇用開始日</label>
+					<input id = "dateFrom" type = "date" th:field = "*{salaryCreateForm.dateFrom}" required>
 				</div>
-			</form>
+				<div>
+					<label for = "classSalary">コマ給(90分/円)</label>
+					<input id = "classSalary" type = "number" th:field = "*{salaryCreateForm.classSalary}" required>
+				</div>
+				<div>
+					<label for = "officeSalary">事務給(60分/円)</label>
+					<input id = "officeSalary" type = "number" th:field = "*{salaryCreateForm.officeSalary}" required>
+				</div>
+				<div>
+					<label for = "supportSalary">日時手当(円)</label>
+					<input id = "supportSalary" type = "number" th:field = "*{salaryCreateForm.supportSalary}" required>
+				</div>
+				<div>
+					<label for = "carfare">交通費(往復/円)</label>
+					<input id = "carfare" type = "number" th:field = "*{salaryCreateForm.carfare}" required>
+				</div>
+				<div>
+					<label for = "loginId">ログインID</label>
+					<input id = "loginId" type = "text" th:field = "*{userCreateForm.loginId}" required>
+				</div>
+				<div>
+					<label for = "password">パスワード</label>
+					<input id = "password" type = "text" th:field = "*{userCreateForm.password}" required>
+				</div>
+			    <div>
+				    <input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+			    </div>
+		    </form>
 		</div>
-		<div>
+		<div class="goHome">
 			<a th:href = "@{/indexManager(manager=${manager.id})}">ホームへ戻る</a>
 		</div>
 	</body>
