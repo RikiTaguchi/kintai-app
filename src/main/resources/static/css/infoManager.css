@@ -24,7 +24,7 @@ h1 {
 .headerClass {
     position: absolute;
     top:27px;
-    left:460px;
+    left:445px;
     width: 180px;
     color:darkblue;
     font-size: 25px;
@@ -50,7 +50,7 @@ h1 {
     height: 60px;
     width: 60px;
     margin-top: -60px;
-    margin-left: 1400px;
+    margin-left: 1300px;
     justify-content: center;
     align-items: center;
     position: relative;
@@ -131,14 +131,23 @@ h1 {
 }
 
 .classInformation p {
-    width: 300px;
+    width: 120px;
     border-bottom: solid;
-    border-color:rgba(117, 115, 115, 0.937);
-    padding-bottom: 10px;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+.border1 {
+  position: absolute;
+  top: 176px;
+  left: 178px;
+  width: 300px;
+  
 }
 
 .accountMain {
-    margin-top:-125px;
+    margin-top:-191.5px;
     margin-left: 600px;
 }
 
@@ -148,9 +157,65 @@ h1 {
 }
 
 .accountInformation p {
-    width: 300px;
+    width: 200px;
     border-bottom: solid;
-    border-color:rgba(117, 115, 115, 0.937);
-    padding-bottom: 10px;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+.border2 {
+  position: absolute;
+  top: 176px;
+  left: 808px;
+  width: 300px;
+  
+}
+
+table {
+  border-collapse: separate;
+  width: auto;
+  height: auto;
+  background-color: white;
+  border-color: rgb(230, 230, 230);
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.radius-table{
+  border-radius: 10px;
+  border-spacing: 0;
+  border: none;
+  border-left: 1px solid #999;
+  border-top: 1px solid #999;
+}
+.radius-table tr>*{
+  padding: 5px 10px;
+  border: none;
+  border-right: 1px solid #999;
+  border-bottom: 1px solid #999;
+}
+.radius-table tr:first-child>*:first-child{
+  border-radius: 10px 0 0 0;
+}
+.radius-table tr:first-child>*:last-child{
+  border-radius: 0 10px 0 0;
+}
+.radius-table tr:last-child>*:first-child{
+  border-radius: 0 0 0 10px;
+}
+.radius-table tr:last-child>*:last-child{
+  border-radius: 0 0 10px 0;
+}
+
+.accountTable {
+  margin-top: 30px;
+  text-align: center;
+}
+
+td {
+  height: 80px;
+  width: 300px;
 }
 

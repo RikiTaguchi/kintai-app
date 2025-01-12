@@ -3,33 +3,48 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/updateForm.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
-			<span th:text = "${user.userName}"></span>
 		</div>
-		<br>
-		<div>
+
+		<div class="createSalary">
+			<h1>新しく給与形態を登録</h1>
+		</div>
+		<div class="main">
+			<div class="mainTable">
 			<form th:action = "@{/updateForm}" method = "post" th:object = "${salaryUpdateForm}">
-				<table border="1" style="border-collapse: collapse">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>対象期間</th><td><div><input id = "dateFrom" type = "date" th:field = "*{dateFrom}" required> 〜</div></td></tr>
 					<tr><th>コマ給(90分)</th><td><div><input id = "classSalary" type = "number" th:field = "*{classSalary}" required> 円</div></td></tr>
 					<tr><th>事務給(60分)</th><td><div><input id = "officeSalary" type = "number" th:field = "*{officeSalary}" required> 円</div></td></tr>
 					<tr><th>日時手当</th><td><div><input id = "supportSalary" type = "number" th:field = "*{supportSalary}" required> 円</div></td></tr>
 					<tr><th>交通費(往復)</th><td><div><input id = "carfare" type = "number" th:field = "*{carfare}" required> 円</div></td></tr>
 				</table>
+				<div>
+					<input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+				</div>
 				<div style = "display: none;">
 					<input id = "id" type = "text" th:field = "*{userId}">
 				</div>
-				<div>
-					<input type = "submit" value = "登録">
-				</div>
 			</form>
+		    </div>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/infoUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">戻る</a>
+
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+			<div class="sideContents" id="goBack">
+				<p>前画面に戻る</p>
+				<a th:href = "@{/infoUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
 		</div>
 	</body>
 </html>

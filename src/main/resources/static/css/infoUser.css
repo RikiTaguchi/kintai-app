@@ -19,7 +19,18 @@ h1 {
     left: 0;
     height:100%;
     width: 100%;
-}    
+}  
+
+.headerClass {
+    position: absolute;
+    top:27px;
+    left:445px;
+    width: 180px;
+    color:darkblue;
+    font-size: 25px;
+    font-weight: bold;
+
+}
 
 .main {
     position: absolute;
@@ -29,12 +40,13 @@ h1 {
     height:1000px;
 }
 
-.teacherTable {
+.mainInformation {
     font-size: 25px;
     font-weight: bold;
 }
 
-.teacherTable p {
+    
+.mainInformation p {
     width: 170px;
     border-bottom: solid;
     border-width: 5px;
@@ -47,7 +59,6 @@ hr {
     top: 64.5px;
     left: 170px;
     width: 300px;
-    
 }
 
 table {
@@ -94,23 +105,7 @@ table {
 
 td {
     height: 80px;
-    width: 1200px;
-}
-
-#salaryDetails img {
-    padding: 0;
-    margin-left: 110px;
-    margin-top: -100px;
-}
-
-#salaryDetails p::after {
-    content: url(../img/coin-yen.svg);
-    display: inline-block;
-}
-
-#information p::after {
-    content: url(../img/file-info.svg);
-    display: inline-block;
+    width: 600px;
 }
 
 .side {
@@ -120,7 +115,7 @@ td {
     left: 0;
     top: 150px;
     width: 200px;
-    height: 350px;   
+    height: 440px;   
     border: solid;
     border-left: none;
     border-top-right-radius: 8px;
@@ -129,25 +124,25 @@ td {
     box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }
 
-#sideContents {
+.sideContents {
     text-align: center;
 }
 
-.className {
+#teacherName {
     width: 180px;
     margin:0 auto;
     margin-top: 20px;
     border-bottom: solid;
     border-color:rgb(230, 230, 230);
-    color:darkblue;
+    color:rgb(212, 202, 13);
     font-size: 25px;
     font-weight: bold;
 }
 
 
-.newAccount {
+#salaryTrends {
     position: relative;
-    margin: 0 auto;
+    margin-left: 21px;
     margin-top:35px;
     height: 50px;
     width: 160px;
@@ -155,36 +150,7 @@ td {
     font-size:18px;
 }
 
-.newAccount a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height:100%;
-    width: 100%;
-}
-
-.newAccount p {
-    position: absolute;
-    top:-6px;
-    left:26px;
-}
-
-.newAccount:hover {
-    background-color:rgba(223, 221, 221, 0.577);
-    border-radius: 5px;
-}
-
-.classInformation {
-    position: relative;
-    margin: 0 auto;
-    margin-top:35px;
-    height: 50px;
-    width: 160px;
-    font-weight:bold;
-    font-size:18px;
-}
-
-.classInformation a {
+#salaryTrends a {
     position: absolute;
     top: 0;
     left: 0;
@@ -192,42 +158,108 @@ td {
     width: 100%;
 }
 
-.classInformation p {
+#salaryTrends p {
+    position: absolute;
+    top:-6px;
+    left:44px;
+}
+
+#salaryTrends:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#salaryDetails {
+    position: relative;
+    margin-left: 22px;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#salaryDetails a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#salaryDetails p {
+    position: absolute;
+    top:-6px;
+    left:27px
+}
+
+#salaryDetails:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#deleteUser {
+    position: relative;
+    margin-left: 22px;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#deleteUser a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#deleteUser p {
+    position: absolute;
+    top:-6px;
+    left:52px
+}
+
+#deleteUser p::before {
+    content: url(../img/delete.png);
+    position: absolute;
+    left: -28px;
+    top: 2px;
+    display: inline-block;
+}
+
+#deleteUser:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#goHome {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#goHome a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#goHome p {
     position: absolute;
     top:-6px;
     left:42px
 }
 
-.classInformation:hover {
-    background-color:rgba(223, 221, 221, 0.577);
-    border-radius: 5px;
-}
-
-.logout {
-    position: relative;
-    margin: 0 auto;
-    margin-top:35px;
-    height: 50px;
-    width: 160px;
-    font-weight:bold;
-    font-size:18px;
-}
-
-.logout a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-
-.logout p {
-    position: absolute;
-    top:-6px;
-    left:48px
-}
-
-.logout p::before {
+#goHome p::before {
     content: url(../img/logout.svg);
     position: absolute;
     left: -25px;
@@ -235,7 +267,7 @@ td {
     display: inline-block;
 }
 
-.logout:hover {
+#goHome:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
