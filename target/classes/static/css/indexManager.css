@@ -129,11 +129,11 @@ td {
     box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }
 
-#sideContents {
+.sideContents {
     text-align: center;
 }
 
-.className {
+#className {
     width: 180px;
     margin:0 auto;
     margin-top: 20px;
@@ -145,7 +145,7 @@ td {
 }
 
 
-.newAccount {
+#newAccount {
     position: relative;
     margin: 0 auto;
     margin-top:35px;
@@ -155,7 +155,7 @@ td {
     font-size:18px;
 }
 
-.newAccount a {
+#newAccount a {
     position: absolute;
     top: 0;
     left: 0;
@@ -163,18 +163,18 @@ td {
     width: 100%;
 }
 
-.newAccount p {
+#newAccount p {
     position: absolute;
     top:-6px;
     left:26px;
 }
 
-.newAccount:hover {
+#newAccount:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
 
-.classInformation {
+#classInformation {
     position: relative;
     margin: 0 auto;
     margin-top:35px;
@@ -184,7 +184,7 @@ td {
     font-size:18px;
 }
 
-.classInformation a {
+#classInformation a {
     position: absolute;
     top: 0;
     left: 0;
@@ -192,18 +192,18 @@ td {
     width: 100%;
 }
 
-.classInformation p {
+#classInformation p {
     position: absolute;
     top:-6px;
     left:42px
 }
 
-.classInformation:hover {
+#classInformation:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
 
-.logout {
+#logout {
     position: relative;
     margin: 0 auto;
     margin-top:35px;
@@ -213,7 +213,7 @@ td {
     font-size:18px;
 }
 
-.logout a {
+#logout a {
     position: absolute;
     top: 0;
     left: 0;
@@ -221,13 +221,13 @@ td {
     width: 100%;
 }
 
-.logout p {
+#logout p {
     position: absolute;
     top:-6px;
     left:48px
 }
 
-.logout p::before {
+#logout p::before {
     content: url(../img/logout.svg);
     position: absolute;
     left: -25px;
@@ -235,7 +235,7 @@ td {
     display: inline-block;
 }
 
-.logout:hover {
+#logout:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }

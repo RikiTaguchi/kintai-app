@@ -32,22 +32,22 @@
 		<br>
 
 		<div class="side">
-		<div class="className" id="sideContents">
+		<div class="sideContents" id="className">
 			<span th:text = "${manager.classArea}"></span>教室
 		</div>
 
-		<div class="newAccount" id="sideContents">
+		<div class="sideContents" id="newAccount">
 			<p>新規講師登録</p>
 			<a th:href="@{/signUp(manager=${manager.id})}"></a>
 		</div>
 
-		<div class="classInformation" id="sideContents">
+		<div class="sideContents" id="classInformation">
 			<p>教室情報</p>
 			<a th:href="@{/infoManager(manager=${manager.id})}"></a>
 		</div>
 
 		
-		<div class="logout" id="sideContents">
+		<div class="sideContents" id="logout">
 			<p>ログアウト</p>
 			<a th:href="@{/loginManager}"></a>
 		</div>

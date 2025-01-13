@@ -4,41 +4,57 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<script th:src="@{/js/tax.js}" defer></script>
+		<link th:href="@{/css/detailUser.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
-			<span th:text = "${user.userName}"></span>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax})}">先月</a>
-			<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax})}">来月</a>
+
+		<div class="main">
+
+		<div class="salaryDetails">
+			<p>給与明細</p>
 		</div>
-		<div>
-			<a th:href = "@{/indexManager(manager=${manager.id})}">ホームへ戻る</a>
+		<div class="border">
+			<hr size="2" color="lightgray">
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}">シフト登録</a>
+
+		
+		<div class="date">
+			<span th:text = "${year+'年'+month+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span>
 		</div>
-		<br>
-		<div>
-			<a th:href="@{/downloadExcel(user=${user.id}, year=${year}, month=${month})}">Excelファイルをダウンロード</a>
+
+		<div class= "beforeMonth">
+			<p>前月</p>
+			<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax})}"></a>
 		</div>
-		<br>
+		<div class= "afterMonth">
+			<p>来月</p>
+			<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax})}"></a>
+		</div>
+		
+		<div class="excel">		
+			<input id="createButton" type = "submit" value = "Excelファイルをダウンロード" style = "height:30px; width: 260px; border:none; border-radius: 3px; background-color:rgb(27, 155, 27); color:white; cursor: pointer;">
+			<a th:href="@{/downloadExcel(user=${user.id}, year=${year}, month=${month})}"></a>
+		</div>
+
+		<div class="mainTable">
 		<div>
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr>
 					<th>教室名</th><td><span th:text = "${manager.classArea}"></span>教室</td>
 					<th>講師氏名</th><td><span th:text = "${user.userName}"></span></td>
-					<td colspan = "2"><span th:text = "${year+'年'+month+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span></td>
 				</tr>
 			</table>
 		</div>
 		<br>
 		<div style = "display: flex;">
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr>
 					<th>勤務コマ数</th>
 					<th>勤務日数</th>
@@ -65,14 +81,14 @@
 			<div>
 				<p>　</p>
 			</div>
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th rowspan = "2">交通費</th><td>①</td><td>②</td></tr>
 				<tr><td></td><td><span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
 			</table>
 		</div>
 		<br>
 		<div>
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr>
 					<th rowspan = "2" colspan = "2">勤務日</th>
 					<th rowspan = "2">勤務コマ</th>
@@ -146,7 +162,7 @@
 		</div>
 		<br>
 		<div>
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>コマ給</th><th>コマ数</th><th>①コマ給×コマ数</th><th>②日時手当</th><th>③事務給</th></tr>
 				<tr>
 					<td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td>
@@ -167,7 +183,7 @@
 		<br>
 		<div>
 			※「④研修費・時間外」内訳
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>研修・自習室(円/分)</th><th>時間外勤務(円/分)</th><th>超過勤務割増(円/分)</th><th>深夜勤務割増(円/分)</th></tr>
 				<tr>
 					<td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td>
@@ -179,16 +195,34 @@
 		</div>
 		<br>
 		<div>
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>差引支給額</th></tr>
 				<tr><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
 			</table>
 		</div>
+		</div>
 		<br>
-		<div>
+		<div class="lastStatement">
 			※①〜⑤の合計額が¥88,000を超えた場合、所得税を徴収致します。<br>
 			※「⑤その他」は、研修期間終了による昇給で生じた差額等です。<br>
 			※自習室は、「④研修費/時間外」に含まれます。<br>
 		</div>
+		</div>
+
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+	
+			<div class="sideContents" id="newSalary">
+				<p>シフト登録</p>
+				<a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
+			</div>
+
+		    <div class="sideContents" id="goHome">
+			<p>ホームへ戻る</p>
+			<a th:href = "@{/indexManager(manager=${manager.id})}"></a>
+		    </div>
+		
 	</body>
 </html>

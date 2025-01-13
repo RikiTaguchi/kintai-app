@@ -3,16 +3,24 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/createForm.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
-			<span th:text = "${user.userName}"></span>
 		</div>
-		<div>
-			シフト登録
+
+		<div class="createSalary">
+			<h1>新しくシフトを登録</h1>
+		</div>
+		<div class="main">
+			<div class="mainTable">
 			<form th:action = "@{/createForm}" method = "post" th:object = "${workCreateForm}">
-				<table border="1" style="border-collapse: collapse">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>勤務日</th><td><div><input id = "date" type = "date" th:field = "*{date}" required></div></td></tr>
 					<tr>
 						<th>勤務コマ</th>
@@ -68,12 +76,20 @@
 					<input id="tax" type="text" name="tax" th:value="${tax}">
 				</div>
 				<div>
-					<input type = "submit" value = "登録">
+					<input id="createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
+		    </div>
 		</div>
-		<div>
-			<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}">戻る</a>
+
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+			<div class="sideContents" id="goBack">
+				<p>前画面に戻る</p>
+				<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
+			</div>
 		</div>
 	</body>
 </html>

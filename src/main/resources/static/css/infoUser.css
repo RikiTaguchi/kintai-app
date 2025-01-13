@@ -223,7 +223,7 @@ td {
 }
 
 #deleteUser p::before {
-    content: url(../img/delete.png);
+    content: url(../img/trash.svg);
     position: absolute;
     left: -28px;
     top: 2px;
