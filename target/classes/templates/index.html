@@ -3,42 +3,41 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/index.css}" rel="stylesheet">
 	</head>
+
 	<body>
-		<div>
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
-			<span th:text = "${user.userName}"></span>
 		</div>
-		<br>
-		<div>
-			<span th:text = "${year}"></span>年
-			<span th:text = "${month}"></span>月分
+		
+		<div class="main">
+			<div class="mainInformation">
+				<p>勤務履歴</p>
+		    </div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
+
+		<div class="date">
+			<span th:text = "${year+'年'+month+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span>
 		</div>
-		<div>
-			<span th:text = "${monthBefore}"></span>月26日
-			-
-			<span th:text = "${month}"></span>月25日
+	
+		<div class= "beforeMonth">
+			<p>前月</p>
+			<a th:href = "@{/index(user=${user.id}, year=${yearBefore}, month=${monthBefore})}"></a>
 		</div>
-		<div>
-			<a th:href = "@{/index(user=${user.id}, year=${yearBefore}, month=${monthBefore})}">先月</a>
-			<a th:href = "@{/index(user=${user.id}, year=${yearNext}, month=${monthNext})}">次月</a>
+		<div class= "afterMonth">
+			<p>来月</p>
+		    <a th:href = "@{/index(user=${user.id}, year=${yearNext}, month=${monthNext})}"></a>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/addForm(user=${user.id}, year=${year}, month=${month})}">シフト登録</a>
-		</div>
-		<div>
-			<a th:href = "@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}">テンプレート</a>
-		</div>
-		<div>
-			<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}">講師情報</a>
-		</div>
-		<div>
-			<a th:href = "@{/detail(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}">給与明細</a>
-		</div>
-		<br>
-		<div>
-			<table border="1" style="border-collapse: collapse">
+		
+			<div class="mainTable">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>勤務日</th><th>勤務コマ</th><th>事務等</th></tr>
 				<th:block th:if = "${!#lists.isEmpty(workList)}">
 				<tr th:each = "w : ${workList}">
@@ -63,10 +62,39 @@
 				</tr>
 				</th:block>
 			</table>
+			</div>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/login}">ログアウト</a>
+		
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+	
+			<div class="sideContents" id="teacherInformation">
+				<p>講師情報</p>
+				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+	
+			<div class="sideContents" id="salaryDetails">
+				<p>給与明細</p>
+				<a th:href = "@{/detail(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+			</div>
+	
+			<div class="sideContents" id="shiftRegistration">
+				<p>シフト登録</p>
+				<a th:href="@{/addForm(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
+			<div class="sideContents" id="template">
+				<p>テンプレート</p>
+				<a th:href = "@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href = "@{/login}"></a>
+			</div>
+
 		</div>
 	</body>
 </html>

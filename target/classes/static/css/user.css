@@ -1,0 +1,270 @@
+body {
+    background-color: rgba(240, 240, 240, 0.772);
+}
+
+.header {
+    position:relative;
+    width: 420px;
+    margin-left: 25px;
+}
+
+h1 {
+    font-family: "MS ゴシック";
+    color:rgb(76, 76, 78);
+}
+
+.header a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+} 
+
+.headerClass {
+    position: absolute;
+    top:27px;
+    left:445px;
+    width: 180px;
+    color:darkblue;
+    font-size: 25px;
+    font-weight: bold;
+
+}
+
+.salaryMain {  
+  position: absolute;
+  left:330px;
+  top:130px;
+  width:800px;
+  height:1000px;
+}
+
+.salaryInformation {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.salaryInformation p {
+    width: 120px;
+    border-bottom: solid;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+.border1 {
+  position: absolute;
+  top: 60px;
+  left: 120px;
+  width: 300px;
+  
+}
+
+.accountMain {
+  position: absolute;
+  left:830px;
+  top:130px;
+  width:800px;
+  height:1000px;
+}
+
+.accountInformation {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.accountInformation p {
+    width: 200px;
+    border-bottom: solid;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+.border2 {
+  position: absolute;
+  top: 60px;
+  left: 200px;
+  width: 300px;
+  
+}
+
+table {
+  border-collapse: separate;
+  width: auto;
+  height: auto;
+  background-color: white;
+  border-color: rgb(230, 230, 230);
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.radius-table{
+  border-radius: 10px;
+  border-spacing: 0;
+  border: none;
+  border-left: 1px solid #999;
+  border-top: 1px solid #999;
+}
+.radius-table tr>*{
+  padding: 5px 10px;
+  border: none;
+  border-right: 1px solid #999;
+  border-bottom: 1px solid #999;
+}
+.radius-table tr:first-child>*:first-child{
+  border-radius: 10px 0 0 0;
+}
+.radius-table tr:first-child>*:last-child{
+  border-radius: 0 10px 0 0;
+}
+.radius-table tr:last-child>*:first-child{
+  border-radius: 0 0 0 10px;
+}
+.radius-table tr:last-child>*:last-child{
+  border-radius: 0 0 10px 0;
+}
+
+.classTable {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.accountTable {
+  margin-top: 30px;
+  text-align: center;
+}
+
+td {
+  height: 80px;
+  width: 300px;
+}
+
+.side {
+  position:absolute;
+  position: fixed;
+  background-color: white;
+  left: 0;
+  top: 150px;
+  width: 200px;
+  height: 350px;   
+  border: solid;
+  border-left: none;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-color: rgb(230, 230, 230);
+  box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.sideContents {
+  text-align: center;
+}
+
+#teacherName {
+    width: 180px;
+    margin:0 auto;
+    margin-top: 20px;
+    border-bottom: solid;
+    border-color:rgb(230, 230, 230);
+    color:rgb(212, 202, 13);
+    font-size: 25px;
+    font-weight: bold;
+}
+
+#salaryTrends {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#salaryTrends a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height:100%;
+  width: 100%;
+}
+
+#salaryTrends p {
+  position: absolute;
+  top:-6px;
+  left:43px;
+}
+
+#salaryTrends:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+
+#change {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#change a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#change p {
+  position: absolute;
+  top:-6px;
+  left:35px
+}
+
+#change:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+
+#goBack {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#goBack a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#goBack p {
+  position: absolute;
+  top:-6px;
+  left:39px
+}
+
+#goBack p::before {
+  content: url(../img/logout.svg);
+  position: absolute;
+  left: -25px;
+  top: 2px;
+  display: inline-block;
+}
+
+#goBack:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+

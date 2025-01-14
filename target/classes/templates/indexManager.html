@@ -2,13 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
 		<meta charset="UTF-8" />
-		<title>勤怠管理システム</title>
+		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/indexManager.css}" rel="stylesheet">
 	</head>
 	<body>
-		
 		<div class="header">
-		    <h1>勤怠管理システムfor学習塾</h1>
+		    <h1>明光義塾 勤怠管理システム</h1>
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
 		</div>
 
@@ -16,12 +15,16 @@
 			<div class="teacherTable">
 			<p>在籍講師一覧</p>
 			</div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
 			<div class="mainTable">
-			<table border="1" style="border-spacing: 0;">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr colspan="3" th:each = "u : ${userList}">
 					<td th:text = "${u.userName}"></td>
-					<td><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}">給与明細</a></td>
-					<td><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}">基本情報</a></td>
+					<td id="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}"><p>給与明細</p>
+					</a></td>
+					<td id="information"><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><p>基本情報</p></a></td>
 				</tr>
 			</table>
 		    </div>
@@ -29,22 +32,22 @@
 		<br>
 
 		<div class="side">
-		<div class="className" id="sideContents">
+		<div class="sideContents" id="className">
 			<span th:text = "${manager.classArea}"></span>教室
 		</div>
 
-		<div class="newAccount" id="sideContents">
+		<div class="sideContents" id="newAccount">
 			<p>新規講師登録</p>
 			<a th:href="@{/signUp(manager=${manager.id})}"></a>
 		</div>
 
-		<div class="classInformation" id="sideContents">
+		<div class="sideContents" id="classInformation">
 			<p>教室情報</p>
 			<a th:href="@{/infoManager(manager=${manager.id})}"></a>
 		</div>
 
 		
-		<div class="logout" id="sideContents">
+		<div class="sideContents" id="logout">
 			<p>ログアウト</p>
 			<a th:href="@{/loginManager}"></a>
 		</div>

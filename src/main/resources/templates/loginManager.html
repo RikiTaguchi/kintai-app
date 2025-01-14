@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
 		<meta charset="UTF-8" />
-		<title>勤怠管理システム</title>
+		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/loginManager.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -25,7 +25,10 @@
 		    <br>
 			<a th:href="@{/signUpManager}">新しくアカウントを作成</a>
 			</div>
-			<p class="tradeMark">&trade;勤怠管理システムfor学習塾</p>
+			<div class="teacherLogin">
+				<a th:href="@{/login}">講師の方はこちら</a>
+			</div>
+			<p class="tradeMark">&trade;明光義塾 勤怠管理システム</p>
         </div>
 	</body>
 </html>

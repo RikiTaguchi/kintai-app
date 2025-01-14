@@ -24,7 +24,7 @@ h1 {
 .headerClass {
     position: absolute;
     top:27px;
-    left:460px;
+    left:445px;
     width: 180px;
     color:darkblue;
     font-size: 25px;
@@ -58,9 +58,40 @@ label, input {
   }
 
 label {
-    margin-right: 190px;
     font-weight: bold;
     font-size: 15px;
+}
+
+#teacherName {
+    margin-right: 220px;
+}
+
+#start {
+    margin-right: 190px;
+}
+
+#salary {
+    margin-right: 150px;
+}
+
+#study {
+    margin-right: 150px;
+}
+
+#bonus {
+    margin-right: 180px;
+}
+
+#transport {
+    margin-right: 160px;
+}
+
+#login {
+    margin-right: 195px;
+}
+
+#pass {
+    margin-right: 195px;
 }
 
 input {

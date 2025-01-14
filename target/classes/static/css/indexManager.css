@@ -35,10 +35,19 @@ h1 {
 }
 
 .teacherTable p {
-    width: 300px;
+    width: 170px;
     border-bottom: solid;
-    border-color:rgba(117, 115, 115, 0.937);
-    padding-bottom: 10px;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+hr {
+    position: absolute;
+    top: 64.5px;
+    left: 170px;
+    width: 300px;
+    
 }
 
 table {
@@ -49,6 +58,33 @@ table {
     border-color: rgb(230, 230, 230);
     font-size: 18px;
     font-weight: bold;
+    box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.radius-table{
+    border-radius: 10px;
+    border-spacing: 0;
+    border: none;
+    border-left: 1px solid #999;
+    border-top: 1px solid #999;
+}
+.radius-table tr>*{
+    padding: 5px 10px;
+    border: none;
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;
+}
+.radius-table tr:first-child>*:first-child{
+    border-radius: 10px 0 0 0;
+}
+.radius-table tr:first-child>*:last-child{
+    border-radius: 0 10px 0 0;
+}
+.radius-table tr:last-child>*:first-child{
+    border-radius: 0 0 0 10px;
+}
+.radius-table tr:last-child>*:last-child{
+    border-radius: 0 0 10px 0;
 }
 
 .mainTable {
@@ -59,6 +95,22 @@ table {
 td {
     height: 80px;
     width: 1200px;
+}
+
+#salaryDetails img {
+    padding: 0;
+    margin-left: 110px;
+    margin-top: -100px;
+}
+
+#salaryDetails p::after {
+    content: url(../img/coin-yen.svg);
+    display: inline-block;
+}
+
+#information p::after {
+    content: url(../img/file-info.svg);
+    display: inline-block;
 }
 
 .side {
@@ -77,11 +129,11 @@ td {
     box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }
 
-#sideContents {
+.sideContents {
     text-align: center;
 }
 
-.className {
+#className {
     width: 180px;
     margin:0 auto;
     margin-top: 20px;
@@ -93,7 +145,7 @@ td {
 }
 
 
-.newAccount {
+#newAccount {
     position: relative;
     margin: 0 auto;
     margin-top:35px;
@@ -103,7 +155,7 @@ td {
     font-size:18px;
 }
 
-.newAccount a {
+#newAccount a {
     position: absolute;
     top: 0;
     left: 0;
@@ -111,18 +163,18 @@ td {
     width: 100%;
 }
 
-.newAccount p {
+#newAccount p {
     position: absolute;
     top:-6px;
     left:26px;
 }
 
-.newAccount:hover {
+#newAccount:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
 
-.classInformation {
+#classInformation {
     position: relative;
     margin: 0 auto;
     margin-top:35px;
@@ -132,7 +184,7 @@ td {
     font-size:18px;
 }
 
-.classInformation a {
+#classInformation a {
     position: absolute;
     top: 0;
     left: 0;
@@ -140,18 +192,18 @@ td {
     width: 100%;
 }
 
-.classInformation p {
+#classInformation p {
     position: absolute;
     top:-6px;
     left:42px
 }
 
-.classInformation:hover {
+#classInformation:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
 
-.logout {
+#logout {
     position: relative;
     margin: 0 auto;
     margin-top:35px;
@@ -161,7 +213,7 @@ td {
     font-size:18px;
 }
 
-.logout a {
+#logout a {
     position: absolute;
     top: 0;
     left: 0;
@@ -169,13 +221,13 @@ td {
     width: 100%;
 }
 
-.logout p {
+#logout p {
     position: absolute;
     top:-6px;
     left:48px
 }
 
-.logout p::before {
+#logout p::before {
     content: url(../img/logout.svg);
     position: absolute;
     left: -25px;
@@ -183,7 +235,7 @@ td {
     display: inline-block;
 }
 
-.logout:hover {
+#logout:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }

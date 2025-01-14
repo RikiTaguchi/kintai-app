@@ -19,110 +19,14 @@ h1 {
     left: 0;
     height:100%;
     width: 100%;
-}  
+} 
 
-.headerClass {
-    position: absolute;
-    top:27px;
-    left:460px;
-    width: 180px;
-    color:darkblue;
-    font-size: 25px;
-    font-weight: bold;
-}
-
- /* ここから下がハンバーガーメニューに関するCSS */
-.humbergerMenu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #fff;
-  }
-    
-  /* チェックボックスを非表示にする */
-  .drawer_hidden {
-    display: none;
-  }
-  
-  /* ハンバーガーアイコンの設置スペース */
-  .drawer_open {
-    display: flex;
-    height: 60px;
-    width: 60px;
-    margin-top: -60px;
-    margin-left: 1400px;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    z-index: 100;/* 重なり順を一番上にする */
-    cursor: pointer;
-  }
-  
-  /* ハンバーガーメニューのアイコン */
-  .drawer_open span,
-  .drawer_open span:before,
-  .drawer_open span:after {
-    content: '';
-    display: block;
-    height: 3px;
-    width: 25px;
-    border-radius: 3px;
-    background: #333;
-    transition: 0.5s;
-    position: absolute;
-  }
-  
-  /* 三本線の一番上の棒の位置調整 */
-  .drawer_open span:before {
-    bottom: 8px;
-  }
-  
-  /* 三本線の一番下の棒の位置調整 */
-  .drawer_open span:after {
-    top: 8px;
-  }
-  
-  /* アイコンがクリックされたら真ん中の線を透明にする */
-  #drawer_input:checked ~ .drawer_open span {
-    background: rgba(255, 255, 255, 0);
-  }
-  
-  /* アイコンがクリックされたらアイコンが×印になように上下の線を回転 */
-  #drawer_input:checked ~ .drawer_open span::before {
-    bottom: 0;
-    transform: rotate(45deg);
-  }
-  
-  #drawer_input:checked ~ .drawer_open span::after {
-    top: 0;
-    transform: rotate(-45deg);
-  }
-    
-  /* メニューのデザイン*/
-  .nav_content {
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: 100%; /* メニューを画面の外に飛ばす */
-    z-index: 99;
-    background: #fff;
-    transition: .5s;
-  }
-  
-  /* メニュー黒ポチを消す */
-  .nav_list {
-    list-style: none;
-  }
-  
-  /* アイコンがクリックされたらメニューを表示 */
-  #drawer_input:checked ~ .nav_content {
-    left: 0;/* メニューを画面に入れる */
-  }
-
-.classMain {
-    margin-top: 50px;
-    margin-left: 50px;
+.classMain {  
+  position: absolute;
+  left:330px;
+  top:130px;
+  width:800px;
+  height:1000px;
 }
 
 .classInformation {
@@ -131,15 +35,27 @@ h1 {
 }
 
 .classInformation p {
-    width: 300px;
+    width: 120px;
     border-bottom: solid;
-    border-color:rgba(117, 115, 115, 0.937);
-    padding-bottom: 10px;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+.border1 {
+  position: absolute;
+  top: 60px;
+  left: 120px;
+  width: 300px;
+  
 }
 
 .accountMain {
-    margin-top:-125px;
-    margin-left: 600px;
+  position: absolute;
+  left:830px;
+  top:130px;
+  width:800px;
+  height:1000px;
 }
 
 .accountInformation {
@@ -148,9 +64,205 @@ h1 {
 }
 
 .accountInformation p {
-    width: 300px;
+    width: 200px;
     border-bottom: solid;
-    border-color:rgba(117, 115, 115, 0.937);
-    padding-bottom: 10px;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+.border2 {
+  position: absolute;
+  top: 60px;
+  left: 200px;
+  width: 300px;
+  
+}
+
+table {
+  border-collapse: separate;
+  width: auto;
+  height: auto;
+  background-color: white;
+  border-color: rgb(230, 230, 230);
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.radius-table{
+  border-radius: 10px;
+  border-spacing: 0;
+  border: none;
+  border-left: 1px solid #999;
+  border-top: 1px solid #999;
+}
+.radius-table tr>*{
+  padding: 5px 10px;
+  border: none;
+  border-right: 1px solid #999;
+  border-bottom: 1px solid #999;
+}
+.radius-table tr:first-child>*:first-child{
+  border-radius: 10px 0 0 0;
+}
+.radius-table tr:first-child>*:last-child{
+  border-radius: 0 10px 0 0;
+}
+.radius-table tr:last-child>*:first-child{
+  border-radius: 0 0 0 10px;
+}
+.radius-table tr:last-child>*:last-child{
+  border-radius: 0 0 10px 0;
+}
+
+.classTable {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.accountTable {
+  margin-top: 30px;
+  text-align: center;
+}
+
+td {
+  height: 80px;
+  width: 300px;
+}
+
+.side {
+  position:absolute;
+  position: fixed;
+  background-color: white;
+  left: 0;
+  top: 150px;
+  width: 200px;
+  height: 350px;   
+  border: solid;
+  border-left: none;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-color: rgb(230, 230, 230);
+  box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.sideContents {
+  text-align: center;
+}
+
+#className {
+  width: 180px;
+  margin:0 auto;
+  margin-top: 20px;
+  border-bottom: solid;
+  border-color:rgb(230, 230, 230);
+  color:darkblue;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+
+#change {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#change a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height:100%;
+  width: 100%;
+}
+
+#change p {
+  position: absolute;
+  top:-6px;
+  left:42px;
+}
+
+#change:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+
+#delete {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#delete a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#delete p {
+  position: absolute;
+  top:-6px;
+  left:55px
+}
+
+#delete p::before {
+  content: url(../img/trash.svg);
+  position: absolute;
+  left: -28px;
+  top: 2px;
+  display: inline-block;
+}
+
+#delete:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+
+#goBack {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#goBack a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#goBack p {
+  position: absolute;
+  top:-6px;
+  left:41px
+}
+
+#goBack p::before {
+  content: url(../img/logout.svg);
+  position: absolute;
+  left: -25px;
+  top: 2px;
+  display: inline-block;
+}
+
+#goBack:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
 }
 

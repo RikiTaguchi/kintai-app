@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>明光義塾 勤怠管理システム</title>
+        <link th:href="@{/css/infoManager.css}" rel="stylesheet">
+	</head>
+	<body>
+        <div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+        </div>
+		<div class="headerClass">
+			<span th:text = "${manager.classArea}"></span>教室<br>
+		</div>
+
+        <div class="hamburgerMenu">
+            
+            <!-- ハンバーガーメニュー部分 -->
+            <div class="nav">
+          
+              <!-- ハンバーガーメニューの表示・非表示を切り替えるチェックボックス -->
+              <input id="drawer_input" class="drawer_hidden" type="checkbox">
+          
+              <!-- ハンバーガーアイコン -->
+              <label for="drawer_input" class="drawer_open"><span></span></label>
+          
+              <!-- メニュー -->
+              <nav class="nav_content">
+                <ul class="nav_list">
+                  <li class="nav_item"><a th:href="@{/editManagerForm(edit=${manager.id})}">変更する</a></li>
+                  <li class="nav_item"><a th:href="@{/deleteManager(delete=${manager.id})}">削除する</a></li>
+                  <li class="nav_item"><a th:href = "@{/indexManager(manager=${manager.id})}">ホームに戻る</a></li>
+                </ul>
+              </nav>
+         
+            </div>
+        </div>
+
+        <div class="classMain">
+            <div class="classInformation">
+            <p>教室情報</p>
+            <div class="classBorder">
+				<hr class="border1" size="2" color="lightgray">
+			</div>
+            </div>
+            <table border="1" style="border-spacing: 0;" class="radius-table">
+                <tr><th>在籍講師数</th><td th:text="${userList.size()}"></td></tr>
+            </table>
+        </div>
+        
+        <div class="accountMain">
+            <div class="accountInformation">
+            <p>アカウント情報</p>
+            <div class="accountBorder">
+				<hr class="border2" size="2" color="lightgray">
+			</div>
+            </div>
+
+            <div class="accountTable">
+            <table border="1" style="border-spacing: 0;" class="radius-table">
+                <tr><th>教室名</th><td th:text="${manager.classArea}"></td></tr>
+                <tr><th>ログインID</th><td th:text="${manager.loginId}"></td></tr>
+                <tr><th>パスワード</th><td th:text="${manager.password}"></td></tr>
+            </table>
+            </div>
+        </div>
+           
+	</body>
+</html>
