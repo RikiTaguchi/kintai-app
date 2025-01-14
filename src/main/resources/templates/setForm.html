@@ -3,16 +3,24 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/setForm.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
+		<div class="header">
+			<h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
-			<span th:text = "${user.userName}"></span>
 		</div>
-		<div>
-			シフト修正
+
+		<div class="createSalary">
+			<h1>シフト情報を修正</h1>
+		</div>
+		<div class="main">
+			<div class="mainTable">
 			<form th:action = "@{/setForm}" method = "post" th:object = "${workUpdateForm}">
-				<table border="1" style="border-collapse: collapse">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>勤務日</th><td><div><span th:text = "${workUpdateForm.date.substring(0, 5).replace('-','年')+workUpdateForm.date.substring(5,10).replace('-','月')+'日('+workUpdateForm.dayOfWeek+')'}"></span></div></td></tr>
 					<tr>
 						<th>勤務コマ</th>
@@ -71,7 +79,7 @@
 					<input type="text" name="tax" th:value="${tax}">
 				</div>
 				<div>
-					<input type = "submit" value = "修正">
+					<input id="createButton" type = "submit" value = "修正" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
 			<form th:action = "@{/clearWork}" method = "post">
@@ -81,12 +89,20 @@
 					<input type = "text" name = "managerId" th:value = "${manager.id}">
 					<input type="text" name="tax" th:value="${tax}">
 				</div>
-				<div><input type = "submit" value = "削除"></div>
+				<div><input id ="delete" type = "submit" value = "シフトを削除" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
 			</form>
+			</div>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}">戻る</a>
+		
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+			<div class="sideContents" id="goBack">
+				<p>前画面に戻る</p>
+				<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
+			</div>
 		</div>
+
 	</body>
 </html>

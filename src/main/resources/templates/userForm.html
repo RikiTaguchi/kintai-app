@@ -3,32 +3,51 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/userForm.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
-			<span th:text = "${user.userName}"></span>
 		</div>
-		<br>
-		<div>
+
+		
+		<h1 class="editInformation">登録情報を修正</h1>
+		<div class="main">
 			<form th:action = "@{/userForm}" method = "post" th:object = "${userUpdateForm}">
-				<table border="1" style="border-collapse: collapse">
-					<tr><th>ログインID</th><td><div><input id = "loginId" type = "text" th:field = "*{loginId}" required></div></td></tr>
-					<tr><th>パスワード</th><td><div><input id = "password" type = "text" th:field = "*{password}" required></div></td></tr>
-				</table>
+			
+                <div>
+					<label for = "loginId">ログインID</label>
+					<input id = "loginId" type = "text" th:field = "*{loginId}" required>
+				</div>
+				<div>
+					<label for = "password">パスワード</label>
+					<input id = "password" type = "text" th:field = "*{password}" required>
+				</div>
 				<div style = "display: none;">
 					<input id = "id" type = "text" th:field = "*{id}">
 					<input id = "userName" type = "text" th:field = "*{userName}">
 					<input id = "classAreaId" type = "text" th:field = "*{classAreaId}">
 				</div>
 				<div>
-					<input type = "submit" value = "更新">
+					<input id = "updateButton" type = "submit" value = "更新" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
+                
 			</form>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}">戻る</a>
+
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+	
+			<div class="sideContents" id="goBack">
+				<p>前画面に戻る</p>
+				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
 		</div>
 	</body>
 </html>

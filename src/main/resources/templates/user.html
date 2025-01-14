@@ -3,39 +3,70 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/user.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
-			<span th:text = "${user.userName}"></span>
 		</div>
-		<br>
-		<div>
-			給与情報<br>
-			<table border="1" style="border-collapse: collapse">
+		
+		<div class="salaryMain">
+			<div class="salaryInformation">
+			<p>給与情報</p>
+			<div class="salaryBorder">
+				<hr class="border1" size="2" color="lightgray">
+			</div>
+			</div>
+			<div class="salaryTable">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>コマ給(100分)</th><td><div>¥<span th:text = "${salaryFormatted[0]}"></span></div></td></tr>
 				<tr><th>事務給(60分)</th><td><div>¥<span th:text = "${salaryFormatted[1]}"></span></div></td></tr>
 				<tr><th>日時手当</th><td><div>¥<span th:text = "${salaryFormatted[2]}"></span></div></td></tr>
 				<tr><th>交通費(往復)</th><td><div>¥<span th:text = "${salaryFormatted[3]}"></span></div></td></tr>
 			</table>
-			<div>
-				<a th:href = "@{/detailSalary(user=${user.id}, year=${year}, month=${month})}">給与推移</a>
 			</div>
 		</div>
-		<br>
-		<div>
-			アカウント情報<br>
-			<table border="1" style="border-collapse: collapse">
+		
+		<div class="accountMain">
+			<div class="accountInformation">
+			<p>アカウント情報</p>
+			<div class="accountBorder">
+				<hr class="border2" size="2" color="lightgray">
+			</div>
+            </div>
+            <div class="accountTable">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>ログインID</th><td><div><span th:text = "${user.loginId}"></span></div></td></tr>
 				<tr><th>パスワード</th><td><div><span th:text = "${user.password}"></span></div></td></tr>
 			</table>
-			<div>
-				<a th:href = "@{/userForm(user=${user.id}, year=${year}, month=${month})}">変更</a>
 			</div>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
-		</div>
+
+		<div class="side">
+            <div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+    
+            <div class="sideContents" id="salaryTrends">
+                <p>給与推移</p>
+                <a th:href="@{/detailSalary(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+    
+            <div class="sideContents" id="change">
+                <p>情報を変更</p>
+                <a th:href="@{/userForm(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+    
+            <div class="sideContents" id="goBack">
+                <p>ホームに戻る</p>
+                <a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+        </div>
+
+	
 	</body>
 </html>
