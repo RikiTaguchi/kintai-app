@@ -32,7 +32,7 @@ h1 {
 
 }
 
-.addForm {
+.createTemplate {
     padding-top:20px;
     font-family: "MS ゴシック";
     text-align: center;
@@ -47,7 +47,7 @@ h1 {
     padding-top: 30px;
     padding-bottom: 20px;
     width: 500px;
-    height: 750px;
+    height: 770px;
     border: solid;
     border-color: rgb(230, 230, 230);
     border-radius: 8px;
@@ -92,33 +92,6 @@ table {
     border-radius: 0 0 10px 0;
 }
 
-.radius-special{
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    border-spacing: 0;
-    border: none;
-    border-left: 1px solid #999;
-    border-top: 1px solid #999;
-}
-.radius-special tr>*{
-    padding: 5px 10px;
-    border: none;
-    border-right: 1px solid #999;
-    border-bottom: 1px solid #999;
-}
-.radius-special tr:first-child>*:first-child{
-    border-radius: 10px 0 0 0;
-}
-.radius-special tr:first-child>*:last-child{
-    border-radius: 0 10px 0 0;
-}
-.radius-special tr:last-child>*:first-child{
-    border-radius: 0 0 0 10px;
-}
-.radius-special tr:last-child>*:last-child{
-    border-radius: 0 0 10px 0;
-}
-
 .mainTable {
     text-align: center;
     margin-top: 30px;
@@ -133,7 +106,7 @@ td {
     background-color: rgb(20, 111, 201);
     width: 300px;
     height:35px;
-    margin-top: 40px
+    margin-top: 50px
 
 }
 
@@ -167,7 +140,7 @@ td {
     margin-top: 20px;
     border-bottom: solid;
     border-color:rgb(230, 230, 230);
-    color:rgb(241, 216, 25);
+    color:rgb(212, 202, 13);
     font-size: 25px;
     font-weight: bold;
 }
@@ -207,26 +180,4 @@ td {
 #goBack:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
-}
-
-.template {
-    position:absolute;
-    position: fixed;
-    right: 0;
-    top: 250px;
-    width: 200px;
-    height: 180px;   
-}
-
-#templateTable {
-    border-collapse: separate;
-    width: auto;
-    height: auto;
-    margin-left: 20px;
-    background-color: rgb(215, 195, 42);
-    border-color: rgb(9, 19, 129);
-    border-width: 3px;
-    font-size: 18px;
-    font-weight: bold;
-    box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }

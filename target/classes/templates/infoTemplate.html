@@ -3,16 +3,26 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/infoTemplate.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
-			<span th:text = "${user.userName}"></span><br>
-			<span th:text = "${manager.classArea}"></span>教室
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
+			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-		<br>
+		
+		<div class="main">
+			<div class="template">
+				<p>テンプレート一覧</p>
+				<div class="border">
+					<hr class="border1" size="2" color="lightgray">
+				</div>
+			</div>
 		<div>
-			テンプレート一覧
-			<table border="1" style="border-collapse: collapse">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr th:each = "t : ${templateList}">
 					<td>
 						<a th:href = "@{/detailTemplate(user=${user.id}, template=${t.id}, year=${year}, month=${month})}"><span th:text = "${t.title}"></span></a>
@@ -20,13 +30,24 @@
 				</tr>
 			</table>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/templateForm(user=${user.id}, year=${year}, month=${month})}">テンプレート登録</a>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
-		</div>
+		
+
+		<div class="side">
+            <div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+    
+            <div class="sideContents" id="addTemplate">
+                <p>新しく登録</p>
+                <a th:href="@{/templateForm(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+    
+            <div class="sideContents" id="goBack">
+                <p>ホームへ戻る</p>
+                <a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+        </div>
+
 	</body>
 </html>

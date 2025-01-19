@@ -3,16 +3,24 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/editTemplateForm.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
-			<span th:text = "${user.userName}"></span><br>
-			<span th:text = "${manager.classArea}"></span>教室
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
+			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-		<div>
-			テンプレート修正
+
+		<div class="detailTemplate">
+			<h1>登録済みテンプレートを修正</h1>
+		</div>
+		<div class="main">
+			<div class="mainTable">
 			<form th:action = "@{/editTemplateForm}" method = "post" th:object = "${templateUpdateForm}">
-				<table border="1" style="border-collapse: collapse">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>タイトル</th><td><div><input id = "title" type = "text" th:field = "*{title}" required></div></td></tr>
 					<tr>
 						<th>勤務コマ</th>
@@ -70,12 +78,21 @@
 					<input id = "month" name = "month" type = "number" th:value = "${month}">
 				</div>
 				<div>
-					<input type = "submit" value = "更新">
+					<input id="createButton" type = "submit" value = "更新" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
+			</div>
 		</div>
-		<div>
-			<a th:href = "@{/detailTemplate(user=${user.id}, template=${templateUpdateForm.id}, year=${year}, month=${month})}">戻る</a>
+
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+			<div class="sideContents" id="goBack">
+				<p>前画面に戻る</p>
+				<a th:href = "@{/detailTemplate(user=${user.id}, template=${templateUpdateForm.id}, year=${year}, month=${month})}"></a>
+			</div>
 		</div>
+	
 	</body>
 </html>
