@@ -4,16 +4,24 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<script th:src="@{/js/form.js}"></script>
+		<link th:href="@{/css/addForm.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
-			<span th:text = "${user.userName}"></span><br>
-			<span th:text = "${manager.classArea}"></span>教室
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
+			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-		<br>
-		<div>
-			テンプレートから選択
-			<table border="1" style="border-collapse: collapse">
+		
+		<div class="addForm">
+			<h1>新しくシフトを登録</h1>
+		</div>
+
+		<div class="template">
+
+			<table border="1" id="templateTable" style="border-spacing: 0;" class="radius-special">
 				<tr th:each = "t : ${templateList}">
 					<td><a href = "" th:onclick = "'setTemplate(\''+__${t.id}__+'\'); return false;'"><span th:text = "${t.title}"></span></a></td>
 					<td th:id = "${'timeStart-'+t.id}" style = "display: none;" th:text = "${t.timeStart}"></td>
@@ -36,12 +44,13 @@
 					<td th:id = "${'helpArea-'+t.id}" style = "display: none;" th:text = "${t.helpArea}"></td>
 				</tr>
 			</table>
-		</div>
-		<br>
-		<div>
-			シフト登録
-			<form th:action = "@{/addForm}" method = "post" th:object = "${workCreateForm}">
-				<table border="1" style="border-collapse: collapse">
+		
+        </div>
+		
+		<div class="main">
+				<div class="mainTable">
+			    <form th:action = "@{/addForm}" method = "post" th:object = "${workCreateForm}">
+				    <table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>勤務日</th><td><div><input id = "date" type = "date" th:field = "*{date}" required></div></td></tr>
 					<tr>
 						<th>勤務コマ</th>
@@ -96,12 +105,20 @@
 					<input id = "userId" type = "text" th:field = "*{userId}">
 				</div>
 				<div>
-					<input type = "submit" value = "登録">
+					<input id="createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
 		</div>
-		<div>
-			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
+
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+			<div class="sideContents" id="goBack">
+				<p>ホームへ戻る</p>
+				<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
 		</div>
+		
 	</body>
 </html>
