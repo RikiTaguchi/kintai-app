@@ -4,44 +4,62 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<script th:src="@{/js/form.js}"></script>
+		<link th:href="@{/css/editForm.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
-			<span th:text = "${user.userName}"></span><br>
-			<span th:text = "${manager.classArea}"></span>教室
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
+			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-		<br>
-		<div>
-			テンプレートから選択
-			<table border="1" style="border-collapse: collapse">
-				<tr th:each = "t : ${templateList}">
-					<td><a href = "" th:onclick = "'setTemplate(\''+__${t.id}__+'\'); return false;'"><span th:text = "${t.title}"></span></a></td>
-					<td th:id = "${'timeStart-'+t.id}" style = "display: none;" th:text = "${t.timeStart}"></td>
-					<td th:id = "${'timeEnd-'+t.id}" style = "display: none;" th:text = "${t.timeEnd}"></td>
-					<td th:id = "${'classM-'+t.id}" style = "display: none;" th:text = "${t.classM}"></td>
-					<td th:id = "${'classK-'+t.id}" style = "display: none;" th:text = "${t.classK}"></td>
-					<td th:id = "${'classS-'+t.id}" style = "display: none;" th:text = "${t.classS}"></td>
-					<td th:id = "${'classA-'+t.id}" style = "display: none;" th:text = "${t.classA}"></td>
-					<td th:id = "${'classB-'+t.id}" style = "display: none;" th:text = "${t.classB}"></td>
-					<td th:id = "${'classC-'+t.id}" style = "display: none;" th:text = "${t.classC}"></td>
-					<td th:id = "${'classD-'+t.id}" style = "display: none;" th:text = "${t.classD}"></td>
-					<td th:id = "${'breakTime-'+t.id}" style = "display: none;" th:text = "${t.breakTime}"></td>
-					<td th:id = "${'officeTimeStart-'+t.id}" style = "display: none;" th:text = "${t.officeTimeStart}"></td>
-					<td th:id = "${'officeTimeEnd-'+t.id}" style = "display: none;" th:text = "${t.officeTimeEnd}"></td>
-					<td th:id = "${'otherWork-'+t.id}" style = "display: none;" th:text = "${t.otherWork}"></td>
-					<td th:id = "${'otherTimeStart-'+t.id}" style = "display: none;" th:text = "${t.otherTimeStart}"></td>
-					<td th:id = "${'otherTimeEnd-'+t.id}" style = "display: none;" th:text = "${t.otherTimeEnd}"></td>
-					<td th:id = "${'otherBreakTime-'+t.id}" style = "display: none;" th:text = "${t.otherBreakTime}"></td>
-					<td th:id = "${'carfare-'+t.id}" style = "display: none;" th:text = "${t.carfare}"></td>
-					<td th:id = "${'helpArea-'+t.id}" style = "display: none;" th:text = "${t.helpArea}"></td>
-				</tr>
-			</table>
+		
+		<div class="addForm">
+			<h1>過去の勤務履歴を修正</h1>
 		</div>
-		<br>
-		<div>
-			シフト修正
+
+		<!-- プルダウンメニュー -->
+		<div class="template">
+			<div class="templateStatement">
+				<p>⚫︎テンプレートを挿入する：</p>
+			</div>
+			<!-- 表示部分 -->
+			<select id="template_list" name="temp">
+				<option class="template_options_sub" selected value="none">テンプレートから選択</option>
+				<option class="template_options" th:each="t : ${templateList}" th:value="${t.id}"></option>
+			</select>
+
+			<!-- 非表示部分 -->
+			<div th:each = "t : ${templateList}">
+				<div th:id = "${'templateTitle-'+t.id}" style = "display: none;" th:text = "${t.title}"></div>
+				<div th:id = "${'timeStart-'+t.id}" style = "display: none;" th:text = "${t.timeStart}"></div>
+				<div th:id = "${'timeEnd-'+t.id}" style = "display: none;" th:text = "${t.timeEnd}"></div>
+				<div th:id = "${'classM-'+t.id}" style = "display: none;" th:text = "${t.classM}"></div>
+				<div th:id = "${'classK-'+t.id}" style = "display: none;" th:text = "${t.classK}"></div>
+				<div th:id = "${'classS-'+t.id}" style = "display: none;" th:text = "${t.classS}"></div>
+				<div th:id = "${'classA-'+t.id}" style = "display: none;" th:text = "${t.classA}"></div>
+				<div th:id = "${'classB-'+t.id}" style = "display: none;" th:text = "${t.classB}"></div>
+				<div th:id = "${'classC-'+t.id}" style = "display: none;" th:text = "${t.classC}"></div>
+				<div th:id = "${'classD-'+t.id}" style = "display: none;" th:text = "${t.classD}"></div>
+				<div th:id = "${'breakTime-'+t.id}" style = "display: none;" th:text = "${t.breakTime}"></div>
+				<div th:id = "${'officeTimeStart-'+t.id}" style = "display: none;" th:text = "${t.officeTimeStart}"></div>
+				<div th:id = "${'officeTimeEnd-'+t.id}" style = "display: none;" th:text = "${t.officeTimeEnd}"></div>
+				<div th:id = "${'otherWork-'+t.id}" style = "display: none;" th:text = "${t.otherWork}"></div>
+				<div th:id = "${'otherTimeStart-'+t.id}" style = "display: none;" th:text = "${t.otherTimeStart}"></div>
+				<div th:id = "${'otherTimeEnd-'+t.id}" style = "display: none;" th:text = "${t.otherTimeEnd}"></div>
+				<div th:id = "${'otherBreakTime-'+t.id}" style = "display: none;" th:text = "${t.otherBreakTime}"></div>
+				<div th:id = "${'carfare-'+t.id}" style = "display: none;" th:text = "${t.carfare}"></div>
+				<div th:id = "${'helpArea-'+t.id}" style = "display: none;" th:text = "${t.helpArea}"></div>
+			</div>
+        </div>
+		<!-- プルダウンメニューここまで -->
+
+		
+		<div class="main">
+			<div class="mainTable">
 			<form th:action = "@{/editForm}" method = "post" th:object = "${workUpdateForm}">
-				<table border="1" style="border-collapse: collapse">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>勤務日</th><td><div><span th:text = "${workUpdateForm.date.substring(0, 5).replace('-','年')+workUpdateForm.date.substring(5,10).replace('-','月')+'日('+workUpdateForm.dayOfWeek+')'}"></span></div></td></tr>
 					<tr>
 						<th>勤務コマ</th>
@@ -99,12 +117,21 @@
 					<input id = "dayOfWeek" type = "text" th:field = "*{dayOfWeek}">
 				</div>
 				<div>
-					<input type = "submit" value = "修正">
+					<input id="createButton" type = "submit" value = "修正する" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
+			</div>
 		</div>
-		<div>
-			<a th:href = "@{/detailWork(user=${user.id}, detail=${workUpdateForm.id}, year=${year}, month=${month})}">戻る</a>
+
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+			<div class="sideContents" id="goBack">
+				<p>前画面に戻る</p>
+				<a th:href = "@{/detailWork(user=${user.id}, detail=${workUpdateForm.id}, year=${year}, month=${month})}"></a>
+			</div>
 		</div>
+
 	</body>
 </html>

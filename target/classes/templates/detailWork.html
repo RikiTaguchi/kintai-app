@@ -2,16 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
 		<meta charset="UTF-8" />
-		<title>勤怠管理システム</title>
+		<title>明光義塾 勤怠管理システム</title>
+		<link th:href="@{/css/detailWork.css}" rel="stylesheet">
 	</head>
 	<body>
-		<div>
-			<span th:text = "${user.userName}"></span><br>
-			<span th:text = "${manager.classArea}"></span>教室
+		<div class="header">
+            <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+        </div>
+		<div class="headerClass">
+			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-		<br>
-		<div>
-			<table border="1" style="border-collapse: collapse">
+
+		<div class="detailWork">
+			<h1>勤務履歴の詳細</h1>
+		</div>
+		<div class="main">
+			<div class="mainTable">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>勤務日</th><td><div><span th:text = "${work.date.substring(0, 5).replace('-','/')+work.date.substring(5,10).replace('-','/')+'/'+work.dayOfWeek}"></span></div></td></tr>
 				<tr>
 					<th>勤務コマ</th>
@@ -128,22 +136,31 @@
 				</tr>
 			</table>
 			<br>
-			<div>
-				<button><a th:href = "@{/editForm(user=${user.id}, edit=${work.id}, year=${year}, month=${month})}">修正</a></button>
+
+			<div id="createButton">
+				<p>修正する</p>
+				<a th:href = "@{/editForm(user=${user.id}, edit=${work.id}, year=${year}, month=${month})}"></a>
 			</div>
+
 			<div>
 				<form th:action = "@{/deleteWork}" method = "post">
 					<div style = "display: none;">
 						<input type = "text" name = "deleteId" th:value = "${work.id}">
 						<input type = "text" name = "userId" th:value = "${work.userId}">
 					</div>
-					<div><input type = "submit" value = "削除"></div>
+					<div><input id = "delete" type = "submit" value = "この勤務履歴を削除" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
 				</form>
 			</div>
 		</div>
-		<br>
-		<div>
-			<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}">ホームへ戻る</a>
+		
+		<div class="side">
+			<div class="sideContents" id="teacherName">
+				<span th:text = "${user.userName}"></span>
+			</div>
+			<div class="sideContents" id="goBack">
+				<p>ホームへ戻る</p>
+				<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
 		</div>
 	</body>
 </html>
