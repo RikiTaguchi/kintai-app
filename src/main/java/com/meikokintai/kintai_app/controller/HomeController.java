@@ -712,6 +712,24 @@ public class HomeController {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Work work = workService.findWorkById(UUID.fromString(editId));
+            if (work.getTimeStart().equals("     ")) {
+                work.setTimeStart("");
+            }
+            if (work.getTimeEnd().equals("     ")) {
+                work.setTimeEnd("");
+            }
+            if (work.getOfficeTimeStart().equals("     ")) {
+                work.setOfficeTimeStart("");
+            }
+            if (work.getOfficeTimeEnd().equals("     ")) {
+                work.setOfficeTimeEnd("");
+            }
+            if (work.getOtherTimeStart().equals("     ")) {
+                work.setOtherTimeStart("");
+            }
+            if (work.getOtherTimeEnd().equals("     ")) {
+                work.setOtherTimeEnd("");
+            }
             List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
