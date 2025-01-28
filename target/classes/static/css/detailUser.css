@@ -36,8 +36,7 @@ h1 {
     position: absolute;
     left:330px;
     top:130px;
-    width:800px;
-    height:1000px;
+    padding-right: 100px;
 }
 
 .salaryDetails {
@@ -156,49 +155,92 @@ hr {
 
 table {
     border-collapse: separate;
-    width: auto;
-    height: auto;
     background-color: white;
     border-color: rgb(230, 230, 230);
     font-size: 18px;
-    font-weight: bold;
     box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }
 
-.radius-table{
-    border-radius: 5px;
-    border-spacing: 0;
-    border: none;
-    border-left: 1px solid #999;
-    border-top: 1px solid #999;
-}
-.radius-table tr>*{
-    padding: 5px 10px;
-    border: none;
-    border-right: 1px solid #999;
-    border-bottom: 1px solid #999;
-}
-.radius-table tr:first-child>*:first-child{
-    border-radius: 5px 0 0 0;
-}
-.radius-table tr:first-child>*:last-child{
-    border-radius: 0 5px 0 0;
-}
-.radius-table tr:last-child>*:first-child{
-    border-radius: 0 0 0 5px;
-}
-.radius-table tr:last-child>*:last-child{
-    border-radius: 0 0 5px 0;
-}
 
 .mainTable {
     text-align: center;
     margin-top: 30px;
 }
 
-td {
-    height: 80px;
+.table1 {
+    width: 600px;
+    height: 50px;
+    border-width: 1.3px;
+    border-color: black;
+}
+
+#tableClassName {
+    border-right-style: dotted;
+}
+
+#tableTeacherName {
+    background-color: rgba(97, 198, 241, 0.903);
+}
+
+.table2 {
+    width:1000px;
+}
+
+.table3 {
+    width:300px;
+}
+
+.table4 {
+    height: 50px;
+
+}
+
+.table5 {
+    background-color: rgb(198, 193, 193);
+}
+
+.table6 {
+    background-color: rgb(198, 193, 193);
+}
+
+.table7 {
+    width: 1500px;
+}
+
+.table8 {
+    height: 50px;
+}
+
+.table9 {
+    background-color: rgba(97, 198, 241, 0.903);
+}
+
+.table10 {
+    background-color: rgb(243, 243, 29);
+}
+
+.table11 {
+    width: 1000px;
+    height: 150px;
+}
+
+.table12 {
     width: 800px;
+    height: 80px;
+}
+
+.table13 {
+    width: 207px;
+    height: 80px;
+}
+
+.tax {
+    margin-right: 700px;
+}
+
+.alart {
+    margin-right: 700px;
+    margin-bottom: 20px;
 }
 
 .lastStatement {
