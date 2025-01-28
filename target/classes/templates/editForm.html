@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
-		<script th:src="@{/js/form.js}"></script>
+		<script th:src="@{/js/form.js}" defer></script>
 		<link th:href="@{/css/editForm.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -55,7 +55,6 @@
         </div>
 		<!-- プルダウンメニューここまで -->
 
-		
 		<div class="main">
 			<div class="mainTable">
 			<form th:action = "@{/editForm}" method = "post" th:object = "${workUpdateForm}">
@@ -115,6 +114,7 @@
 					<input id = "id" type = "text" th:field = "*{id}">
 					<input id = "date" type = "date" th:field = "*{date}">
 					<input id = "dayOfWeek" type = "text" th:field = "*{dayOfWeek}">
+					<input id="reset" type="reset" value="reset">
 				</div>
 				<div>
 					<input id="createButton" type = "submit" value = "修正する" style="border:none; border-radius: 5px; color:white; cursor: pointer;">

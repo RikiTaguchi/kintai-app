@@ -36,6 +36,12 @@ templateList.addEventListener('change', (event) => {
     // フォームの値を変更
     if (templateId !== "none") {
         resetButton.click();
+        timeStart.value = '';
+        timeEnd.value = '';
+        officeTimeStart.value = '';
+        officeTimeEnd.value = '';
+        otherTimeStart.value = '';
+        otherTimeEnd.value = '';
         if (document.getElementById('classM-'+templateId).textContent === 'true') {classM.setAttribute('checked', '');} else {classM.removeAttribute('checked');}
         if (document.getElementById('classK-'+templateId).textContent === 'true') {classK.setAttribute('checked', '');} else {classK.removeAttribute('checked');}
         if (document.getElementById('classS-'+templateId).textContent === 'true') {classS.setAttribute('checked', '');} else {classS.removeAttribute('checked');}
@@ -44,15 +50,15 @@ templateList.addEventListener('change', (event) => {
         if (document.getElementById('classC-'+templateId).textContent === 'true') {classC.setAttribute('checked', '');} else {classC.removeAttribute('checked');}
         if (document.getElementById('classD-'+templateId).textContent === 'true') {classD.setAttribute('checked', '');} else {classD.removeAttribute('checked');}
         helpArea.value = document.getElementById('helpArea-'+templateId).textContent;
-        timeStart.value = document.getElementById('timeStart-'+templateId).textContent;
-        timeEnd.value = document.getElementById('timeEnd-'+templateId).textContent;
+        if (document.getElementById('timeStart-'+templateId).textContent !== '     ') { timeStart.value = document.getElementById('timeStart-'+templateId).textContent; }
+        if (document.getElementById('timeEnd-'+templateId).textContent !== '     ') { timeEnd.value = document.getElementById('timeEnd-'+templateId).textContent; }
         breakTime.value = document.getElementById('breakTime-'+templateId).textContent;
         carfare.value = document.getElementById('carfare-'+templateId).textContent;
-        officeTimeStart.value = document.getElementById('officeTimeStart-'+templateId).textContent;
-        officeTimeEnd.value = document.getElementById('officeTimeEnd-'+templateId).textContent;
+        if (document.getElementById('officeTimeStart-'+templateId).textContent !== '     ') { officeTimeStart.value = document.getElementById('officeTimeStart-'+templateId).textContent; }
+        if (document.getElementById('officeTimeEnd-'+templateId).textContent !== '     ') { officeTimeEnd.value = document.getElementById('officeTimeEnd-'+templateId).textContent; }
         otherWork.value = document.getElementById('otherWork-'+templateId).textContent;
-        otherTimeStart.value = document.getElementById('otherTimeStart-'+templateId).textContent;
-        otherTimeEnd.value = document.getElementById('otherTimeEnd-'+templateId).textContent;
+        if (document.getElementById('otherTimeStart-'+templateId).textContent !== '     ') { otherTimeStart.value = document.getElementById('otherTimeStart-'+templateId).textContent; }
+        if (document.getElementById('otherTimeEnd-'+templateId).textContent !== '     ') { otherTimeEnd.value = document.getElementById('otherTimeEnd-'+templateId).textContent; }
         otherBreakTime.value = document.getElementById('otherBreakTime-'+templateId).textContent;
         templateList.selectedIndex = 0;
     }
