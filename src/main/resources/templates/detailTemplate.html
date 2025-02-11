@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/detailTemplate.css}" rel="stylesheet">
+		<script th:src="@{/js/confirm.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
@@ -14,10 +15,13 @@
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
 
-		<div class="detailTemplate">
-			<h1>テンプレート詳細</h1>
-		</div>
 		<div class="main">
+			<div class="mainInformation">
+				<p>テンプレート詳細</p>
+		    </div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
 			<div class="mainTable">
 			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr><th>タイトル</th><td><div><span th:text = "${template.title}"></span></div></td></tr>
@@ -100,6 +104,7 @@
 					</td>
 				</tr>
 			</table>
+			</div>
 			<br>
 
 			<div id="createButton">
@@ -115,7 +120,7 @@
 						<input type = "text" name = "year" th:value = "${year}">
 						<input type = "text" name = "month" th:value = "${month}">
 					</div>
-					<div><input id = "delete" type = "submit" value = "このテンプレートを削除" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
+					<div><input id = "delete" type = "submit" value = "このテンプレートを削除" onclick="return deleteConfirm()" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
 				</form>
 			</div>
 		</div>
@@ -124,11 +129,31 @@
 			<div class="sideContents" id="teacherName">
 				<span th:text = "${user.userName}"></span>
 			</div>
+
+			<div class="sideContents" id="goHome">
+				<p>ホーム</p>
+				<a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
+			<div class="sideContents" id="workInfo">
+                <p>シフト管理</p>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+
+            <div class="sideContents" id="detailSalary">
+				<p>給与情報</p>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+			</div>
+	
+			<div class="sideContents" id="teacherInformation">
+				<p>アカウント</p>
+				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
 			<div class="sideContents" id="goBack">
-				<p>前画面に戻る</p>
+				<p>戻る</p>
 				<a th:href = "@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}"></a>
 			</div>
 		</div>
-		
 	</body>
 </html>

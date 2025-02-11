@@ -1,6 +1,9 @@
 package com.meikokintai.kintai_app.util;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -159,6 +162,36 @@ public abstract class DateSet {
                 result[0] = year;
                 result[1] = String.format("%02d", Integer.valueOf(month)+1);
                 break;
+        }
+        return result;
+    }
+
+    public static String getTerm (String start) {
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String end = currentDate.format(formatter);
+        Period period = Period.between(LocalDate.parse(start, formatter), LocalDate.parse(end, formatter));
+        String result;
+        if (period.getYears() < 0 || period.getMonths() < 0 || period.getDays() < 0) {
+            result = "-";
+        } else if (period.getYears() == 0) {
+            result = period.getMonths() + "ヶ月";
+        } else {
+            result = period.getYears() + "年" + period.getMonths() + "ヶ月";
+        }
+        return result;
+    }
+
+    public static String getTerm (String start, String end) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Period period = Period.between(LocalDate.parse(start, formatter), LocalDate.parse(end, formatter));
+        String result;
+        if (period.getYears() < 0 || period.getMonths() < 0 || period.getDays() < 0) {
+            result = "-";
+        } else if (period.getYears() == 0) {
+            result = period.getMonths() + "ヶ月";
+        } else {
+            result = period.getYears() + "年" + period.getMonths() + "ヶ月";
         }
         return result;
     }

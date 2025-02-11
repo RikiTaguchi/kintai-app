@@ -62,5 +62,9 @@ public class SalaryService {
         }
         return setSalary;
     }
+
+    public Salary getFirstSalary(UUID userId) {
+        return this.salaryRepository.getFirstSalary(userId);
+    }
     
 }

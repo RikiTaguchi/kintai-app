@@ -36,7 +36,7 @@ public class UserService {
     
     @Transactional
     public void update(User user) {
-        userRepository.update(user.getId(), user.getLoginId(), user.getUserName(), user.getPassword(), user.getClassAreaId());
+        userRepository.update(user.getId(), user.getLoginId(), user.getUserName(), user.getPassword(), user.getClassAreaId(), user.getTeacherNo(), user.getState(), user.getRetireDate());
     }
     
     public User getByUserId(UUID userId) {

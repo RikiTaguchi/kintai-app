@@ -120,7 +120,7 @@ td {
   left: 0;
   top: 150px;
   width: 200px;
-  height: 270px;   
+  height: 530px;   
   border: solid;
   border-left: none;
   border-top-right-radius: 8px;
@@ -134,17 +134,17 @@ td {
 }
 
 #teacherName {
-    width: 170px;
-    margin:0 auto;
-    margin-top: 20px;
-    border-bottom: solid;
-    border-color:rgb(230, 230, 230);
-    color:rgb(212, 202, 13);
-    font-size: 25px;
-    font-weight: bold;
+  width: 180px;
+  margin:0 auto;
+  margin-top: 20px;
+  border-bottom: solid;
+  border-color:rgb(230, 230, 230);
+  color:rgb(212, 202, 13);
+  font-size: 25px;
+  font-weight: bold;
 }
 
-#addTemplate {
+#goHome {
   position: relative;
   margin: 0 auto;
   margin-top:35px;
@@ -154,7 +154,81 @@ td {
   font-size:18px;
 }
 
-#addTemplate a {
+#goHome a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#goHome p {
+  position: absolute;
+  top:-6px;
+  left:60px;
+}
+
+#goHome p::before {
+  content: url(../img/home.svg);
+  position: absolute;
+  left: -27px;
+  top: 0px;
+  display: inline-block;
+}
+
+#goHome:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+
+#workInfo {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#workInfo a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#workInfo p {
+  position: absolute;
+  top:-6px;
+  left:44px;
+}
+
+#workInfo p::before {
+  content: url(../img/calendar-time.svg);
+  position: absolute;
+  left: -26px;
+  top: 2px;
+  display: inline-block;
+}
+
+#workInfo:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+
+#detailSalary {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#detailSalary a {
   position: absolute;
   top: 0;
   left: 0;
@@ -162,13 +236,58 @@ td {
   width: 100%;
 }
 
-#addTemplate p {
+#detailSalary p {
   position: absolute;
   top:-6px;
-  left:35px;
+  left:52px;
 }
 
-#addTemplate:hover {
+#detailSalary p::before {
+  content: url(../img/coin-yen.svg);
+  position: absolute;
+  left: -27px;
+  top: 2px;
+  display: inline-block;
+}
+
+#detailSalary:hover {
+  background-color:rgba(223, 221, 221, 0.577);
+  border-radius: 5px;
+}
+
+#teacherInformation {
+  position: relative;
+  margin: 0 auto;
+  margin-top:35px;
+  height: 50px;
+  width: 160px;
+  font-weight:bold;
+  font-size:18px;
+}
+
+#teacherInformation a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#teacherInformation p {
+  position: absolute;
+  top:-6px;
+  left:48px;
+}
+
+#teacherInformation p::before {
+  content: url(../img/settings.svg);
+  position: absolute;
+  left: -26px;
+  top: 2px;
+  display: inline-block;
+}
+
+#teacherInformation:hover {
   background-color:rgba(223, 221, 221, 0.577);
   border-radius: 5px;
 }
@@ -194,14 +313,14 @@ td {
 #goBack p {
   position: absolute;
   top:-6px;
-  left:39px
+  left:69px
 }
 
 #goBack p::before {
-  content: url(../img/logout.svg);
+  content: url(../img/arrow-back.svg);
   position: absolute;
-  left: -25px;
-  top: 2px;
+  left: -27px;
+  top: 1px;
   display: inline-block;
 }
 
@@ -209,4 +328,3 @@ td {
   background-color:rgba(223, 221, 221, 0.577);
   border-radius: 5px;
 }
-

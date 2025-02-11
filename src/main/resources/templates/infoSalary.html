@@ -2,49 +2,110 @@
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
 		<meta charset="UTF-8" />
-		<title>明光義塾 勤怠管理システム</title>
+		<title>勤怠管理システム</title>
+        <script th:src="@{/js/tax.js}" defer></script>
 		<link th:href="@{/css/infoSalary.css}" rel="stylesheet">
 	</head>
 	<body>
 		<div class="header">
             <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
         </div>
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-
-		<div class="main">
-			<div class="mainInformation">
-				<p>給与推移</p>
-		    </div>
-				<div class="border">
-					<hr size="2" color="lightgray">
-				</div>
-			<div class="mainTable">
-			<table border="1" style="border-spacing: 0;" class="radius-table">
-				<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
-				<th:block th:each = "s : ${salaryList}">
-					<tr>
-						<td><a th:href = "@{/salaryForm(manager=${manager.id}, user=${user.id}, salary=${s.id}, year=${year}, month=${month})}"><span th:text = "${s.dateFrom.substring(0, 5).replace('-','/')+s.dateFrom.substring(5,10).replace('-','/')+'〜'}"></span></a></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[0]}"></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[1]}"></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[2]}"></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[3]}"></td>
-					</tr>
-				</th:block>
-			</table>
-			</div>
-		</div>
 		
+		<div class="salaryMain">
+            <div class="salaryDetails">
+                <p>給与情報</p>
+            </div>
+            <div class="border">
+                <hr size="2" color="lightgray">
+            </div>
+
+            <div>
+				<a th:href="@{/detailSalary(user=${user.id}, year=${year}, month=${month})}">給与推移</a>
+			</div>
+    
+            <div class="date">
+                <span th:text = "${year+'年'+month+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span>
+            </div>
+    
+            <div class= "beforeMonth">
+                <p>前月</p>
+                <a th:href = "@{/infoSalary(user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax})}"></a>
+            </div>
+            <div class= "afterMonth">
+                <p>来月</p>
+                <a th:href = "@{/infoSalary(user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax})}"></a>
+            </div>
+            
+            <div class="mainTable">
+                <div>
+                    所得税
+                    <input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
+                    <input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
+                    <div style="display: none;">
+                        <a id="tax-button" th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <table border="1" style="border-spacing: 0;" class="radius-table">
+                        <tr><th>コマ給</th><td>¥<span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
+                        <tr><th>コマ数</th><td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td></tr>
+                        <tr><th>①コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
+                        <tr><th>②日時手当</th><td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td></tr>
+                        <tr><th>③事務給</th><td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td></tr>
+                        <tr><th>④研修費・時間外</th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
+                        <tr><th>⑤その他</th><td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td></tr>
+                        <tr><th>所得税</th><td>¥<span th:text = "${incomeTaxFormatted}"></span></td></tr>
+                        <tr><th>交通費計</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
+                    </table>
+                    <br>
+                    ※「④研修費・時間外」内訳
+                    <table border="1" style="border-spacing: 0;" class="radius-table">
+                        <tr><th>研修・自習室(円/分)</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
+                        <tr><th>時間外勤務(円/分)</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
+                        <tr><th>超過勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
+                        <tr><th>深夜勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td></tr>
+                    </table>
+                    <br>
+                    <table border="1" style="border-spacing: 0;" class="radius-table">
+                        <tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
+                    </table>
+                </div>
+            </div>
+		</div>
+
 		<div class="side">
 			<div class="sideContents" id="teacherName">
 				<span th:text = "${user.userName}"></span>
 			</div>
+
+			<div class="sideContents" id="goHome">
+				<p>ホーム</p>
+				<a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
+			<div class="sideContents" id="workInfo">
+                <p>シフト管理</p>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+
+            <div class="sideContents" id="detailSalary">
+				<p>給与情報</p>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+			</div>
 	
+			<div class="sideContents" id="teacherInformation">
+				<p>アカウント</p>
+				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
 			<div class="sideContents" id="goBack">
-				<p>前画面に戻る</p>
-				<a th:href = "@{/infoUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
+				<p>戻る</p>
+				<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
 			</div>
 		</div>
 	</body>

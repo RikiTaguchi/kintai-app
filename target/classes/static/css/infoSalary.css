@@ -29,10 +29,9 @@ h1 {
     color:darkblue;
     font-size: 25px;
     font-weight: bold;
-
 }
 
-.main {
+.salaryMain {
     position: absolute;
     left:330px;
     top:130px;
@@ -40,13 +39,12 @@ h1 {
     height:1000px;
 }
 
-.mainInformation {
+.salaryDetails {
     font-size: 25px;
     font-weight: bold;
 }
 
-    
-.mainInformation p {
+.salaryDetails p {
     width: 170px;
     border-bottom: solid;
     border-width: 5px;
@@ -61,7 +59,76 @@ hr {
     width: 300px;
 }
 
-table {
+.date {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.beforeMonth {
+    position: relative;
+    margin-left: 395px;
+    margin-top:-30px;
+    height: 30px;
+    width: 50px;
+    border-radius: 5px;
+    background-color: rgb(20, 111, 201);
+    color: white;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.beforeMonth a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.beforeMonth p {
+    position: absolute;
+    top:-7px;
+    left:12px;
+}
+
+.beforeMonth:hover {
+    background-color:rgb(22, 92, 162);
+    border-radius: 5px;
+}
+
+.afterMonth {
+    position: relative;
+    margin-left: 455px;
+    margin-top:-30px;
+    height: 30px;
+    width: 50px;
+    border-radius: 5px;
+    background-color: rgb(20, 111, 201);
+    color: white;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.afterMonth a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.afterMonth p {
+    position: absolute;
+    top:-7px;
+    left:12px;
+}
+
+.afterMonth:hover {
+    background-color:rgb(22, 92, 162);
+    border-radius: 5px;
+}
+
+.radius-table {
     border-collapse: separate;
     width: auto;
     height: auto;
@@ -69,43 +136,46 @@ table {
     border-color: rgb(230, 230, 230);
     font-size: 18px;
     font-weight: bold;
-    box-shadow: 5px 5px 5px rgb(76, 76, 78)
-}
-
-.radius-table{
-    border-radius: 10px;
+    box-shadow: 5px 5px 5px rgb(76, 76, 78);
+    border-radius: 5px;
     border-spacing: 0;
     border: none;
     border-left: 1px solid #999;
     border-top: 1px solid #999;
 }
+
 .radius-table tr>*{
     padding: 5px 10px;
     border: none;
     border-right: 1px solid #999;
     border-bottom: 1px solid #999;
 }
+
 .radius-table tr:first-child>*:first-child{
-    border-radius: 10px 0 0 0;
+    border-radius: 5px 0 0 0;
 }
+
 .radius-table tr:first-child>*:last-child{
-    border-radius: 0 10px 0 0;
+    border-radius: 0 5px 0 0;
 }
+
 .radius-table tr:last-child>*:first-child{
-    border-radius: 0 0 0 10px;
+    border-radius: 0 0 0 5px;
 }
+
 .radius-table tr:last-child>*:last-child{
-    border-radius: 0 0 10px 0;
+    border-radius: 0 0 5px 0;
 }
 
 .mainTable {
     text-align: center;
     margin-top: 30px;
+    padding-bottom: 100px;
 }
 
-td {
-    height: 80px;
-    width: 600px;
+.mainTable td {
+    height: 60px;
+    width: 500px;
 }
 
 .side {
@@ -115,7 +185,7 @@ td {
     left: 0;
     top: 150px;
     width: 200px;
-    height: 180px;   
+    height: 530px;   
     border: solid;
     border-left: none;
     border-top-right-radius: 8px;
@@ -139,7 +209,7 @@ td {
     font-weight: bold;
 }
 
-#goBack {
+#goHome {
     position: relative;
     margin: 0 auto;
     margin-top:35px;
@@ -149,7 +219,7 @@ td {
     font-size:18px;
 }
 
-#goBack a {
+#goHome a {
     position: absolute;
     top: 0;
     left: 0;
@@ -157,20 +227,168 @@ td {
     width: 100%;
 }
 
-#goBack p {
+#goHome p {
     position: absolute;
     top:-6px;
-    left:42px
+    left:60px;
 }
 
-#goBack p::before {
-    content: url(../img/logout.svg);
+#goHome p::before {
+    content: url(../img/home.svg);
     position: absolute;
-    left: -25px;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#goHome:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#workInfo {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#workInfo a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#workInfo p {
+    position: absolute;
+    top:-6px;
+    left:44px;
+}
+
+#workInfo p::before {
+    content: url(../img/calendar-time.svg);
+    position: absolute;
+    left: -26px;
     top: 2px;
     display: inline-block;
 }
 
+#workInfo:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#detailSalary {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#detailSalary a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}
+
+#detailSalary p {
+    position: absolute;
+    top:-6px;
+    left:52px;
+}
+
+#detailSalary p::before {
+    content: url(../img/coin-yen.svg);
+    position: absolute;
+    left: -27px;
+    top: 2px;
+    display: inline-block;
+}
+
+#detailSalary:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#teacherInformation {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#teacherInformation a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#teacherInformation p {
+    position: absolute;
+    top:-6px;
+    left:48px;
+}
+
+#teacherInformation p::before {
+    content: url(../img/settings.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+
+#teacherInformation:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#goBack {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+  
+#goBack a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+  
+#goBack p {
+    position: absolute;
+    top:-6px;
+    left:69px
+}
+  
+#goBack p::before {
+    content: url(../img/arrow-back.svg);
+    position: absolute;
+    left: -27px;
+    top: 1px;
+    display: inline-block;
+}
+  
 #goBack:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;

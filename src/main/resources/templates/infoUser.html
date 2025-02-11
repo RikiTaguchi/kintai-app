@@ -4,58 +4,116 @@
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/infoUser.css}" rel="stylesheet">
+		<script th:src="@{/js/confirm.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
             <h1>明光義塾 勤怠管理システム</h1>
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
         </div>
-		<div class="headerClass">
-			<span th:text = "${manager.classArea}"></span>教室<br>
-		</div>
+
+		<div>
+			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
+			<a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a> &gt;
+			<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">基本情報（<span th:text="${user.userName}"></span>）</a>
+        </div>
 
 		<div class="main">
 			<div class="mainInformation">
 				<p>基本情報</p>
 		    </div>
-				<div class="border">
-					<hr size="2" color="lightgray">
-				</div>
-		<div class="mainTable">
-			<table border="1" style="border-spacing: 0;" class="radius-table">
-				<tr><th>コマ給(100分)</th><td th:text = "${'¥'+salaryFormatted[0]}"></td></tr>
-				<tr><th>事務給(60分)</th><td th:text = "${'¥'+salaryFormatted[1]}"></td></tr>
-				<tr><th>日時手当</th><td th:text = "${'¥'+salaryFormatted[2]}"></td></tr>
-				<tr><th>交通費(往復)</th><td th:text = "${'¥'+salaryFormatted[3]}"></td></tr>
-			</table>
-		</div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
+			<div>
+				<a th:href="@{/editUserForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">アカウント情報を修正</a>
+			</div>
+			<div>
+				<th:block th:if="${user.state}"><a th:href = "@{/retireForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">退職手続</a></th:block>
+				<th:block th:if="${!user.state}"><a th:href = "@{/resetRetire(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return retireConfirm()">退職を取り消す</a></th:block>
+			</div>
+			<div>
+				<a th:href="@{/deleteUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return deleteConfirm()">この講師アカウントを削除</a>
+			</div>
+			<div class="mainTable">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
+					<tr><th>氏名</th><td th:text = "${user.userName}"></td></tr>
+					<tr><th>講師No.</th><td th:text = "${user.teacherNo}"></td></tr>
+					<tr>
+						<th>勤続年数</th>
+						<th:block th:if="${user.state}"><td th:text = "${term}"></td></th:block>
+						<th:block th:if="${!user.state}"><td th:text="${term+'（退職日：'+user.retireDate.substring(0,5).replace('-','年')+user.retireDate.substring(5,8).replace('-','月')+'）'}"></td></th:block>
+					</tr>
+				</table>
+			</div>
+
+			<div class="mainInformation">
+				<p>給与情報</p>
+		    </div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
+			<div>
+				<a th:href = "@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">給与情報を更新</a>
+			</div>
+			<div class="mainTable">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
+					<tr><th>コマ給(100分)</th><td th:text = "${'¥'+salaryFormatted[0]}"></td></tr>
+					<tr><th>事務給(60分)</th><td th:text = "${'¥'+salaryFormatted[1]}"></td></tr>
+					<tr><th>日時手当</th><td th:text = "${'¥'+salaryFormatted[2]}"></td></tr>
+					<tr><th>交通費(往復)</th><td th:text = "${'¥'+salaryFormatted[3]}"></td></tr>
+				</table>
+			</div>
+
+			<div class="mainInformation">
+				<p>給与推移</p>
+		    </div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
+			<div>
+				<p>期間をクリックすると編集ができます</p>
+			</div>
+			<div class="mainTable">
+				<table border="1" style="border-spacing: 0;" class="radius-table">
+					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
+					<th:block th:each = "s : ${salaryList}">
+						<tr>
+							<td><a th:href = "@{/salaryForm(manager=${manager.id}, user=${user.id}, salary=${s.id}, year=${year}, month=${month})}"><span th:text = "${s.dateFrom.substring(0, 5).replace('-','/')+s.dateFrom.substring(5,10).replace('-','/')+'〜'}"></span></a></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[0]}"></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[1]}"></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[2]}"></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[3]}"></td>
+						</tr>
+					</th:block>
+				</table>
+			</div>
 		</div>
 
 		<div class="side">
-			<div class="sideContents" id="teacherName">
-				<span th:text = "${user.userName}"></span>
+			<div class="sideContents" id="className">
+				<span th:text = "${manager.classArea}"></span>教室
 			</div>
 	
-			<div class="sideContents" id="salaryTrends">
-				<p>給与推移</p>
-				<a th:href = "@{/infoSalary(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
-			</div>
-	
-			<div class="sideContents" id="salaryDetails">
-				<p>給与形態変更</p>
-				<a th:href = "@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
-			</div>
-	
-			<div class="sideContents" id="deleteUser">
-				<p>削除する</p>
-				<a th:href="@{/deleteUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
-			</div>
-
 			<div class="sideContents" id="goHome">
-				<p>ホームに戻る</p>
-				<a th:href = "@{/indexManager(manager=${manager.id})}"></a>
+				<p>ホーム</p>
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
 			</div>
-
+	
+			<div class="sideContents" id="newAccount">
+				<p>講師管理</p>
+				<a th:href="@{/detailClass(manager=${manager.id})}"></a>
+			</div>
+	
+			<div class="sideContents" id="classInformation">
+				<p>アカウント</p>
+				<a th:href="@{/infoManager(manager=${manager.id})}"></a>
+			</div>
+			
+			<div class="sideContents" id="goBack">
+				<p>戻る</p>
+				<a th:href="@{/detailClass(manager=${manager.id})}"></a>
+			</div>
 		</div>
 
 	</body>

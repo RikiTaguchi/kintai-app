@@ -19,17 +19,6 @@ h1 {
     left: 0;
     height:100%;
     width: 100%;
-}  
-
-.headerClass {
-    position: absolute;
-    top:27px;
-    left:445px;
-    width: 180px;
-    color:darkblue;
-    font-size: 25px;
-    font-weight: bold;
-
 }
 
 .main {
@@ -37,7 +26,6 @@ h1 {
     left:330px;
     top:130px;
     width:800px;
-    height:1000px;
 }
 
 .mainInformation {
@@ -101,6 +89,7 @@ table {
 .mainTable {
     text-align: center;
     margin-top: 30px;
+    margin-bottom: 60px;
 }
 
 td {
@@ -128,21 +117,20 @@ td {
     text-align: center;
 }
 
-#teacherName {
+#className {
     width: 180px;
     margin:0 auto;
     margin-top: 20px;
     border-bottom: solid;
     border-color:rgb(230, 230, 230);
-    color:rgb(212, 202, 13);
+    color:darkblue;
     font-size: 25px;
     font-weight: bold;
 }
 
-
-#salaryTrends {
+#newAccount {
     position: relative;
-    margin-left: 21px;
+    margin: 0 auto;
     margin-top:35px;
     height: 50px;
     width: 160px;
@@ -150,28 +138,36 @@ td {
     font-size:18px;
 }
 
-#salaryTrends a {
+#newAccount a {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
+    height:100%;
     width: 100%;
 }
 
-#salaryTrends p {
+#newAccount p {
     position: absolute;
     top:-6px;
-    left:44px;
+    left:52px;
 }
 
-#salaryTrends:hover {
+#newAccount p::before {
+    content: url(../img/user.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#newAccount:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
 
-#salaryDetails {
+#classInformation {
     position: relative;
-    margin-left: 22px;
+    margin: 0 auto;
     margin-top:35px;
     height: 50px;
     width: 160px;
@@ -179,7 +175,7 @@ td {
     font-size:18px;
 }
 
-#salaryDetails a {
+#classInformation a {
     position: absolute;
     top: 0;
     left: 0;
@@ -187,50 +183,21 @@ td {
     width: 100%;
 }
 
-#salaryDetails p {
+#classInformation p {
     position: absolute;
     top:-6px;
-    left:27px
+    left:48px;
 }
 
-#salaryDetails:hover {
-    background-color:rgba(223, 221, 221, 0.577);
-    border-radius: 5px;
-}
-
-#deleteUser {
-    position: relative;
-    margin-left: 22px;
-    margin-top:35px;
-    height: 50px;
-    width: 160px;
-    font-weight:bold;
-    font-size:18px;
-}
-
-#deleteUser a {
+#classInformation p::before {
+    content: url(../img/settings.svg);
     position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-
-#deleteUser p {
-    position: absolute;
-    top:-6px;
-    left:52px
-}
-
-#deleteUser p::before {
-    content: url(../img/trash.svg);
-    position: absolute;
-    left: -28px;
+    left: -26px;
     top: 2px;
     display: inline-block;
 }
 
-#deleteUser:hover {
+#classInformation:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
@@ -256,18 +223,55 @@ td {
 #goHome p {
     position: absolute;
     top:-6px;
-    left:42px
+    left:60px;
 }
 
 #goHome p::before {
-    content: url(../img/logout.svg);
+    content: url(../img/home.svg);
     position: absolute;
-    left: -25px;
-    top: 2px;
+    left: -27px;
+    top: 0px;
     display: inline-block;
 }
 
 #goHome:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#goBack {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#goBack a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#goBack p {
+    position: absolute;
+    top:-6px;
+    left:69px
+}
+
+#goBack p::before {
+    content: url(../img/arrow-back.svg);
+    position: absolute;
+    left: -27px;
+    top: 1px;
+    display: inline-block;
+}
+
+#goBack:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8" />
+		<title>明光義塾 勤怠管理システム</title>
+		<link th:href="@{/css/detailClass.css}" rel="stylesheet">
+	</head>
+	<body>
+		<div class="header">
+		    <h1>明光義塾 勤怠管理システム</h1>
+		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+		</div>
+
+		<div>
+			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
+			<a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a>
+		</div>
+
+		<div class="main">
+			<div class="teacherTable">
+				<p>講師管理</p>
+			</div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
+			<div>
+				<a th:href="@{/signUp(manager=${manager.id})}">新しく講師を登録</a>
+			</div>
+			<div class="mainTable">
+			<table border="1" style="border-spacing: 0;" class="radius-table">
+				<tr colspan="3" th:each = "u : ${userList}">
+					<td th:text = "${u.userName}"></td>
+					<td class="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}"><p>給与管理</p>
+					</a></td>
+					<td class="information"><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><p>基本情報</p></a></td>
+				</tr>
+				<tr colspan="3" th:each = "u : ${userRetiredList}" style="background-color: lightgray;">
+					<td th:text = "${u.userName}"></td>
+					<td class="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}"><p>給与管理</p>
+					</a></td>
+					<td class="information"><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><p>基本情報</p></a></td>
+				</tr>
+			</table>
+		    </div>
+		</div>
+		<br>
+
+		<div class="side">
+		<div class="sideContents" id="className">
+			<span th:text = "${manager.classArea}"></span>教室
+		</div>
+
+		<div class="sideContents" id="goHome">
+			<p>ホーム</p>
+            <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+		</div>
+
+		<div class="sideContents" id="newAccount">
+			<p>講師管理</p>
+			<a th:href="@{/detailClass(manager=${manager.id})}"></a>
+		</div>
+
+		<div class="sideContents" id="classInformation">
+			<p>アカウント</p>
+			<a th:href="@{/infoManager(manager=${manager.id})}"></a>
+		</div>
+		
+		<div class="sideContents" id="goBack">
+			<p>戻る</p>
+			<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+		</div>
+		</div>
+	</body>
+</html>

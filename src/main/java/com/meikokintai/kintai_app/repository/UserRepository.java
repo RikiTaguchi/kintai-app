@@ -23,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, UUID>{
     User getByLoginId(@Param("loginid") String loginid);
     
     @Modifying
-    @Query(nativeQuery = true, value = "UPDATE users SET id = :id, loginid = :loginid, username = :username, password = :password, classareaid = :classareaid WHERE id = :id")
-    void update(@Param("id") UUID id, @Param("loginid") String loginid, @Param("username") String username, @Param("password") String password, @Param("classareaid") UUID classareaid);
+    @Query(nativeQuery = true, value = "UPDATE users SET id = :id, loginid = :loginid, username = :username, password = :password, classareaid = :classareaid, teacherno = :teacherno, state = :state, retiredate = :retiredate WHERE id = :id")
+    void update(@Param("id") UUID id, @Param("loginid") String loginid, @Param("username") String username, @Param("password") String password, @Param("classareaid") UUID classareaid, @Param("teacherno") int teacherno, @Param("state") Boolean state, @Param("retiredate") String retiredate);
     
 }

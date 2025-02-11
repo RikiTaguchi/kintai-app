@@ -32,5 +32,14 @@ public class User {
     
     @Column(name = "classareaid")
     private UUID classAreaId;
+
+    @Column(name = "teacherno")
+    private int teacherNo;
+
+    @Column(name = "state")
+    private Boolean state;
+
+    @Column(name = "retiredate")
+    private String retireDate;
     
 }

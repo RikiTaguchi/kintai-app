@@ -4,8 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/index.css}" rel="stylesheet">
-		<script th:src="@{/js/hamburgerMenu.js}"></script>
-		<meta name=”viewport” content=”width=device-width,initial-scale=1.0″>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	</head>
 
 	<body>
@@ -19,51 +18,13 @@
 		
 		<div class="main">
 			<div class="mainInformation">
-				<p>勤務履歴</p>
+				<p>ホーム</p>
 		    </div>
 			<div class="border">
 				<hr size="2" color="lightgray">
 			</div>
-
-		<div class="date">
-			<span th:text = "${year+'年'+month+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span>
-		</div>
-	
-		<div class= "beforeMonth">
-			<p>前月</p>
-			<a th:href = "@{/index(user=${user.id}, year=${yearBefore}, month=${monthBefore})}"></a>
-		</div>
-		<div class= "afterMonth">
-			<p>来月</p>
-		    <a th:href = "@{/index(user=${user.id}, year=${yearNext}, month=${monthNext})}"></a>
-		</div>
-		
-			<div class="mainTable">
-			<table border="1" style="border-spacing: 0;" class="radius-table">
-				<tr><th>勤務日</th><th>勤務コマ</th><th>事務等</th></tr>
-				<th:block th:if = "${!#lists.isEmpty(workList)}">
-				<tr th:each = "w : ${workList}">
-					<td>
-						<div>
-						<a th:href = "@{/detailWork(user=${user.id}, detail=${w.id}, year=${year}, month=${month})}">
-						<span th:text = "${w.date.substring(5,10).replace('-','/')+'/'+w.dayOfWeek}"></span>
-						</a>
-						</div>
-					</td>
-					<td>
-						<th:block th:if = "${w.classM}"><span th:text = "'M'"></span></th:block>
-						<th:block th:if = "${w.classK}"><span th:text = "'K'"></span></th:block>
-						<th:block th:if = "${w.classS}"><span th:text = "'S'"></span></th:block>
-						<th:block th:if = "${w.classA}"><span th:text = "'A'"></span></th:block>
-						<th:block th:if = "${w.classB}"><span th:text = "'B'"></span></th:block>
-						<th:block th:if = "${w.classC}"><span th:text = "'C'"></span></th:block>
-						<th:block th:if = "${w.classD}"><span th:text = "'D'"></span></th:block>
-						<th:block th:if = "${w.classCount == 0}"><span th:text = "'-'"></span></th:block>
-					</td>
-					<td><span th:text = "${(w.officeTime + w.otherTime) != 0 ? w.officeTime + w.otherTime + '分' : '-'}"></span></td>
-				</tr>
-				</th:block>
-			</table>
+			<div>
+				<p>内容未定</p>
 			</div>
 		</div>
 		
@@ -71,84 +32,31 @@
 			<div class="sideContents" id="teacherName">
 				<span th:text = "${user.userName}"></span>
 			</div>
-	
-			<div class="sideContents" id="teacherInformation">
-				<p>講師情報</p>
-				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
-			</div>
-	
-			<div class="sideContents" id="salaryDetails">
-				<p>給与明細</p>
-				<a th:href = "@{/detail(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
-			</div>
-	
-			<div class="sideContents" id="shiftRegistration">
-				<p>シフト登録</p>
-				<a th:href="@{/addForm(user=${user.id}, year=${year}, month=${month})}"></a>
+
+			<div class="sideContents" id="goHome">
+				<p>ホーム</p>
+				<a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
 			</div>
 
-			<div class="sideContents" id="template">
-				<p>テンプレート</p>
-				<a th:href = "@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}"></a>
+			<div class="sideContents" id="workInfo">
+                <p>シフト管理</p>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+
+			<div class="sideContents" id="detailSalary">
+				<p>給与情報</p>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+			</div>
+	
+			<div class="sideContents" id="teacherInformation">
+				<p>アカウント</p>
+				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
 			</div>
 
 			<div class="sideContents" id="logout">
 				<p>ログアウト</p>
 				<a th:href = "@{/login}"></a>
 			</div>
-
 		</div>
-
-        <div class="hamburgerMenu">
-            <div class="header__inner">
-            <button id="js-hamburger" type="button" class="hamburger" aria-controls="navigation" aria-expanded="false" aria-label="メニューを開く">
-                <span class="hamburger__line"></span>
-                <span class="hamburger__text"></span>
-            </button>
-            <div class="header__nav-area js-nav-area" id="navigation">
-                <nav id="js-global-navigation" class="global-navigation">
-                <ul class="global-navigation__list">
-                <li>
-                    <a href="#" class="global-navigation__link">
-                    メニュー
-                    </a>
-                </li>
-            <li>
-            <button type="button" class="global-navigation__link -accordion js-sp-accordion-trigger" aria-expanded = 'false' aria-controls="accordion1">
-              親メニュー
-            </button>
-               <div id="accordion1" class="accordion js-accordion">
-                 <ul class="accordion__list">
-                   <li>
-                     <a href="#" class="accordion__link">
-                       子メニュー
-                     </a>
-                   </li>
-                    <li>
-                     <a href="#" class="accordion__link">
-                       子メニュー
-                     </a>
-                   </li>
-                    <li>
-                     <a href="#" class="accordion__link">
-                       子メニュー
-                     </a>
-                   </li>
-                 </ul>
-               </div>
-          </li>
-          <li>
-                 <a href="#" class="global-navigation__link">
-                メニュー
-                </a>
-          </li> 
-          </ul>
-           <div id="js-focus-trap" tabindex="0"></div>
-            </nav>
-           </div>
-           </div>
-		 </div>
-	   </div>
-
 	</body>
 </html>
