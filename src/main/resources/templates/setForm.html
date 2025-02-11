@@ -4,20 +4,28 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/setForm.css}" rel="stylesheet">
+		<script th:src="@{/js/confirm.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
 			<h1>明光義塾 勤怠管理システム</h1>
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
         </div>
-		<div class="headerClass">
-			<span th:text = "${manager.classArea}"></span>教室<br>
-		</div>
 
-		<div class="createSalary">
-			<h1>シフト情報を修正</h1>
-		</div>
+		<div>
+			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
+            <a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a> &gt;
+			<a th:href="@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}">給与管理（<span th:text="${user.userName}"></span>）</a> &gt;
+			<a th:href="@{/setForm(manager=${manager.id}, user=${user.id}, edit=${workUpdateForm.id}, year=${year}, month=${month}, tax=${tax})}">シフト修正</a>
+        </div>
+
 		<div class="main">
+			<div class="createSalary">
+				<p>シフト修正</p>
+			</div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
 			<div class="mainTable">
 			<form th:action = "@{/setForm}" method = "post" th:object = "${workUpdateForm}">
 				<table border="1" style="border-spacing: 0;" class="radius-table">
@@ -89,20 +97,35 @@
 					<input type = "text" name = "managerId" th:value = "${manager.id}">
 					<input type="text" name="tax" th:value="${tax}">
 				</div>
-				<div><input id ="delete" type = "submit" value = "シフトを削除" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
+				<div><input id ="delete" type = "submit" value = "シフトを削除" onclick="return deleteConfirm()" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
 			</form>
 			</div>
 		</div>
 		
 		<div class="side">
-			<div class="sideContents" id="teacherName">
-				<span th:text = "${user.userName}"></span>
+			<div class="sideContents" id="className">
+				<span th:text = "${manager.classArea}"></span>教室
 			</div>
+	
+			<div class="sideContents" id="goHome">
+				<p>ホーム</p>
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</div>
+	
+			<div class="sideContents" id="newAccount">
+				<p>講師管理</p>
+				<a th:href="@{/detailClass(manager=${manager.id})}"></a>
+			</div>
+	
+			<div class="sideContents" id="classInformation">
+				<p>アカウント</p>
+				<a th:href="@{/infoManager(manager=${manager.id})}"></a>
+			</div>
+			
 			<div class="sideContents" id="goBack">
-				<p>前画面に戻る</p>
+				<p>戻る</p>
 				<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
 			</div>
 		</div>
-
 	</body>
 </html>

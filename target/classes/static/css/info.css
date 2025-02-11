@@ -1,0 +1,782 @@
+body {
+    background-color: rgba(240, 240, 240, 0.772);
+}
+
+.header {
+    position:relative;
+    width: 420px;
+    margin-left: 25px;
+}
+
+h1 {
+    font-family: "MS ゴシック";
+    color:rgb(76, 76, 78);
+}
+
+.header a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}  
+
+.headerClass {
+    position: absolute;
+    top:27px;
+    left:445px;
+    width: 180px;
+    color:darkblue;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.main {
+    position: absolute;
+    left:330px;
+    top:130px;
+    width:800px;
+    height:1000px;
+}
+
+.mainInformation {
+    font-size: 25px;
+    font-weight: bold;
+}
+    
+.mainInformation p {
+    width: 170px;
+    border-bottom: solid;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+hr {
+    position: absolute;
+    top: 64.5px;
+    left: 170px;
+    width: 300px;
+}
+
+.date {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.beforeMonth {
+    position: relative;
+    margin-left: 395px;
+    margin-top:-30px;
+    height: 30px;
+    width: 50px;
+    border-radius: 5px;
+    background-color: rgb(20, 111, 201);
+    color: white;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.beforeMonth a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.beforeMonth p {
+    position: absolute;
+    top:-7px;
+    left:12px;
+}
+
+.beforeMonth:hover {
+    background-color:rgb(22, 92, 162);
+    border-radius: 5px;
+}
+
+.afterMonth {
+    position: relative;
+    margin-left: 455px;
+    margin-top:-30px;
+    height: 30px;
+    width: 50px;
+    border-radius: 5px;
+    background-color: rgb(20, 111, 201);
+    color: white;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.afterMonth a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.afterMonth p {
+    position: absolute;
+    top:-7px;
+    left:12px;
+}
+
+.afterMonth:hover {
+    background-color:rgb(22, 92, 162);
+    border-radius: 5px;
+}
+
+table {
+    border-collapse: separate;
+    width: auto;
+    height: auto;
+    background-color: white;
+    border-color: rgb(230, 230, 230);
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.radius-table{
+    border-radius: 10px;
+    border-spacing: 0;
+    border: none;
+    border-left: 1px solid #999;
+    border-top: 1px solid #999;
+}
+.radius-table tr>*{
+    padding: 5px 10px;
+    border: none;
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;
+}
+.radius-table tr:first-child>*:first-child{
+    border-radius: 10px 0 0 0;
+}
+.radius-table tr:first-child>*:last-child{
+    border-radius: 0 10px 0 0;
+}
+.radius-table tr:last-child>*:first-child{
+    border-radius: 0 0 0 10px;
+}
+.radius-table tr:last-child>*:last-child{
+    border-radius: 0 0 10px 0;
+}
+
+.mainTable {
+    text-align: center;
+    margin-top: 30px;
+}
+
+th {
+    width: 600px;
+}
+
+td {
+    height: 80px;
+    width: 600px;
+}
+
+.side {
+    position:absolute;
+    position: fixed;
+    background-color: white;
+    left: 0;
+    top: 150px;
+    width: 200px;
+    height: 530px;   
+    border: solid;
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-color: rgb(230, 230, 230);
+    box-shadow: 5px 5px 5px rgb(76, 76, 78)
+}
+
+.sideContents {
+    text-align: center;
+}
+
+#teacherName {
+    width: 180px;
+    margin:0 auto;
+    margin-top: 20px;
+    border-bottom: solid;
+    border-color:rgb(230, 230, 230);
+    color:rgb(212, 202, 13);
+    font-size: 25px;
+    font-weight: bold;
+}
+
+#goHome {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#goHome a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#goHome p {
+    position: absolute;
+    top:-6px;
+    left:60px;
+}
+
+#goHome p::before {
+    content: url(../img/home.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#goHome:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#workInfo {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#workInfo a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#workInfo p {
+    position: absolute;
+    top:-6px;
+    left:44px;
+}
+
+#workInfo p::before {
+    content: url(../img/calendar-time.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+
+#workInfo:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#detailSalary {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#detailSalary a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}
+
+#detailSalary p {
+    position: absolute;
+    top:-6px;
+    left:52px;
+}
+
+#detailSalary p::before {
+    content: url(../img/coin-yen.svg);
+    position: absolute;
+    left: -27px;
+    top: 2px;
+    display: inline-block;
+}
+
+#detailSalary:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#teacherInformation {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#teacherInformation a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#teacherInformation p {
+    position: absolute;
+    top:-6px;
+    left:48px;
+}
+
+#teacherInformation p::before {
+    content: url(../img/settings.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+
+#teacherInformation:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#goBack {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+  
+#goBack a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+  
+#goBack p {
+    position: absolute;
+    top:-6px;
+    left:69px
+}
+  
+#goBack p::before {
+    content: url(../img/arrow-back.svg);
+    position: absolute;
+    left: -27px;
+    top: 1px;
+    display: inline-block;
+}
+
+#goBack:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}  
+
+/* .hamburgerMenu {
+    display: none;
+} */
+
+/* @media screen and (max-width: 480px) {
+
+    body {
+        background-color: rgba(239, 18, 18, 0.772);
+    }
+    
+    .header {
+        position:relative;
+        width: 420px;
+        margin-left: 25px;
+    }
+    
+    h1 {
+        font-family: "MS ゴシック";
+        color:rgb(76, 76, 78);
+    }
+    
+    .header a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height:100%;
+        width: 100%;
+    }  
+    
+    .headerClass {
+        position: absolute;
+        top:27px;
+        left:445px;
+        width: 180px;
+        color:darkblue;
+        font-size: 25px;
+        font-weight: bold;
+    
+    }
+    
+    .main {
+        position: absolute;
+        left:330px;
+        top:130px;
+        width:800px;
+        height:1000px;
+    }
+    
+    .mainInformation {
+        font-size: 25px;
+        font-weight: bold;
+    }
+    
+        
+    .mainInformation p {
+        width: 170px;
+        border-bottom: solid;
+        border-width: 5px;
+        border-color:rgba(22, 79, 185, 0.937);
+        padding-bottom: 7px;
+    }
+    
+    hr {
+        position: absolute;
+        top: 64.5px;
+        left: 170px;
+        width: 300px;
+    }
+    
+    .date {
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
+    .beforeMonth {
+        position: relative;
+        margin-left: 395px;
+        margin-top:-30px;
+        height: 30px;
+        width: 50px;
+        border-radius: 5px;
+        background-color: rgb(20, 111, 201);
+        color: white;
+        font-weight:bold;
+        font-size:13px;
+    }
+    
+    .beforeMonth a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+    }
+    
+    .beforeMonth p {
+        position: absolute;
+        top:-7px;
+        left:12px;
+    }
+    
+    .beforeMonth:hover {
+        background-color:rgb(22, 92, 162);
+        border-radius: 5px;
+    }
+    
+    .afterMonth {
+        position: relative;
+        margin-left: 455px;
+        margin-top:-30px;
+        height: 30px;
+        width: 50px;
+        border-radius: 5px;
+        background-color: rgb(20, 111, 201);
+        color: white;
+        font-weight:bold;
+        font-size:13px;
+    }
+    
+    .afterMonth a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+    }
+    
+    .afterMonth p {
+        position: absolute;
+        top:-7px;
+        left:12px;
+    }
+    
+    .afterMonth:hover {
+        background-color:rgb(22, 92, 162);
+        border-radius: 5px;
+    }
+    
+    table {
+        border-collapse: separate;
+        width: auto;
+        height: auto;
+        background-color: white;
+        border-color: rgb(230, 230, 230);
+        font-size: 18px;
+        font-weight: bold;
+        box-shadow: 5px 5px 5px rgb(76, 76, 78)
+    }
+    
+    .radius-table{
+        border-radius: 10px;
+        border-spacing: 0;
+        border: none;
+        border-left: 1px solid #999;
+        border-top: 1px solid #999;
+    }
+    .radius-table tr>*{
+        padding: 5px 10px;
+        border: none;
+        border-right: 1px solid #999;
+        border-bottom: 1px solid #999;
+    }
+    .radius-table tr:first-child>*:first-child{
+        border-radius: 10px 0 0 0;
+    }
+    .radius-table tr:first-child>*:last-child{
+        border-radius: 0 10px 0 0;
+    }
+    .radius-table tr:last-child>*:first-child{
+        border-radius: 0 0 0 10px;
+    }
+    .radius-table tr:last-child>*:last-child{
+        border-radius: 0 0 10px 0;
+    }
+    
+    .mainTable {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    td {
+        height: 80px;
+        width: 600px;
+    }
+    
+    .side {
+        display:none;
+    }
+
+    .hamburgerMenu a {
+        font-family: sans-serif;
+        text-decoration: none;
+        }
+
+    .hamburger {
+        display: block;
+        height: 60px;
+        margin-left: auto;
+        position: relative;
+        z-index: 10;
+        width: 60px;
+        border: none;
+        background-color: transparent;
+    }
+    
+    .hamburger.-active .hamburger__line {
+        background-color: transparent;
+    }
+
+    .hamburger.-active .hamburger__line::before {
+        top: 0;
+        transform: rotate(45deg);
+    }
+
+    .hamburger.-active .hamburger__line::after {
+        top: 0;
+        transform: rotate(-45deg);
+    }
+
+    .hamburger.-active .hamburger__text::before {
+        content: '閉じる';
+    }
+
+    .hamburger__line {
+        display: block;
+        height: 2px;
+        position: absolute;
+        top: 23px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        background-color: #172e59;
+        transition: 0.4s;
+    }
+
+    .hamburger__line:before,
+    .hamburger__line:after {
+        content: "";
+        display: block;
+        height: 100%;
+        position: absolute;
+        width: 100%;
+        background-color: #172e59;
+        transition: inherit;
+    }
+
+    .hamburger__line:before {
+        top: -6px;
+    }
+
+    .hamburger__line:after {
+        top: 6px;
+    }
+
+    .hamburger__text {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+    }
+
+    .hamburger__text::before {
+        content: "メニュー";
+        text-align: center;
+        color: #172e59;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .hamburgerMenu {
+        width: 300px;
+    }
+
+    .header__nav-area {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        z-index: 9;
+        height: 100vh;
+        width: 300px;
+        visibility: hidden;
+        padding-top: 60px;
+        background-color: #fff;
+        transition: 0.4s;
+    }
+
+    .header__nav-area.-active {
+        left: 0;
+        visibility: visible;
+    }
+
+    .global-navigation {
+        padding-top: 40px;
+        padding-right: 25px;
+        padding-bottom: 120px;
+        padding-left: 25px;
+    }
+
+    .global-navigation__list > li {
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e7e9ee;
+    }
+
+    .global-navigation__list > li + li {
+        margin-top: 20px;
+    }
+
+    .global-navigation__link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #172e59;
+        font-weight: 900;
+        transition: color 0.4s;
+        font-size: 0.875rem;
+    }
+
+    .global-navigation__link.-accordion {
+        position: relative;
+        background: none;
+        border: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 100%;
+        padding: 0;
+    }
+
+    .global-navigation__link.-accordion::after {
+        content: '';
+        display: block;
+        height: 12px;
+        position: absolute;
+        top: 50%;
+        right: 5px;
+        width: 2px;
+        background-color: #ed3242;
+        transform: translateY(-50%);
+        transition: transform 0.4s;
+    }
+
+    .global-navigation__link.-accordion::before {
+        content: '';
+        display: block;
+        height: 2px;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        width: 12px;
+        background-color: #ed3242;
+        transform: translateY(-50%);
+            
+    }
+
+    .global-navigation__link.-active::after {
+        transform: translateY(-50%) rotate(-90deg);
+    }
+
+    .accordion {
+        height: 0;
+        overflow: hidden;
+        visibility: hidden;
+        transition: 0.4s;
+    }
+
+    .accordion.-active {
+        height: auto;
+        padding-top: 30px;
+        visibility: visible;
+    }
+
+    .accordion__list li {
+        font-size: 0.75rem;
+    }
+
+    .accordion__list li + li {
+        margin-top: 21px;
+    }
+    
+    .accordion__link {
+        color: #172e59;
+    }
+
+} */

@@ -11,23 +11,20 @@
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
 		</div>
 
+		<div>
+			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a>
+		</div>
+
 		<div class="main">
 			<div class="teacherTable">
-			<p>在籍講師一覧</p>
+			<p>ホーム</p>
 			</div>
 			<div class="border">
 				<hr size="2" color="lightgray">
 			</div>
-			<div class="mainTable">
-			<table border="1" style="border-spacing: 0;" class="radius-table">
-				<tr colspan="3" th:each = "u : ${userList}">
-					<td th:text = "${u.userName}"></td>
-					<td id="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}"><p>給与明細</p>
-					</a></td>
-					<td id="information"><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><p>基本情報</p></a></td>
-				</tr>
-			</table>
-		    </div>
+			<div>
+				内容未定
+			</div>
 		</div>
 		<br>
 
@@ -36,16 +33,20 @@
 			<span th:text = "${manager.classArea}"></span>教室
 		</div>
 
+		<div class="sideContents" id="goHome">
+			<p>ホーム</p>
+            <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+		</div>
+
 		<div class="sideContents" id="newAccount">
-			<p>新規講師登録</p>
-			<a th:href="@{/signUp(manager=${manager.id})}"></a>
+			<p>講師管理</p>
+			<a th:href="@{/detailClass(manager=${manager.id})}"></a>
 		</div>
 
 		<div class="sideContents" id="classInformation">
-			<p>教室情報</p>
+			<p>アカウント</p>
 			<a th:href="@{/infoManager(manager=${manager.id})}"></a>
 		</div>
-
 		
 		<div class="sideContents" id="logout">
 			<p>ログアウト</p>

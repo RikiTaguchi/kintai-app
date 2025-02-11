@@ -19,17 +19,6 @@ h1 {
     left: 0;
     height:100%;
     width: 100%;
-}  
-
-.headerClass {
-    position: absolute;
-    top:27px;
-    left:445px;
-    width: 180px;
-    color:darkblue;
-    font-size: 25px;
-    font-weight: bold;
-
 }
 
 .main {
@@ -254,7 +243,7 @@ table {
     left: 0;
     top: 150px;
     width: 200px;
-    height: 270px;   
+    height: 440px;   
     border: solid;
     border-left: none;
     border-top-right-radius: 8px;
@@ -267,21 +256,20 @@ table {
     text-align: center;
 }
 
-#teacherName {
+#className {
     width: 180px;
     margin:0 auto;
     margin-top: 20px;
     border-bottom: solid;
     border-color:rgb(230, 230, 230);
-    color:rgb(212, 202, 13);
+    color:darkblue;
     font-size: 25px;
     font-weight: bold;
 }
 
-
-#newSalary {
+#newAccount {
     position: relative;
-    margin-left: 21px;
+    margin: 0 auto;
     margin-top:35px;
     height: 50px;
     width: 160px;
@@ -289,7 +277,44 @@ table {
     font-size:18px;
 }
 
-#newSalary a {
+#newAccount a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}
+
+#newAccount p {
+    position: absolute;
+    top:-6px;
+    left:52px;
+}
+
+#newAccount p::before {
+    content: url(../img/user.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#newAccount:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#classInformation {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#classInformation a {
     position: absolute;
     top: 0;
     left: 0;
@@ -297,20 +322,28 @@ table {
     width: 100%;
 }
 
-#newSalary p {
+#classInformation p {
     position: absolute;
     top:-6px;
-    left:33px;
+    left:48px;
 }
 
-#newSalary:hover {
+#classInformation p::before {
+    content: url(../img/settings.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+
+#classInformation:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
 
 #goHome {
     position: relative;
-    margin-left: 22px;
+    margin: 0 auto;
     margin-top:35px;
     height: 50px;
     width: 160px;
@@ -329,18 +362,55 @@ table {
 #goHome p {
     position: absolute;
     top:-6px;
-    left:35px
+    left:60px;
 }
 
 #goHome p::before {
-    content: url(../img/logout.svg);
+    content: url(../img/home.svg);
     position: absolute;
-    left: -25px;
-    top: 2px;
+    left: -27px;
+    top: 0px;
     display: inline-block;
 }
 
 #goHome:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#goBack {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#goBack a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#goBack p {
+    position: absolute;
+    top:-6px;
+    left:69px
+}
+
+#goBack p::before {
+    content: url(../img/arrow-back.svg);
+    position: absolute;
+    left: -27px;
+    top: 1px;
+    display: inline-block;
+}
+
+#goBack:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }

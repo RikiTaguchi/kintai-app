@@ -19,39 +19,34 @@ h1 {
     left: 0;
     height:100%;
     width: 100%;
-}  
-
-.headerClass {
-    position: absolute;
-    top:27px;
-    left:445px;
-    width: 180px;
-    color:darkblue;
-    font-size: 25px;
-    font-weight: bold;
-
-}
-
-.createSalary {
-    padding-top:20px;
-    font-family: "MS ゴシック";
-    text-align: center;
-    color:rgb(76, 76, 78);
 }
 
 .main {
-    background-color: white;
-    margin:  0 auto;
-    padding:50px;
-    padding-top: 30px;
-    padding-bottom: 20px;
-    margin-bottom: 100px;
-    width: 500px;
-    height: 770px;
-    border: solid;
-    border-color: rgb(230, 230, 230);
-    border-radius: 8px;
-    text-align: center;
+    position: absolute;
+    left:330px;
+    top:130px;
+    width:800px;
+    height:1000px;
+}
+
+.createSalary {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.createSalary p {
+    width: 200px;
+    border-bottom: solid;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+hr {
+    position: absolute;
+    top: 64.5px;
+    left: 200px;
+    width: 300px;
 }
 
 table {
@@ -121,7 +116,7 @@ td {
     left: 0;
     top: 150px;
     width: 200px;
-    height: 180px;   
+    height: 440px;   
     border: solid;
     border-left: none;
     border-top-right-radius: 8px;
@@ -134,15 +129,126 @@ td {
     text-align: center;
 }
 
-#teacherName {
+#className {
     width: 180px;
     margin:0 auto;
     margin-top: 20px;
     border-bottom: solid;
     border-color:rgb(230, 230, 230);
-    color:rgb(212, 202, 13);
+    color:darkblue;
     font-size: 25px;
     font-weight: bold;
+}
+
+#newAccount {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#newAccount a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}
+
+#newAccount p {
+    position: absolute;
+    top:-6px;
+    left:52px;
+}
+
+#newAccount p::before {
+    content: url(../img/user.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#newAccount:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#classInformation {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#classInformation a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#classInformation p {
+    position: absolute;
+    top:-6px;
+    left:48px;
+}
+
+#classInformation p::before {
+    content: url(../img/settings.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+
+#classInformation:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#goHome {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#goHome a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#goHome p {
+    position: absolute;
+    top:-6px;
+    left:60px;
+}
+
+#goHome p::before {
+    content: url(../img/home.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#goHome:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
 }
 
 #goBack {
@@ -166,14 +272,14 @@ td {
 #goBack p {
     position: absolute;
     top:-6px;
-    left:42px
+    left:69px
 }
 
 #goBack p::before {
-    content: url(../img/logout.svg);
+    content: url(../img/arrow-back.svg);
     position: absolute;
-    left: -25px;
-    top: 2px;
+    left: -27px;
+    top: 1px;
     display: inline-block;
 }
 

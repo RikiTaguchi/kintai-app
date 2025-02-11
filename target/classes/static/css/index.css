@@ -1,5 +1,3 @@
-@media screen and (min-width: 481px) { 
-
 body {
     background-color: rgba(240, 240, 240, 0.772);
 }
@@ -214,10 +212,120 @@ td {
     font-weight: bold;
 }
 
+#goHome {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#goHome a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#goHome p {
+    position: absolute;
+    top:-6px;
+    left:60px;
+}
+
+#goHome p::before {
+    content: url(../img/home.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#goHome:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#workInfo {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#workInfo a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#workInfo p {
+    position: absolute;
+    top:-6px;
+    left:44px;
+}
+
+#workInfo p::before {
+    content: url(../img/calendar-time.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+
+#workInfo:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#detailSalary {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#detailSalary a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}
+
+#detailSalary p {
+    position: absolute;
+    top:-6px;
+    left:52px;
+}
+
+#detailSalary p::before {
+    content: url(../img/coin-yen.svg);
+    position: absolute;
+    left: -27px;
+    top: 2px;
+    display: inline-block;
+}
+
+#detailSalary:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
 
 #teacherInformation {
     position: relative;
-    margin-left: 21px;
+    margin: 0 auto;
     margin-top:35px;
     height: 50px;
     width: 160px;
@@ -235,108 +343,19 @@ td {
 
 #teacherInformation p {
     position: absolute;
-    top:-9px;
-    left:40px;
+    top:-6px;
+    left:48px;
+}
+
+#teacherInformation p::before {
+    content: url(../img/settings.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
 }
 
 #teacherInformation:hover {
-    background-color:rgba(223, 221, 221, 0.577);
-    border-radius: 5px;
-}
-
-#teacherInformation p::after {
-    content: url(../img/file-info.svg);
-    display: inline-block;
-}
-
-#salaryDetails {
-    position: relative;
-    margin-left: 22px;
-    margin-top:35px;
-    height: 50px;
-    width: 160px;
-    font-weight:bold;
-    font-size:18px;
-}
-
-#salaryDetails a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-
-#salaryDetails p {
-    position: absolute;
-    top:-9px;
-    left:40px
-}
-
-#salaryDetails:hover {
-    background-color:rgba(223, 221, 221, 0.577);
-    border-radius: 5px;
-}
-
-#salaryDetails p::after {
-    content: url(../img/coin-yen.svg);
-    display: inline-block;
-}
-
-#shiftRegistration {
-    position: relative;
-    margin-left: 22px;
-    margin-top:35px;
-    height: 50px;
-    width: 160px;
-    font-weight:bold;
-    font-size:18px;
-}
-
-#shiftRegistration a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-
-#shiftRegistration p {
-    position: absolute;
-    top:-6px;
-    left:35px
-}
-
-#shiftRegistration:hover {
-    background-color:rgba(223, 221, 221, 0.577);
-    border-radius: 5px;
-}
-
-#template {
-    position: relative;
-    margin: 0 auto;
-    margin-top:35px;
-    height: 50px;
-    width: 160px;
-    font-weight:bold;
-    font-size:18px;
-}
-
-#template a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-
-#template p {
-    position: absolute;
-    top:-6px;
-    left:29px
-}
-
-#template:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
@@ -378,13 +397,11 @@ td {
     border-radius: 5px;
 }
 
-.hamburgerMenu {
+/* .hamburgerMenu {
     display: none;
-}
+} */
 
-}
-
-@media screen and (max-width: 480px) {
+/* @media screen and (max-width: 480px) {
 
     body {
         background-color: rgba(239, 18, 18, 0.772);
@@ -764,4 +781,4 @@ td {
         color: #172e59;
     }
 
-}
+} */

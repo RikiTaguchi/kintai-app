@@ -14,11 +14,14 @@
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
 
-		
-		<h1 class="editInformation">登録情報を修正</h1>
 		<div class="main">
+			<div class="mainInformation">
+				<p>アカウント情報修正</p>
+		    </div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
 			<form th:action = "@{/userForm}" method = "post" th:object = "${userUpdateForm}">
-			
                 <div>
 					<label for = "loginId">ログインID</label>
 					<input id = "loginId" type = "text" th:field = "*{loginId}" required>
@@ -31,11 +34,13 @@
 					<input id = "id" type = "text" th:field = "*{id}">
 					<input id = "userName" type = "text" th:field = "*{userName}">
 					<input id = "classAreaId" type = "text" th:field = "*{classAreaId}">
+					<input id="teacherNo" type="number" th:field="*{teacherNo}">
+					<input id="state" type="text" th:field="*{state}">
+					<input id="retireDate" type="text" th:field="*{retireDate}">
 				</div>
 				<div>
 					<input id = "updateButton" type = "submit" value = "更新" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
-                
 			</form>
 		</div>
 
@@ -43,9 +48,29 @@
 			<div class="sideContents" id="teacherName">
 				<span th:text = "${user.userName}"></span>
 			</div>
+
+			<div class="sideContents" id="goHome">
+				<p>ホーム</p>
+				<a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
+			<div class="sideContents" id="workInfo">
+                <p>シフト管理</p>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+            </div>
+
+            <div class="sideContents" id="detailSalary">
+				<p>給与情報</p>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+			</div>
 	
+			<div class="sideContents" id="teacherInformation">
+				<p>アカウント</p>
+				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+			</div>
+
 			<div class="sideContents" id="goBack">
-				<p>前画面に戻る</p>
+				<p>戻る</p>
 				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
 			</div>
 		</div>

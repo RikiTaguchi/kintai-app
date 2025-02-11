@@ -4,20 +4,28 @@
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/salaryForm.css}" rel="stylesheet">
+		<script th:src="@{/js/confirm.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
             <h1>明光義塾 勤怠管理システム</h1>
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
         </div>
-		<div class="headerClass">
-			<span th:text = "${manager.classArea}"></span>教室<br>
-		</div>
+
+		<div>
+			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
+			<a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a> &gt;
+			<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">基本情報（<span th:text="${user.userName}"></span>）</a> &gt;
+			<a th:href="@{/salaryForm(manager=${manager.id}, user=${user.id}, salary=${salaryUpdateForm.id}, year=${year}, month=${month})}">給与修正</a>
+        </div>
 		
-		<div class="createSalary">
-			<h1>給与形態を変更</h1>
-		</div>
 		<div class="main">
+			<div class="createSalary">
+				<p>給与修正</p>
+			</div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
 			<div class="mainTable">
 			<form th:action = "@{/salaryForm}" method = "post" th:object = "${salaryUpdateForm}">
 				<table border="1" style="border-spacing: 0;" class="radius-table">
@@ -32,7 +40,7 @@
 					<input id = "id" type = "text" th:field = "*{id}">
 				</div>
 				<div>
-					<input id="createButton" type = "submit" value = "更新"style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+					<input id="createButton" type = "submit" value = "修正" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
 			<form th:action="@{/deleteSalary}" method="post">
@@ -43,18 +51,34 @@
 					<input type="text" name="year" th:value="${year}">
 					<input type="text" name="month" th:value="${month}">
 				</div>
-				<input id ="delete" type="submit" value="この給与形態を削除" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+				<input id ="delete" type="submit" value="削除" onclick="return deleteConfirm()" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 			</form>
 			</div>
 		</div>
 		
 		<div class="side">
-			<div class="sideContents" id="teacherName">
-				<span th:text = "${user.userName}"></span>
+			<div class="sideContents" id="className">
+				<span th:text = "${manager.classArea}"></span>教室
 			</div>
+	
+			<div class="sideContents" id="goHome">
+				<p>ホーム</p>
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</div>
+	
+			<div class="sideContents" id="newAccount">
+				<p>講師管理</p>
+				<a th:href="@{/detailClass(manager=${manager.id})}"></a>
+			</div>
+	
+			<div class="sideContents" id="classInformation">
+				<p>アカウント</p>
+				<a th:href="@{/infoManager(manager=${manager.id})}"></a>
+			</div>
+			
 			<div class="sideContents" id="goBack">
-				<p>TOPに戻る</p>
-				<a th:href = "@{/infoUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
+				<p>戻る</p>
+				<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}"></a>
 			</div>
 		</div>
 	</body>

@@ -35,7 +35,10 @@ CREATE TABLE IF NOT EXISTS users (
 	loginId varchar(256),
 	userName varchar(256),
 	password varchar(256),
-	classAreaId UUID
+	classAreaId UUID,
+	teacherNo int,
+	state Boolean,
+	retireDate char(10)
 );
 
 CREATE TABLE IF NOT EXISTS managers (
@@ -84,4 +87,13 @@ CREATE TABLE IF NOT EXISTS incometaxes (
 	min int,
 	max int,
 	tax int
+);
+
+CREATE TABLE IF NOT EXISTS locks (
+	id UUID,
+	classAreaId UUID,
+	userId UUID,
+	year int,
+	month int,
+	status Boolean
 );

@@ -3,6 +3,7 @@ package com.meikokintai.kintai_app.controller;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,12 +32,14 @@ import com.meikokintai.kintai_app.model.Salary;
 import com.meikokintai.kintai_app.model.User;
 import com.meikokintai.kintai_app.model.Work;
 import com.meikokintai.kintai_app.model.WorkTemplate;
+import com.meikokintai.kintai_app.model.Lock;
 import com.meikokintai.kintai_app.service.IncomeTaxService;
 import com.meikokintai.kintai_app.service.ManagerService;
 import com.meikokintai.kintai_app.service.SalaryService;
 import com.meikokintai.kintai_app.service.UserService;
 import com.meikokintai.kintai_app.service.WorkService;
 import com.meikokintai.kintai_app.service.WorkTemplateService;
+import com.meikokintai.kintai_app.service.LockService;
 import com.meikokintai.kintai_app.util.DateSet;
 
 import jakarta.servlet.http.Cookie;
@@ -46,31 +49,33 @@ import jakarta.servlet.http.HttpServletResponse;
 @Controller
 public class HomeController {
     
+    // サービスの宣言
     private final WorkService workService;
     private final UserService userService;
     private final ManagerService managerService;
     private final SalaryService salaryService;
     private final WorkTemplateService workTemplateService;
     private final IncomeTaxService incomeTaxService;
+    private final LockService lockService;
 
-    // ドメイン名(ローカル用)
-    private final String domainLocal = "localhost:8080";
-
-    // ドメイン名(AWS本番環境用)
-    private final String domainAWS = "meikokintai.com";
+    // ドメイン名
+    private final String domainLocal = "localhost:8080"; // ローカル環境
+    private final String domainAWS = "meikokintai.com"; // 本番環境
     
-    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService, IncomeTaxService incomeTaxService) {
+    // ホームコントローラー
+    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService, IncomeTaxService incomeTaxService, LockService lockService) {
         this.workService = workService;
         this.userService = userService;
         this.managerService = managerService;
         this.salaryService = salaryService;
         this.workTemplateService = workTemplateService;
         this.incomeTaxService = incomeTaxService;
+        this.lockService = lockService;
     }
     
-    // 講師ホーム画面
-    @GetMapping("/index")
-    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    // 勤務履歴（講師用）
+    @GetMapping("/info")
+    String info(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
             Date dateFrom = DateSet.getDatePeriod(year, month)[0];
             Date dateTo = DateSet.getDatePeriod(year, month)[1];
@@ -107,7 +112,7 @@ public class HomeController {
             model.addAttribute("yearNext", yearNext);
             model.addAttribute("monthNext", monthNext);
             redirectAttributes.addAttribute("user", userId);
-            return "index";
+            return "info";
         } catch (Exception e) {
             System.out.println("Error happened in index.html");
             e.printStackTrace();
@@ -121,40 +126,40 @@ public class HomeController {
         }
     }
     
-    // 社員ホーム画面
-    @GetMapping("/indexManager")
-    String indexManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+    // 講師ホーム画面
+    @GetMapping("/index")
+    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
-            Calendar calendar = Calendar.getInstance();
-            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
-            List<User> userList = userService.findByClassAreaId(UUID.fromString(managerId));
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("userList", userList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
-            redirectAttributes.addAttribute("manager", managerId);
-            return "indexManager";
+            redirectAttributes.addAttribute("user", userId);
+            return "index";
         } catch (Exception e) {
-            System.out.println("Error happened in indexManager.html");
+            System.out.println("Error happened in index.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
+                return "redirect:login";
             } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
                 return redirectUrl;
             }
         }
     }
-    
-    // 給与詳細（講師用）
-    @GetMapping("/detail")
-    String detail(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax) {
+
+    // 給与情報（講師用）
+    @GetMapping("/infoSalary")
+    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax) {
         try {
+            // 基本情報の取得
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
+
+            // 給与明細の計算
             Date dateFrom = DateSet.getDatePeriod(year, month)[0];
             Date dateTo = DateSet.getDatePeriod(year, month)[1];
             String yearBefore = DateSet.getDateBefore(year, month)[0];
@@ -225,6 +230,20 @@ public class HomeController {
                     sumSalaryFormatted[i] = Integer.toString(sumSalary[i]);
                 }
             }
+
+            // 給与情報の取得
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = String.format("%04d", calendar.get(Calendar.YEAR));
+            String monthNow = String.format("%02d", calendar.get(Calendar.MONTH)+1);
+            String dayNow = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
+            Salary salaryNow = salaryService.getByDate(UUID.fromString(userId), yearNow+"-"+monthNow+"-"+dayNow);
+            List<Salary> salaryNowList = salaryService.findByUserId(UUID.fromString(userId));
+            String salaryNowFormatted[] = new String[4];
+            salaryNowFormatted[0] = String.format("%,d", salaryNow.getClassSalary());
+            salaryNowFormatted[1] = String.format("%,d", salaryNow.getOfficeSalary());
+            salaryNowFormatted[2] = String.format("%,d", salaryNow.getSupportSalary());
+            salaryNowFormatted[3] = String.format("%,d", salaryNow.getCarfare());
+
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("salary", salary);
@@ -239,10 +258,13 @@ public class HomeController {
             model.addAttribute("monthNext", monthNext);
             model.addAttribute("tax", tax);
             model.addAttribute("incomeTaxFormatted", incomeTaxFormatted);
+            model.addAttribute("salaryNow", salaryNow);
+            model.addAttribute("salaryNowFormatted", salaryNowFormatted);
+            model.addAttribute("salaryNowList", salaryNowList);
             redirectAttributes.addAttribute("user", userId);
-            return "detail";
+            return "infoSalary";
         } catch (Exception e) {
-            System.out.println("Error happened in detail.html");
+            System.out.println("Error happened in infoSalary.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -253,7 +275,7 @@ public class HomeController {
             }
         }
     }
-    
+
     // 勤務詳細（講師用）
     @GetMapping("/detailWork")
     String detailWork(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
@@ -264,6 +286,13 @@ public class HomeController {
             Salary salary = salaryService.getByDate(UUID.fromString(userId), work.getDate());
             String supportSalaryFormatted = String.format("%,d", salary.getSupportSalary());
             String carfareFormatted = String.format("%,d", work.getCarfare());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            Boolean lockStatus;
+            if (lock == null || !lock.getStatus()) {
+                lockStatus = false;
+            } else {
+                lockStatus = true;
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("salary", salary);
@@ -272,6 +301,7 @@ public class HomeController {
             model.addAttribute("work", work);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("lockStatus", lockStatus);
             redirectAttributes.addAttribute("user", userId);
             return "detailWork";
         } catch (Exception e) {
@@ -287,7 +317,961 @@ public class HomeController {
         }
     }
     
-    // 給与詳細（社員用）
+    // 給与推移（講師用）
+    @GetMapping("/detailSalary")
+    String detailSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
+            Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
+            for (Salary salary : salaryList) {
+                String salariesFormatted[] = new String[4];
+                salariesFormatted[0] = String.format("%,d", salary.getClassSalary());
+                salariesFormatted[1] = String.format("%,d", salary.getOfficeSalary());
+                salariesFormatted[2] = String.format("%,d", salary.getSupportSalary());
+                salariesFormatted[3] = String.format("%,d", salary.getCarfare());
+                salaryMapFormatted.put(salary.getId(), salariesFormatted);
+            }
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("salaryList", salaryList);
+            model.addAttribute("salaryMapFormatted", salaryMapFormatted);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "detailSalary";
+        } catch (Exception e) {
+            System.out.println("Error happened in detailSalary.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // テンプレート詳細（講師用）
+    @GetMapping("/detailTemplate")
+    String detailTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
+            String carfareFormatted = String.format("%,d", template.getCarfare());
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("template", template);
+            model.addAttribute("carfareFormatted", carfareFormatted);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "detailTemplate";
+        } catch (Exception e) {
+            System.out.println("Error happened in detailTemplate.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // テンプレート一覧（講師用）
+    @GetMapping("/infoTemplate")
+    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("templateList", templateList);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "infoTemplate";
+        } catch (Exception e) {
+            System.out.println("Error happened in infoTemplate.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // シフト登録（講師用）
+    @GetMapping("/addForm")
+    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            String yearBefore = DateSet.getDateBefore(year, month)[0];
+            String monthBefore = DateSet.getDateBefore(year, month)[1];
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+            Work work = new Work();
+            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+            work.setUserId(user.getId());
+            work.setCarfare(salary.getCarfare());
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("workCreateForm", work);
+            model.addAttribute("templateList", templateList);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "addForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in addForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // テンプレート登録（講師用）
+    @GetMapping("/templateForm")
+    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            String yearBefore = DateSet.getDateBefore(year, month)[0];
+            String monthBefore = DateSet.getDateBefore(year, month)[1];
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+            WorkTemplate template = new WorkTemplate();
+            template.setUserId(user.getId());
+            template.setCarfare(salary.getCarfare());
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("templateCreateForm", template);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "templateForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in templateForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // シフト修正（講師用）
+    @GetMapping("/editForm")
+    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Work work = workService.findWorkById(UUID.fromString(editId));
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            if (lock == null || !lock.getStatus()) {
+                if (work.getTimeStart().equals("     ")) {
+                    work.setTimeStart("");
+                }
+                if (work.getTimeEnd().equals("     ")) {
+                    work.setTimeEnd("");
+                }
+                if (work.getOfficeTimeStart().equals("     ")) {
+                    work.setOfficeTimeStart("");
+                }
+                if (work.getOfficeTimeEnd().equals("     ")) {
+                    work.setOfficeTimeEnd("");
+                }
+                if (work.getOtherTimeStart().equals("     ")) {
+                    work.setOtherTimeStart("");
+                }
+                if (work.getOtherTimeEnd().equals("     ")) {
+                    work.setOtherTimeEnd("");
+                }
+                List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+                model.addAttribute("user", user);
+                model.addAttribute("manager", manager);
+                model.addAttribute("workUpdateForm", work);
+                model.addAttribute("templateList", templateList);
+                model.addAttribute("year", year);
+                model.addAttribute("month", month);
+                redirectAttributes.addAttribute("user", userId);
+                return "editForm";
+            } else {
+                redirectAttributes.addAttribute("user", user.getId());
+                redirectAttributes.addAttribute("detail", work.getId());
+                redirectAttributes.addAttribute("year", year);
+                redirectAttributes.addAttribute("month", month);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:detailWork";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // テンプレート修正（講師用）
+    @GetMapping("/editTemplateForm")
+    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(editId));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("templateUpdateForm", template);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "editTemplateForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in editTemplateForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // 講師基本情報（講師用）
+    @GetMapping("/user")
+    String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = String.format("%04d", calendar.get(Calendar.YEAR));
+            String monthNow = String.format("%02d", calendar.get(Calendar.MONTH)+1);
+            String dayNow = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearNow+"-"+monthNow+"-"+dayNow);
+            List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
+            String salaryFormatted[] = new String[4];
+            salaryFormatted[0] = String.format("%,d", salary.getClassSalary());
+            salaryFormatted[1] = String.format("%,d", salary.getOfficeSalary());
+            salaryFormatted[2] = String.format("%,d", salary.getSupportSalary());
+            salaryFormatted[3] = String.format("%,d", salary.getCarfare());
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("salary", salary);
+            model.addAttribute("salaryFormatted", salaryFormatted);
+            model.addAttribute("salaryList", salaryList);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "user";
+        } catch (Exception e) {
+            System.out.println("Error happened in user.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // 講師アカウント情報修正（講師用）
+    @GetMapping("/userForm")
+    String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            String yearBefore = DateSet.getDateBefore(year, month)[0];
+            String monthBefore = DateSet.getDateBefore(year, month)[1];
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("salary", salary);
+            model.addAttribute("userUpdateForm", user);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "userForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in userForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // シフト登録（講師用）
+    @PostMapping("/addForm")
+    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes) {
+        try {
+            String year = DateSet.getYear(form.getDate());
+            String month = DateSet.getMonth(form.getDate());
+            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
+            User user = userService.getByUserId(form.getUserId());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            form.setDayOfWeek(dayOfWeek);
+            form.setSupportSalary("true");
+            redirectAttributes.addAttribute("user", form.getUserId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            try {
+                if (lock == null || !lock.getStatus()) {
+                    form = workService.calcTimeAndSalary(form);
+                    workService.add(form);
+                    String host = request.getHeader("Host");
+                    if (host.equals(domainLocal)) {
+                        return "redirect:info";
+                    } else {
+                        String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
+                        return redirectUrl;
+                    }
+                } else {
+                    String host = request.getHeader("Host");
+                    if (host.equals(domainLocal)) {
+                        return "redirect:addForm";
+                    } else {
+                        String redirectUrl = String.format("redirect:https://%s/addForm", domainAWS);
+                        return redirectUrl;
+                    }
+                }
+            } catch (Exception e) {
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:addForm";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/addForm", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in addForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // テンプレート登録（講師用）
+    @PostMapping("/templateForm")
+    String templateFormPost(HttpServletRequest request, @ModelAttribute("templateCreateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            workTemplateService.add(form);
+            redirectAttributes.addAttribute("user", form.getUserId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoTemplate";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in templateForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // シフト修正（講師用）
+    @PostMapping("/editForm")
+    String editFormPost(HttpServletRequest request, @ModelAttribute("workUpdateForm") Work form, RedirectAttributes redirectAttributes) {
+        try {
+            String year = DateSet.getYear(form.getDate());
+            String month = DateSet.getMonth(form.getDate());
+            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
+            User user = userService.getByUserId(form.getUserId());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            form.setDayOfWeek(dayOfWeek);
+            form.setSupportSalary("true");
+            redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("detail", form.getId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            try {
+                if (lock == null || !lock.getStatus()) {
+                    form = workService.calcTimeAndSalary(form);
+                    workService.update(form);
+                }
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:detailWork";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    return redirectUrl;
+                }
+            } catch (Exception e) {
+                redirectAttributes.addAttribute("edit", form.getId());
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:editForm";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/editForm", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // シフト削除（講師用）
+    @PostMapping("/deleteWork")
+    String deleteWork(HttpServletRequest request, @Param("userId") String userId, @Param("deleteId") String deleteId, RedirectAttributes redirectAttributes) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Work work = workService.findWorkById(UUID.fromString(deleteId));
+            String year = DateSet.getYear(work.getDate());
+            String month = DateSet.getMonth(work.getDate());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            if (lock == null || !lock.getStatus()) {
+                workService.deleteById(UUID.fromString(deleteId));
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:info";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
+                    return redirectUrl;
+                }
+            } else {
+                redirectAttributes.addAttribute("detail", work.getId());
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:detailWork";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteWork(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // 講師アカウント情報修正（講師用）
+    @PostMapping("/userForm")
+    String userFormPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userUpdateForm") User form, RedirectAttributes redirectAttributes) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            userService.update(form);
+            Cookie cookieLoginId = new Cookie("userLoginId", form.getLoginId());
+            cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
+            cookieLoginId.setHttpOnly(true);
+            cookieLoginId.setPath("/");
+            response.addCookie(cookieLoginId);
+            Cookie cookiePassword = new Cookie("userPassword", form.getPassword());
+            cookiePassword.setMaxAge(30 * 24 * 60 * 60);
+            cookiePassword.setHttpOnly(true);
+            cookiePassword.setPath("/");
+            response.addCookie(cookiePassword);
+            redirectAttributes.addAttribute("user", form.getId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:user";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/user", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in userForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // テンプレート修正（講師用）
+    @PostMapping("/editTemplateForm")
+    String editTemplateFormPost(HttpServletRequest request, @ModelAttribute("templateUpdateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            workTemplateService.update(form);
+            redirectAttributes.addAttribute("user", form.getUserId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoTemplate";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editTemplateForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // テンプレート削除（講師用）
+    @PostMapping("/deleteTemplate")
+    String deleteTemplate(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            workTemplateService.deleteById(UUID.fromString(deleteId));
+            redirectAttributes.addAttribute("user", userId);
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoTemplate";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteTemplate(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // 講師ログイン（講師用）
+    @GetMapping("/login")
+    String loginGet(HttpServletRequest request, Model model) {
+        try {
+            User user = new User();
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("userLoginId".equals(cookie.getName())) {
+                        user.setLoginId(cookie.getValue());
+                    } else if ("userPassword".equals(cookie.getName())) {
+                        user.setPassword(cookie.getValue());
+                    }
+                }
+            }
+            model.addAttribute("userLoginForm", user);
+            return "login";
+        } catch (Exception e) {
+            System.out.println("Error happened in login.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // 講師ログイン（講師用）
+    @PostMapping("/login")
+    String loginPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userLoginForm") User loginUser, RedirectAttributes redirectAttributes) {
+        try {
+            User trueUser = userService.getByLoginId(loginUser.getLoginId());
+            if (trueUser == null || !trueUser.getPassword().equals(loginUser.getPassword())) {
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:login";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                    return redirectUrl;
+                }
+            } else {
+                Cookie cookieLoginId = new Cookie("userLoginId", trueUser.getLoginId());
+                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
+                cookieLoginId.setHttpOnly(true);
+                cookieLoginId.setPath("/");
+                response.addCookie(cookieLoginId);
+                Cookie cookiePassword = new Cookie("userPassword", trueUser.getPassword());
+                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
+                cookiePassword.setHttpOnly(true);
+                cookiePassword.setPath("/");
+                response.addCookie(cookiePassword);
+                UUID userId = trueUser.getId();                        
+                Calendar calendar = Calendar.getInstance();
+                String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+                String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+                redirectAttributes.addAttribute("user", userId);
+                redirectAttributes.addAttribute("year", year);
+                redirectAttributes.addAttribute("month", month);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:index";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/index", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in login(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // 社員アカウントでの処理
+    /// 機能
+    //// 管理者アカウントの作成・修正・削除
+    //// 講師アカウントの作成・修正・削除
+    //// シフト登録・修正・削除
+    //// ロック状態の変更
+    //// Excelファイルのエクスポート
+    //// 給与情報の登録・修正・削除
+
+    // アカウント作成（get）
+    @GetMapping("/signUpManager")
+    String signUpManagerGet(HttpServletRequest request, Model model) {
+        try {
+            model.addAttribute("managerCreateForm", new Manager());
+            return "signUpManager";
+        } catch (Exception e) {
+            System.out.println("Error happened in signUpManager.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // アカウント作成（post）
+    @PostMapping("/signUpManager")
+    String signUpManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerCreateForm") Manager manager) {
+        try {
+            if (managerService.getByLoginId(manager.getLoginId()) == null) {
+                managerService.add(manager.getLoginId(), manager.getPassword(), manager.getClassArea());
+                Cookie cookieLoginId = new Cookie("managerLoginId", manager.getLoginId());
+                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
+                cookieLoginId.setHttpOnly(true);
+                cookieLoginId.setPath("/");
+                response.addCookie(cookieLoginId);
+                Cookie cookiePassword = new Cookie("managerPassword", manager.getPassword());
+                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
+                cookiePassword.setHttpOnly(true);
+                cookiePassword.setPath("/");
+                response.addCookie(cookiePassword);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:loginManager";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                    return redirectUrl;
+                }
+            } else {
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:signUpManager";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/signUpManager", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in signUpManager(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ログイン（get）
+    @GetMapping("/loginManager")
+    String loginManagerGet(HttpServletRequest request, Model model) {
+        try {
+            Manager manager = new Manager();
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("managerLoginId".equals(cookie.getName())) {
+                        manager.setLoginId(cookie.getValue());
+                    } else if ("managerPassword".equals(cookie.getName())) {
+                        manager.setPassword(cookie.getValue());
+                    }
+                }
+            }
+            model.addAttribute("managerLoginForm", manager);
+            return "loginManager";
+        } catch (Exception e) {
+            System.out.println("Error happened in loginManager.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ログイン（post）
+    @PostMapping("/loginManager")
+    String loginManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerLoginForm") Manager loginManager, RedirectAttributes redirectAttributes) {
+        try {
+            Manager trueManager = managerService.getByLoginId(loginManager.getLoginId());
+            if (trueManager == null || !trueManager.getPassword().equals(loginManager.getPassword())) {
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:loginManager";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                    return redirectUrl;
+                }
+            } else {
+                Cookie cookieLoginId = new Cookie("managerLoginId", trueManager.getLoginId());
+                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
+                cookieLoginId.setHttpOnly(true);
+                cookieLoginId.setPath("/");
+                response.addCookie(cookieLoginId);
+                Cookie cookiePassword = new Cookie("managerPassword", trueManager.getPassword());
+                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
+                cookiePassword.setHttpOnly(true);
+                cookiePassword.setPath("/");
+                response.addCookie(cookiePassword);
+                UUID managerId = trueManager.getId();
+                redirectAttributes.addAttribute("manager", managerId);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:indexManager";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/indexManager", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in loginManager(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム
+    @GetMapping("/indexManager")
+    String indexManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            model.addAttribute("manager", manager);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("manager", managerId);
+            return "indexManager";
+        } catch (Exception e) {
+            System.out.println("Error happened in indexManager.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 講師管理
+    @GetMapping("/detailClass")
+    String detailClass(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            List<User> userList = userService.findByClassAreaId(UUID.fromString(managerId));
+            List<User> userRetiredList = new ArrayList<>();
+            for (int i = 0; i < userList.size(); i++) {
+                if (!userList.get(i).getState()) {
+                    userRetiredList.add(userList.get(i));
+                    userList.remove(userList.get(i));
+                    i -= 1;
+                }
+            }
+            model.addAttribute("manager", manager);
+            model.addAttribute("userList", userList);
+            model.addAttribute("userRetiredList", userRetiredList);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("manager", managerId);
+            return "detailClass";
+        } catch (Exception e) {
+            System.out.println("Error happened in detailClass.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:detailClass";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/detailClass", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 講師管理 > 新規登録（get）
+    @GetMapping("/signUp")
+    String signUpGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+        try {
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            User user = new User();
+            Salary salary = new Salary();
+            user.setClassAreaId(manager.getId());
+            model.addAttribute("manager", manager);
+            model.addAttribute("userCreateForm", user);
+            model.addAttribute("salaryCreateForm", salary);
+            return "signUp";
+        } catch (Exception e) {
+            System.out.println("Error happened in signUp.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 新規登録（post）
+    @PostMapping("/signUp")
+    String signUpPost(HttpServletRequest request, @ModelAttribute("userCreateForm") User user, @ModelAttribute("salaryCreateForm") Salary salary, RedirectAttributes redirectAttributes) {
+        try {
+            if (userService.getByLoginId(user.getLoginId()) == null) {
+                user.setState(true);
+                user.setRetireDate("");
+                userService.add(user);
+                User setUser = userService.getByLoginId(user.getLoginId());
+                salary.setUserId(setUser.getId());
+                salaryService.add(salary);
+                redirectAttributes.addAttribute("manager", user.getClassAreaId());
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:indexManager";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/indexManager", domainAWS);
+                    return redirectUrl;
+                }
+            } else {
+                redirectAttributes.addAttribute("manager", user.getClassAreaId());
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:signUp";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/signUp", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in signUp(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 新規登録 > 給与管理
     @GetMapping("/detailUser")
     String detailUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @Param("year") String year, @Param("month") String month, @Param("tax") String tax) {
         try {
@@ -312,6 +1296,13 @@ public class HomeController {
             int incomeTaxValue = 0;
             String incomeTaxFormatted;
             List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
+            Lock lock = lockService.getByTarget(manager.getId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            String lockStatus;
+            if (lock == null || lock.getStatus() == false) {
+                lockStatus = "false";
+            } else {
+                lockStatus = "true";
+            }
             try {
                 sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary(), salary.getSupportSalary());
                 for (Work work : workList) {
@@ -403,6 +1394,7 @@ public class HomeController {
             model.addAttribute("monthNext", monthNext);
             model.addAttribute("tax", tax);
             model.addAttribute("incomeTaxFormatted", incomeTaxFormatted);
+            model.addAttribute("lockStatus", lockStatus);
             redirectAttributes.addAttribute("manager", managerId);
             return "detailUser";
         } catch (Exception e) {
@@ -417,262 +1409,8 @@ public class HomeController {
             }
         }
     }
-    
-    // 給与推移（講師用）
-    @GetMapping("/detailSalary")
-    String detailSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
-            Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
-            for (Salary salary : salaryList) {
-                String salariesFormatted[] = new String[4];
-                salariesFormatted[0] = String.format("%,d", salary.getClassSalary());
-                salariesFormatted[1] = String.format("%,d", salary.getOfficeSalary());
-                salariesFormatted[2] = String.format("%,d", salary.getSupportSalary());
-                salariesFormatted[3] = String.format("%,d", salary.getCarfare());
-                salaryMapFormatted.put(salary.getId(), salariesFormatted);
-            }
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salaryList", salaryList);
-            model.addAttribute("salaryMapFormatted", salaryMapFormatted);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "detailSalary";
-        } catch (Exception e) {
-            System.out.println("Error happened in detailSalary.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート詳細（講師用）
-    @GetMapping("/detailTemplate")
-    String detailTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
-            String carfareFormatted = String.format("%,d", template.getCarfare());
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("template", template);
-            model.addAttribute("carfareFormatted", carfareFormatted);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "detailTemplate";
-        } catch (Exception e) {
-            System.out.println("Error happened in detailTemplate.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 給与推移情報（社員用）
-    @GetMapping("/infoSalary")
-    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @Param("year") String year, @Param("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
-            List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
-            Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
-            for (Salary salary : salaryList) {
-                String salariesFormatted[] = new String[4];
-                salariesFormatted[0] = String.format("%,d", salary.getClassSalary());
-                salariesFormatted[1] = String.format("%,d", salary.getOfficeSalary());
-                salariesFormatted[2] = String.format("%,d", salary.getSupportSalary());
-                salariesFormatted[3] = String.format("%,d", salary.getCarfare());
-                salaryMapFormatted.put(salary.getId(), salariesFormatted);
-            }
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salaryList", salaryList);
-            model.addAttribute("salaryMapFormatted", salaryMapFormatted);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "infoSalary";
-        } catch (Exception e) {
-            System.out.println("Error happened in infoSalary.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師基本情報（社員用）
-    @GetMapping("/infoUser")
-    String infoUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
-            Calendar calendar = Calendar.getInstance();
-            String year = String.format("%04d", calendar.get(Calendar.YEAR));
-            String month = String.format("%02d", calendar.get(Calendar.MONTH)+1);
-            String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), year+"-"+month+"-"+day);
-            String salaryFormatted[] = new String[4];
-            salaryFormatted[0] = String.format("%,d", salary.getClassSalary());
-            salaryFormatted[1] = String.format("%,d", salary.getOfficeSalary());
-            salaryFormatted[2] = String.format("%,d", salary.getSupportSalary());
-            salaryFormatted[3] = String.format("%,d", salary.getCarfare());
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salary", salary);
-            model.addAttribute("salaryFormatted", salaryFormatted);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            return "infoUser";
-        } catch (Exception e) {
-            System.out.println("Error happened in infoUser.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート一覧（講師用）
-    @GetMapping("/infoTemplate")
-    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("templateList", templateList);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "infoTemplate";
-        } catch (Exception e) {
-            System.out.println("Error happened in infoTemplate.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
 
-    // アカウント情報（社員用）
-    @GetMapping("/infoManager")
-    String infoManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
-        try {
-            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
-            List<User> userList = userService.findByClassAreaId(manager.getId());
-            model.addAttribute("manager", manager);
-            model.addAttribute("userList", userList);
-            return "infoManager";
-        } catch (Exception e) {
-            System.out.println("Error happened in infoManager.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト登録（講師用）
-    @GetMapping("/addForm")
-    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
-            Work work = new Work();
-            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
-            work.setUserId(user.getId());
-            work.setCarfare(salary.getCarfare());
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("workCreateForm", work);
-            model.addAttribute("templateList", templateList);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "addForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in addForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート登録（講師用）
-    @GetMapping("/templateForm")
-    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
-            WorkTemplate template = new WorkTemplate();
-            template.setUserId(user.getId());
-            template.setCarfare(salary.getCarfare());
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("templateCreateForm", template);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "templateForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in templateForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト登録（社員用）
+    // ホーム > 講師管理 > 給与管理 > シフト登録（get）
     @GetMapping("/createForm")
     String createFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax) {
         try {
@@ -705,306 +1443,7 @@ public class HomeController {
         }
     }
     
-    // シフト修正（講師用）
-    @GetMapping("/editForm")
-    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Work work = workService.findWorkById(UUID.fromString(editId));
-            if (work.getTimeStart().equals("     ")) {
-                work.setTimeStart("");
-            }
-            if (work.getTimeEnd().equals("     ")) {
-                work.setTimeEnd("");
-            }
-            if (work.getOfficeTimeStart().equals("     ")) {
-                work.setOfficeTimeStart("");
-            }
-            if (work.getOfficeTimeEnd().equals("     ")) {
-                work.setOfficeTimeEnd("");
-            }
-            if (work.getOtherTimeStart().equals("     ")) {
-                work.setOtherTimeStart("");
-            }
-            if (work.getOtherTimeEnd().equals("     ")) {
-                work.setOtherTimeEnd("");
-            }
-            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("workUpdateForm", work);
-            model.addAttribute("templateList", templateList);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "editForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in editForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート修正（講師用）
-    @GetMapping("/editTemplateForm")
-    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(editId));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("templateUpdateForm", template);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "editTemplateForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in editTemplateForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 新規給与情報登録（社員用）
-    @GetMapping("/updateForm")
-    String updateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salaryUpdateForm", salary);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "updateForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in updateForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト修正（社員用）
-    @GetMapping("/setForm")
-    String setFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Work work = workService.findWorkById(UUID.fromString(editId));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("workUpdateForm", work);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("tax", tax);
-            redirectAttributes.addAttribute("user", userId);
-            return "setForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in setForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師基本情報（講師用）
-    @GetMapping("/user")
-    String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = String.format("%04d", calendar.get(Calendar.YEAR));
-            String monthNow = String.format("%02d", calendar.get(Calendar.MONTH)+1);
-            String dayNow = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearNow+"-"+monthNow+"-"+dayNow);
-            List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
-            String salaryFormatted[] = new String[4];
-            salaryFormatted[0] = String.format("%,d", salary.getClassSalary());
-            salaryFormatted[1] = String.format("%,d", salary.getOfficeSalary());
-            salaryFormatted[2] = String.format("%,d", salary.getSupportSalary());
-            salaryFormatted[3] = String.format("%,d", salary.getCarfare());
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salary", salary);
-            model.addAttribute("salaryFormatted", salaryFormatted);
-            model.addAttribute("salaryList", salaryList);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "user";
-        } catch (Exception e) {
-            System.out.println("Error happened in user.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師アカウント情報修正（講師用）
-    @GetMapping("/userForm")
-    String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salary", salary);
-            model.addAttribute("userUpdateForm", user);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "userForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in userForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 給与情報修正（社員用）
-    @GetMapping("/salaryForm")
-    String salaryFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("salary") String salaryId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Salary salary = salaryService.getBySalaryId(UUID.fromString(salaryId));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salaryUpdateForm", salary);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            redirectAttributes.addAttribute("user", userId);
-            return "salaryForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in salaryForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト登録（講師用）
-    @PostMapping("/addForm")
-    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes) {
-        try {
-            String year = DateSet.getYear(form.getDate());
-            String month = DateSet.getMonth(form.getDate());
-            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
-            form.setDayOfWeek(dayOfWeek);
-            form.setSupportSalary("true");
-            redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            try {
-                form = workService.calcTimeAndSalary(form);
-                workService.add(form);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:index";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/index", domainAWS);
-                    return redirectUrl;
-                }
-            } catch (Exception e) {
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:addForm";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/addForm", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in addForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート登録（講師用）
-    @PostMapping("/templateForm")
-    String templateFormPost(HttpServletRequest request, @ModelAttribute("templateCreateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            workTemplateService.add(form);
-            redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoTemplate";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in templateForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト登録（社員用）
+    // ホーム > 講師管理 > 給与管理 > シフト登録（post）
     @PostMapping("/createForm")
     String createFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes, @RequestParam("tax") String tax) {
         try {
@@ -1052,54 +1491,35 @@ public class HomeController {
         }
     }
     
-    // シフト修正（講師用）
-    @PostMapping("/editForm")
-    String editFormPost(HttpServletRequest request, @ModelAttribute("workUpdateForm") Work form, RedirectAttributes redirectAttributes) {
+    // ホーム > 講師管理 > 給与管理 > シフト修正（get）
+    @GetMapping("/setForm")
+    String setFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax) {
         try {
-            String year = DateSet.getYear(form.getDate());
-            String month = DateSet.getMonth(form.getDate());
-            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
-            User user = userService.getByUserId(form.getUserId());
-            form.setDayOfWeek(dayOfWeek);
-            form.setSupportSalary("true");
-            redirectAttributes.addAttribute("user", user.getId());
-            redirectAttributes.addAttribute("detail", form.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            try {
-                form = workService.calcTimeAndSalary(form);
-                workService.update(form);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:detailWork";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
-                    return redirectUrl;
-                }
-            } catch (Exception e) {
-                redirectAttributes.addAttribute("edit", form.getId());
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:editForm";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/editForm", domainAWS);
-                    return redirectUrl;
-                }
-            }
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Work work = workService.findWorkById(UUID.fromString(editId));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("workUpdateForm", work);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            model.addAttribute("tax", tax);
+            redirectAttributes.addAttribute("user", userId);
+            return "setForm";
         } catch (Exception e) {
-            System.out.println("Error happened in editForm(post)");
+            System.out.println("Error happened in setForm.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
-                return "redirect:login";
+                return "redirect:loginManager";
             } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
                 return redirectUrl;
             }
         }
     }
-    
-    // シフト修正（社員用）
+
+    // ホーム > 講師管理 > 給与管理 > シフト修正（post）
     @PostMapping("/setForm")
     String setFormPost(HttpServletRequest request, @ModelAttribute("workUpdateForm") Work form, RedirectAttributes redirectAttributes, @RequestParam("tax") String tax) {
         try {
@@ -1147,39 +1567,8 @@ public class HomeController {
             }
         }
     }
-    
-    // シフト削除（講師用）
-    @PostMapping("/deleteWork")
-    String deleteWork(HttpServletRequest request, @Param("userId") String userId, @Param("deleteId") String deleteId, RedirectAttributes redirectAttributes) {
-        try {
-            Work work = workService.findWorkById(UUID.fromString(deleteId));
-            String year = DateSet.getYear(work.getDate());
-            String month = DateSet.getMonth(work.getDate());
-            workService.deleteById(UUID.fromString(deleteId));
-            redirectAttributes.addAttribute("user", userId);
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:index";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/index", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in deleteWork(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト削除（社員用）
+
+    // ホーム > 講師管理 > 給与管理 > シフト削除
     @PostMapping("/clearWork")
     String clearWork(HttpServletRequest request, @Param("managerId") String managerId, @Param("userId") String userId, @Param("deleteId") String deleteId, @Param("tax") String tax, RedirectAttributes redirectAttributes) {
         try {
@@ -1212,629 +1601,7 @@ public class HomeController {
         }
     }
     
-    // 講師アカウント情報修正（講師用）
-    @PostMapping("/userForm")
-    String userFormPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userUpdateForm") User form, RedirectAttributes redirectAttributes) {
-        try {
-            Calendar calendar = Calendar.getInstance();
-            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            userService.update(form);
-            Cookie cookieLoginId = new Cookie("userLoginId", form.getLoginId());
-            cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
-            cookieLoginId.setHttpOnly(true);
-            cookieLoginId.setPath("/");
-            response.addCookie(cookieLoginId);
-            Cookie cookiePassword = new Cookie("userPassword", form.getPassword());
-            cookiePassword.setMaxAge(30 * 24 * 60 * 60);
-            cookiePassword.setHttpOnly(true);
-            cookiePassword.setPath("/");
-            response.addCookie(cookiePassword);
-            redirectAttributes.addAttribute("user", form.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:user";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/user", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in userForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 新規給与情報登録（社員用）
-    @PostMapping("/updateForm")
-    String updateFormPost(HttpServletRequest request, @ModelAttribute("salaryUpdateForm") Salary form, RedirectAttributes redirectAttributes) {
-        try {
-            Calendar calendar = Calendar.getInstance();
-            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            User user = userService.getByUserId(form.getUserId());
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            salaryService.add(form);
-            redirectAttributes.addAttribute("user", user.getId());
-            redirectAttributes.addAttribute("manager", manager.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoUser";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoUser", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in updateForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 給与情報修正（社員用）
-    @PostMapping("/salaryForm")
-    String salaryFormPost(HttpServletRequest request, @ModelAttribute("salaryUpdateForm") Salary form, RedirectAttributes redirectAttributes) {
-        try {
-            Calendar calendar = Calendar.getInstance();
-            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            User user = userService.getByUserId(form.getUserId());
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            salaryService.update(form);
-            redirectAttributes.addAttribute("user", user.getId());
-            redirectAttributes.addAttribute("manager", manager.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoSalary";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoSalary", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in salaryForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート修正（講師用）
-    @PostMapping("/editTemplateForm")
-    String editTemplateFormPost(HttpServletRequest request, @ModelAttribute("templateUpdateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            workTemplateService.update(form);
-            redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("template", form.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:detailTemplate";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/detailTemplate", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in editTemplateForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート削除（講師用）
-    @PostMapping("/deleteTemplate")
-    String deleteTemplate(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            workTemplateService.deleteById(UUID.fromString(deleteId));
-            redirectAttributes.addAttribute("user", userId);
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoTemplate";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in deleteTemplate(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-
-    // 給与情報削除（社員用）
-    @PostMapping("/deleteSalary")
-    public String deleteSalary(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("managerId") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            salaryService.delete(salaryService.getBySalaryId(UUID.fromString(deleteId)));
-            redirectAttributes.addAttribute("user", userId);
-            redirectAttributes.addAttribute("manager", managerId);
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoSalary";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoSalary", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in deleteSalary(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師削除（社員用）
-    @GetMapping("/deleteUser")
-    public String deleteUser(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            for (Work work : workService.findAllByUserId(UUID.fromString(userId))) {
-                workService.deleteById(work.getId());
-            }
-            for (Salary salary : salaryService.findByUserId(UUID.fromString(userId))) {
-                salaryService.delete(salary);
-            }
-            for (WorkTemplate template : workTemplateService.findByUserId(UUID.fromString(userId))) {
-                workTemplateService.deleteById(template.getId());
-            }
-            userService.deleteById(UUID.fromString(userId));
-            redirectAttributes.addAttribute("manager", managerId);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:indexManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/indexManager", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in deleteUser(get)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-
-    // 社員アカウント情報更新（社員用）
-    @GetMapping("/editManagerForm")
-    String editManagerFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("edit") String editId) {
-        try {
-            Manager manager = managerService.getByManagerId(UUID.fromString(editId));
-            model.addAttribute("manager", manager);
-            model.addAttribute("managerUpdateForm", manager);
-            return "editManagerForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in editManagerForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-
-    // 社員アカウント情報更新（社員用）
-    @PostMapping("/editManagerForm")
-    String editManagerFormPost(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @ModelAttribute("managerUpdateForm") Manager manager) {
-        try {
-            managerService.update(manager);
-            Cookie cookieLoginId = new Cookie("managerLoginId", manager.getLoginId());
-            cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
-            cookieLoginId.setHttpOnly(true);
-            cookieLoginId.setPath("/");
-            response.addCookie(cookieLoginId);
-            Cookie cookiePassword = new Cookie("managerPassword", manager.getPassword());
-            cookiePassword.setMaxAge(30 * 24 * 60 * 60);
-            cookiePassword.setHttpOnly(true);
-            cookiePassword.setPath("/");
-            response.addCookie(cookiePassword);
-            redirectAttributes.addAttribute("manager", manager.getId());
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoManager", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in editManagerForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-
-    // 社員アカウント削除（社員用）
-    @GetMapping("/deleteManager")
-    String deleteManager(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @RequestParam("delete") String deleteId) {
-        try {
-            Manager manager = managerService.getByManagerId(UUID.fromString(deleteId));
-            List<User> userList = userService.findByClassAreaId(manager.getId());
-            for (User user : userList) {
-                for (Work work : workService.findAllByUserId(user.getId())) {
-                    workService.deleteById(work.getId());
-                }
-                for (Salary salary : salaryService.findByUserId(user.getId())) {
-                    salaryService.delete(salary);
-                }
-                for (WorkTemplate template : workTemplateService.findByUserId(user.getId())) {
-                    workTemplateService.deleteById(template.getId());
-                }
-                userService.deleteById(user.getId());
-            }
-            Cookie cookieLoginId = new Cookie("managerLoginId", null);
-            cookieLoginId.setMaxAge(0);
-            cookieLoginId.setPath("/");
-            response.addCookie(cookieLoginId);
-            Cookie cookiePassword = new Cookie("managerPassword", null);
-            cookiePassword.setMaxAge(0);
-            cookiePassword.setPath("/");
-            response.addCookie(cookiePassword);
-            managerService.deleteById(manager);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in deleteManager(get)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師ログイン（講師用）
-    @GetMapping("/login")
-    String loginGet(HttpServletRequest request, Model model) {
-        try {
-            User user = new User();
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("userLoginId".equals(cookie.getName())) {
-                        user.setLoginId(cookie.getValue());
-                    } else if ("userPassword".equals(cookie.getName())) {
-                        user.setPassword(cookie.getValue());
-                    }
-                }
-            }
-            model.addAttribute("userLoginForm", user);
-            return "login";
-        } catch (Exception e) {
-            System.out.println("Error happened in login.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 社員ログイン（社員用）
-    @GetMapping("/loginManager")
-    String loginManagerGet(HttpServletRequest request, Model model) {
-        try {
-            Manager manager = new Manager();
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("managerLoginId".equals(cookie.getName())) {
-                        manager.setLoginId(cookie.getValue());
-                    } else if ("managerPassword".equals(cookie.getName())) {
-                        manager.setPassword(cookie.getValue());
-                    }
-                }
-            }
-            model.addAttribute("managerLoginForm", manager);
-            return "loginManager";
-        } catch (Exception e) {
-            System.out.println("Error happened in loginManager.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師ログイン（講師用）
-    @PostMapping("/login")
-    String loginPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userLoginForm") User loginUser, RedirectAttributes redirectAttributes) {
-        try {
-            User trueUser = userService.getByLoginId(loginUser.getLoginId());
-            if (trueUser == null || !trueUser.getPassword().equals(loginUser.getPassword())) {
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:login";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                    return redirectUrl;
-                }
-            } else {
-                Cookie cookieLoginId = new Cookie("userLoginId", trueUser.getLoginId());
-                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
-                cookieLoginId.setHttpOnly(true);
-                cookieLoginId.setPath("/");
-                response.addCookie(cookieLoginId);
-                Cookie cookiePassword = new Cookie("userPassword", trueUser.getPassword());
-                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
-                cookiePassword.setHttpOnly(true);
-                cookiePassword.setPath("/");
-                response.addCookie(cookiePassword);
-                UUID userId = trueUser.getId();                        
-                Calendar calendar = Calendar.getInstance();
-                String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-                String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-                redirectAttributes.addAttribute("user", userId);
-                redirectAttributes.addAttribute("year", year);
-                redirectAttributes.addAttribute("month", month);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:index";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/index", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in login(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 社員ログイン（社員用）
-    @PostMapping("/loginManager")
-    String loginManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerLoginForm") Manager loginManager, RedirectAttributes redirectAttributes) {
-        try {
-            Manager trueManager = managerService.getByLoginId(loginManager.getLoginId());
-            if (trueManager == null || !trueManager.getPassword().equals(loginManager.getPassword())) {
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:loginManager";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                    return redirectUrl;
-                }
-            } else {
-                Cookie cookieLoginId = new Cookie("managerLoginId", trueManager.getLoginId());
-                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
-                cookieLoginId.setHttpOnly(true);
-                cookieLoginId.setPath("/");
-                response.addCookie(cookieLoginId);
-                Cookie cookiePassword = new Cookie("managerPassword", trueManager.getPassword());
-                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
-                cookiePassword.setHttpOnly(true);
-                cookiePassword.setPath("/");
-                response.addCookie(cookiePassword);
-                UUID managerId = trueManager.getId();
-                redirectAttributes.addAttribute("manager", managerId);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:indexManager";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/indexManager", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in loginManager(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師アカウント作成（社員用）
-    @GetMapping("/signUp")
-    String signUpGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
-        try {
-            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
-            User user = new User();
-            Salary salary = new Salary();
-            user.setClassAreaId(manager.getId());
-            model.addAttribute("manager", manager);
-            model.addAttribute("userCreateForm", user);
-            model.addAttribute("salaryCreateForm", salary);
-            return "signUp";
-        } catch (Exception e) {
-            System.out.println("Error happened in signUp.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 社員アカウント作成（社員用）
-    @GetMapping("/signUpManager")
-    String signUpManagerGet(HttpServletRequest request, Model model) {
-        try {
-            model.addAttribute("managerCreateForm", new Manager());
-            return "signUpManager";
-        } catch (Exception e) {
-            System.out.println("Error happened in signUpManager.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師アカウント作成（社員用）
-    @PostMapping("/signUp")
-    String signUpPost(HttpServletRequest request, @ModelAttribute("userCreateForm") User user, @ModelAttribute("salaryCreateForm") Salary salary, RedirectAttributes redirectAttributes) {
-        try {
-            if (userService.getByLoginId(user.getLoginId()) == null) {
-                userService.add(user);
-                User setUser = userService.getByLoginId(user.getLoginId());
-                salary.setUserId(setUser.getId());
-                salaryService.add(salary);
-                redirectAttributes.addAttribute("manager", user.getClassAreaId());
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:indexManager";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/indexManager", domainAWS);
-                    return redirectUrl;
-                }
-            } else {
-                redirectAttributes.addAttribute("manager", user.getClassAreaId());
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:signUp";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/signUp", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in signUp(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 社員アカウント作成（社員用）
-    @PostMapping("/signUpManager")
-    String signUpManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerCreateForm") Manager manager) {
-        try {
-            if (managerService.getByLoginId(manager.getLoginId()) == null) {
-                managerService.add(manager.getLoginId(), manager.getPassword(), manager.getClassArea());
-                Cookie cookieLoginId = new Cookie("managerLoginId", manager.getLoginId());
-                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
-                cookieLoginId.setHttpOnly(true);
-                cookieLoginId.setPath("/");
-                response.addCookie(cookieLoginId);
-                Cookie cookiePassword = new Cookie("managerPassword", manager.getPassword());
-                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
-                cookiePassword.setHttpOnly(true);
-                cookiePassword.setPath("/");
-                response.addCookie(cookiePassword);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:loginManager";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                    return redirectUrl;
-                }
-            } else {
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:signUpManager";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/signUpManager", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in signUpManager(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-
-    // Excelファイルのエクスポート
+    // ホーム > 講師管理 > 給与管理 > Excelファイルのエクスポート
     @GetMapping("/downloadExcel")
     public void downloadExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
@@ -2081,6 +1848,572 @@ public class HomeController {
         } catch (Exception e) {
             // エラー処理（jsでリダイレクトさせる）
             e.printStackTrace();
+        }
+    }
+    
+    // ホーム > 講師管理 > 給与管理 > ロックス状態の変更
+    @GetMapping("/changeStatus")
+    String changeStatus(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @Param("year") String year, @Param("month") String month, @Param("tax") String tax) {
+        try {
+            // ロック状態を変更・削除する
+            Lock lock = lockService.getByTarget(UUID.fromString(managerId), UUID.fromString(userId), Integer.parseInt(year), Integer.parseInt(month));
+            if (lock == null) {
+                // ロックする（add）
+                lock = new Lock();
+                lock.setClassAreaId(UUID.fromString(managerId));
+                lock.setUserId(UUID.fromString(userId));
+                lock.setYear(Integer.parseInt(year));
+                lock.setMonth(Integer.parseInt(month));
+                lock.setStatus(true);
+                lockService.add(lock);
+            } else if (lock.getStatus() == false) {
+                // ロックする（update）
+                lock.setStatus(true);
+                lockService.update(lock);
+            } else {
+                // ロックを解除する（delete）
+                lockService.deleteById(lock);
+            }
+
+            // リダイレクト時のパラメータを設定
+            redirectAttributes.addAttribute("manager", managerId);
+            redirectAttributes.addAttribute("user", userId);
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            redirectAttributes.addAttribute("tax", tax);
+
+            // リダイレクト
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:detailUser";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/detailUser", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in changeStatus");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+
+    }
+    
+    // ホーム > 講師管理 > 基本情報
+    @GetMapping("/infoUser")
+    String infoUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            Calendar calendar = Calendar.getInstance();
+            String year = String.format("%04d", calendar.get(Calendar.YEAR));
+            String month = String.format("%02d", calendar.get(Calendar.MONTH)+1);
+            String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), year+"-"+month+"-"+day);
+            String salaryFormatted[] = new String[4];
+            List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
+            Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
+            String dateStart = salaryService.getFirstSalary(user.getId()).getDateFrom();
+            String term;
+            if (user.getState()) {
+                term = DateSet.getTerm(dateStart);
+            } else {
+                term = DateSet.getTerm(dateStart, user.getRetireDate());
+            }
+            for (Salary s : salaryList) {
+                String salariesFormatted[] = new String[4];
+                salariesFormatted[0] = String.format("%,d", s.getClassSalary());
+                salariesFormatted[1] = String.format("%,d", s.getOfficeSalary());
+                salariesFormatted[2] = String.format("%,d", s.getSupportSalary());
+                salariesFormatted[3] = String.format("%,d", s.getCarfare());
+                salaryMapFormatted.put(s.getId(), salariesFormatted);
+            }
+            salaryFormatted[0] = String.format("%,d", salary.getClassSalary());
+            salaryFormatted[1] = String.format("%,d", salary.getOfficeSalary());
+            salaryFormatted[2] = String.format("%,d", salary.getSupportSalary());
+            salaryFormatted[3] = String.format("%,d", salary.getCarfare());
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("salary", salary);
+            model.addAttribute("salaryFormatted", salaryFormatted);
+            model.addAttribute("salaryList", salaryList);
+            model.addAttribute("salaryMapFormatted", salaryMapFormatted);
+            model.addAttribute("term", term);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            return "infoUser";
+        } catch (Exception e) {
+            System.out.println("Error happened in infoUser.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 基本情報 > アカウント情報修正（get）
+    @GetMapping("editUserForm")
+    String editUserFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            User user = userService.getByUserId(UUID.fromString(userId));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("userUpdateForm", user);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            return "editUserForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in editUserForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 講師管理 > 基本情報 > アカウント情報修正（post）
+    @PostMapping("/editUserForm")
+    String editUserFormPost(HttpServletRequest request, @ModelAttribute("userUpdateForm") User user, RedirectAttributes redirectAttributes) {
+        try {
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            userService.update(user);
+            redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("manager", manager.getId());
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoUser";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoUser", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editUserForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 講師管理 > 基本情報 > 退職手続（get）
+    @GetMapping("/retireForm")
+    String retireFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            User user = userService.getByUserId(UUID.fromString(userId));
+            user.setState(false);
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("retireCreateForm", user);
+            return "retireForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in retireForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 講師管理 > 基本情報 > 退職手続（post）
+    @PostMapping("/retireForm")
+    String retireFormPost(HttpServletRequest request, RedirectAttributes redirectAttributes, @ModelAttribute("retireCreateForm") User user) {
+        try {
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            userService.update(user);
+            redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("user", user.getId());
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoUser";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoUser", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in retireForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 基本情報 > 退職取消
+    @GetMapping("/resetRetire")
+    String deleteRetire(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            User user = userService.getByUserId(UUID.fromString(userId));
+            user.setState(true);
+            user.setRetireDate("");
+            userService.update(user);
+            redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("user", user.getId());
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoUser";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoUser", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteRetire(get)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 基本情報 > アカウント削除
+    @GetMapping("/deleteUser")
+    public String deleteUser(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            for (Work work : workService.findAllByUserId(UUID.fromString(userId))) {
+                workService.deleteById(work.getId());
+            }
+            for (Salary salary : salaryService.findByUserId(UUID.fromString(userId))) {
+                salaryService.delete(salary);
+            }
+            for (WorkTemplate template : workTemplateService.findByUserId(UUID.fromString(userId))) {
+                workTemplateService.deleteById(template.getId());
+            }
+            for (Lock lock : lockService.findByUserId(UUID.fromString(userId))) {
+                lockService.deleteById(lock);
+            }
+            userService.deleteById(UUID.fromString(userId));
+            redirectAttributes.addAttribute("manager", managerId);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:indexManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/indexManager", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteUser(get)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 講師管理 > 基本情報 > 給与更新（get）
+    @GetMapping("/updateForm")
+    String updateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            String yearBefore = DateSet.getDateBefore(year, month)[0];
+            String monthBefore = DateSet.getDateBefore(year, month)[1];
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+            salary.setDateFrom("");
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("salaryUpdateForm", salary);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "updateForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in updateForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 講師管理 > 基本情報 > 給与更新（post）
+    @PostMapping("/updateForm")
+    String updateFormPost(HttpServletRequest request, @ModelAttribute("salaryUpdateForm") Salary form, RedirectAttributes redirectAttributes) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            User user = userService.getByUserId(form.getUserId());
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            salaryService.add(form);
+            redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoUser";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoUser", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in updateForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 基本情報 > 給与修正（get）
+    @GetMapping("/salaryForm")
+    String salaryFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("salary") String salaryId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Salary salary = salaryService.getBySalaryId(UUID.fromString(salaryId));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("salaryUpdateForm", salary);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "salaryForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in salaryForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 基本情報 > 給与修正（post）
+    @PostMapping("/salaryForm")
+    String salaryFormPost(HttpServletRequest request, @ModelAttribute("salaryUpdateForm") Salary form, RedirectAttributes redirectAttributes) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            User user = userService.getByUserId(form.getUserId());
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            salaryService.update(form);
+            redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoUser";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoUser", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in salaryForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > 講師管理 > 基本情報 > 給与情報削除
+    @PostMapping("/deleteSalary")
+    public String deleteSalary(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("managerId") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            salaryService.delete(salaryService.getBySalaryId(UUID.fromString(deleteId)));
+            redirectAttributes.addAttribute("user", userId);
+            redirectAttributes.addAttribute("manager", managerId);
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoUser";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoUser", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteSalary(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > アカウント
+    @GetMapping("/infoManager")
+    String infoManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+        try {
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            List<User> userList = userService.findByClassAreaId(manager.getId());
+            model.addAttribute("manager", manager);
+            model.addAttribute("userList", userList);
+            return "infoManager";
+        } catch (Exception e) {
+            System.out.println("Error happened in infoManager.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > アカウント > アカウント情報修正（get）
+    @GetMapping("/editManagerForm")
+    String editManagerFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("edit") String editId) {
+        try {
+            Manager manager = managerService.getByManagerId(UUID.fromString(editId));
+            model.addAttribute("manager", manager);
+            model.addAttribute("managerUpdateForm", manager);
+            return "editManagerForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in editManagerForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > アカウント > アカウント情報修正（post）
+    @PostMapping("/editManagerForm")
+    String editManagerFormPost(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @ModelAttribute("managerUpdateForm") Manager manager) {
+        try {
+            managerService.update(manager);
+            Cookie cookieLoginId = new Cookie("managerLoginId", manager.getLoginId());
+            cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
+            cookieLoginId.setHttpOnly(true);
+            cookieLoginId.setPath("/");
+            response.addCookie(cookieLoginId);
+            Cookie cookiePassword = new Cookie("managerPassword", manager.getPassword());
+            cookiePassword.setMaxAge(30 * 24 * 60 * 60);
+            cookiePassword.setHttpOnly(true);
+            cookiePassword.setPath("/");
+            response.addCookie(cookiePassword);
+            redirectAttributes.addAttribute("manager", manager.getId());
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoManager", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editManagerForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > アカウント > アカウント削除
+    @GetMapping("/deleteManager")
+    String deleteManager(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @RequestParam("delete") String deleteId) {
+        try {
+            Manager manager = managerService.getByManagerId(UUID.fromString(deleteId));
+            List<User> userList = userService.findByClassAreaId(manager.getId());
+            for (User user : userList) {
+                for (Work work : workService.findAllByUserId(user.getId())) {
+                    workService.deleteById(work.getId());
+                }
+                for (Salary salary : salaryService.findByUserId(user.getId())) {
+                    salaryService.delete(salary);
+                }
+                for (WorkTemplate template : workTemplateService.findByUserId(user.getId())) {
+                    workTemplateService.deleteById(template.getId());
+                }
+                for (Lock lock : lockService.findByUserId(user.getId())) {
+                    lockService.deleteById(lock);
+                }
+                userService.deleteById(user.getId());
+            }
+            Cookie cookieLoginId = new Cookie("managerLoginId", null);
+            cookieLoginId.setMaxAge(0);
+            cookieLoginId.setPath("/");
+            response.addCookie(cookieLoginId);
+            Cookie cookiePassword = new Cookie("managerPassword", null);
+            cookiePassword.setMaxAge(0);
+            cookiePassword.setPath("/");
+            response.addCookie(cookiePassword);
+            managerService.deleteById(manager);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteManager(get)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                return redirectUrl;
+            }
         }
     }
     

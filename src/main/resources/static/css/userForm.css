@@ -31,25 +31,32 @@ h1 {
     font-weight: bold;
 }
 
-.editInformation {
-    padding-top:30px;
-    font-family: "MS ゴシック";
-    text-align: center;
-    color:rgb(76, 76, 78);
+.main {
+    position: absolute;
+    left:330px;
+    top:130px;
+    width:800px;
+    height:1000px;
 }
 
-.main {
-    background-color: white;
-    margin:  0 auto;
-    padding:50px;
-    padding-top: 30px;
-    padding-bottom: 20px;
-    width: 350px;
-    height: 270px;
-    border: solid;
-    border-color: rgb(230, 230, 230);
-    border-radius: 8px;
-    text-align: center;
+.mainInformation {
+    font-size: 25px;
+    font-weight: bold;
+}
+    
+.mainInformation p {
+    width: 230px;
+    border-bottom: solid;
+    border-width: 5px;
+    border-color:rgba(22, 79, 185, 0.937);
+    padding-bottom: 7px;
+}
+
+hr {
+    position: absolute;
+    top: 64.5px;
+    left: 230px;
+    width: 300px;
 }
 
 label, input {
@@ -96,7 +103,7 @@ input {
     left: 0;
     top: 150px;
     width: 200px;
-    height: 180px;   
+    height: 530px;   
     border: solid;
     border-left: none;
     border-top-right-radius: 8px;
@@ -104,11 +111,11 @@ input {
     border-color: rgb(230, 230, 230);
     box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }
-
+  
 .sideContents {
     text-align: center;
 }
-
+  
 #teacherName {
     width: 180px;
     margin:0 auto;
@@ -120,6 +127,154 @@ input {
     font-weight: bold;
 }
 
+#goHome {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+  
+#goHome a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+  
+#goHome p {
+    position: absolute;
+    top:-6px;
+    left:60px;
+}
+  
+#goHome p::before {
+    content: url(../img/home.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+  
+#goHome:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+  
+#workInfo {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+  
+#workInfo a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+  
+#workInfo p {
+    position: absolute;
+    top:-6px;
+    left:44px;
+}
+  
+#workInfo p::before {
+    content: url(../img/calendar-time.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+  
+#workInfo:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+  
+#detailSalary {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+  
+#detailSalary a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:100%;
+    width: 100%;
+}
+  
+#detailSalary p {
+    position: absolute;
+    top:-6px;
+    left:52px;
+}
+  
+#detailSalary p::before {
+    content: url(../img/coin-yen.svg);
+    position: absolute;
+    left: -27px;
+    top: 2px;
+    display: inline-block;
+}
+  
+#detailSalary:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+  
+#teacherInformation {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+  
+#teacherInformation a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+  
+#teacherInformation p {
+    position: absolute;
+    top:-6px;
+    left:48px;
+}
+  
+#teacherInformation p::before {
+    content: url(../img/settings.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
+}
+  
+#teacherInformation:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+  
 #goBack {
     position: relative;
     margin: 0 auto;
@@ -129,7 +284,7 @@ input {
     font-weight:bold;
     font-size:18px;
 }
-
+  
 #goBack a {
     position: absolute;
     top: 0;
@@ -137,21 +292,21 @@ input {
     height: 100%;
     width: 100%;
 }
-
+  
 #goBack p {
     position: absolute;
     top:-6px;
-    left:42px
+    left:69px
 }
-
+  
 #goBack p::before {
-    content: url(../img/logout.svg);
+    content: url(../img/arrow-back.svg);
     position: absolute;
-    left: -25px;
-    top: 2px;
+    left: -27px;
+    top: 1px;
     display: inline-block;
 }
-
+  
 #goBack:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;

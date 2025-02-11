@@ -11,21 +11,38 @@
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
 		</div>
 
-		<div class="headerClass">
-			<span th:text = "${manager.classArea}"></span>教室
-		</div>
-
-        <div class="createAccount">
-		<h1>新しく講師を登録</h1>
+		<div>
+			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
+			<a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a> &gt;
+			<a th:href="@{/signUp(manager=${manager.id})}">講師登録</a>
         </div>
+
 		<div class="main">
+			<div class="createAccount">
+				<p>講師登録</p>
+			</div>
+			<div class="border">
+				<hr size="2" color="lightgray">
+			</div>
 			<form th:action = "@{/signUp}" method = "post">
 				<div>
-					<label id = "teacherName" for = "userName">講師名</label>
-					<input id = "userName" type = "text" th:field = "*{userCreateForm.userName}"  required>
+					<label id = "teacherName" for = "userName">講師氏名</label>
+					<input id = "userName" type = "text" th:field = "*{userCreateForm.userName}" required>
 				</div>
 				<div>
-					<label id = "start" for = "dateFrom">雇用開始日</label>
+					<label id = "teacherId" for = "teacherNo">講師No.</label>
+					<input id = "teacherNo" type = "text" th:field = "*{userCreateForm.teacherNo}" required>
+				</div>
+				<div>
+					<label id = "login" for = "loginId">ログインID</label>
+					<input id = "loginId" type = "text" th:field = "*{userCreateForm.loginId}" required>
+				</div>
+				<div>
+					<label id = "pass" for = "password">パスワード</label>
+					<input id = "password" type = "text" th:field = "*{userCreateForm.password}" required>
+				</div>
+				<div>
+					<label id = "start" for = "dateFrom">雇用開始</label>
 					<input id = "dateFrom" type = "date" th:field = "*{salaryCreateForm.dateFrom}" required>
 				</div>
 				<div>
@@ -44,14 +61,6 @@
 					<label id = "transport" for = "carfare">交通費(往復/円)</label>
 					<input id = "carfare" type = "number" th:field = "*{salaryCreateForm.carfare}" required>
 				</div>
-				<div>
-					<label id = "login" for = "loginId">ログインID</label>
-					<input id = "loginId" type = "text" th:field = "*{userCreateForm.loginId}" required>
-				</div>
-				<div>
-					<label id = "pass" for = "password">パスワード</label>
-					<input id = "password" type = "text" th:field = "*{userCreateForm.password}" required>
-				</div>
 			    <div>
 				    <input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 			    </div>
@@ -60,8 +69,31 @@
 				</div>
 		    </form>
 		</div>
-		<div class="goHome">
-			<a th:href = "@{/indexManager(manager=${manager.id})}">ホームへ戻る</a>
-		</div>
+
+		<div class="side">
+            <div class="sideContents" id="className">
+                <span th:text = "${manager.classArea}"></span>教室
+            </div>
+
+			<div class="sideContents" id="goHome">
+                <p>ホーム</p>
+                <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+            </div>
+
+            <div class="sideContents" id="newAccount">
+                <p>講師管理</p>
+                <a th:href="@{/detailClass(manager=${manager.id})}"></a>
+            </div>
+    
+            <div class="sideContents" id="classInformation">
+                <p>アカウント</p>
+                <a th:href="@{/infoManager(manager=${manager.id})}"></a>
+            </div>
+            
+            <div class="sideContents" id="goBack">
+                <p>戻る</p>
+                <a th:href="@{/detailClass(manager=${manager.id})}"></a>
+            </div>
+        </div>
 	</body>
 </html>

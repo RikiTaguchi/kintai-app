@@ -97,18 +97,18 @@ td {
     width: 1200px;
 }
 
-#salaryDetails img {
+.salaryDetails img {
     padding: 0;
     margin-left: 110px;
     margin-top: -100px;
 }
 
-#salaryDetails p::after {
+.salaryDetails p::after {
     content: url(../img/coin-yen.svg);
     display: inline-block;
 }
 
-#information p::after {
+.information p::after {
     content: url(../img/file-info.svg);
     display: inline-block;
 }
@@ -120,7 +120,7 @@ td {
     left: 0;
     top: 150px;
     width: 200px;
-    height: 350px;   
+    height: 440px;   
     border: solid;
     border-left: none;
     border-top-right-radius: 8px;
@@ -144,7 +144,6 @@ td {
     font-weight: bold;
 }
 
-
 #newAccount {
     position: relative;
     margin: 0 auto;
@@ -166,7 +165,15 @@ td {
 #newAccount p {
     position: absolute;
     top:-6px;
-    left:26px;
+    left:52px;
+}
+
+#newAccount p::before {
+    content: url(../img/user.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
 }
 
 #newAccount:hover {
@@ -195,10 +202,55 @@ td {
 #classInformation p {
     position: absolute;
     top:-6px;
-    left:42px
+    left:48px;
+}
+
+#classInformation p::before {
+    content: url(../img/settings.svg);
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    display: inline-block;
 }
 
 #classInformation:hover {
+    background-color:rgba(223, 221, 221, 0.577);
+    border-radius: 5px;
+}
+
+#goHome {
+    position: relative;
+    margin: 0 auto;
+    margin-top:35px;
+    height: 50px;
+    width: 160px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+#goHome a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#goHome p {
+    position: absolute;
+    top:-6px;
+    left:60px;
+}
+
+#goHome p::before {
+    content: url(../img/home.svg);
+    position: absolute;
+    left: -27px;
+    top: 0px;
+    display: inline-block;
+}
+
+#goHome:hover {
     background-color:rgba(223, 221, 221, 0.577);
     border-radius: 5px;
 }
