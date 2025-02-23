@@ -83,30 +83,19 @@ public class HomeController {
             String monthBefore = DateSet.getDateBefore(year, month)[1];
             String yearNext = DateSet.getDateNext(year, month)[0];
             String monthNext = DateSet.getDateNext(year, month)[1];
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            int sumSalary[] = new int[16];
-            double setDouble[] = new double[15];
-            double resultDouble[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
             List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
-            for (Work work : workList) {
-                setDouble = workService.calcSumSalary(work, salaryService.getByDate(UUID.fromString(userId), work.getDate()));
-                for (int i = 0; i < 15; i++) {
-                    resultDouble[i]+= setDouble[i]; 
-                }
-            }
-            for (int i = 0; i < 15; i++) {
-                sumSalary[i] = (int)Math.ceil(resultDouble[i]);
-                if (i != 0 && i != 2 && i != 3 && i != 5 && i != 7 && i != 11 && i != 13) {
-                    sumSalary[15] += sumSalary[i];
-                }
-            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("workList", workList);
-            model.addAttribute("sumSalary", sumSalary);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             model.addAttribute("yearBefore", yearBefore);
             model.addAttribute("monthBefore", monthBefore);
             model.addAttribute("yearNext", yearNext);
@@ -128,10 +117,13 @@ public class HomeController {
     
     // 講師ホーム画面
     @GetMapping("/index")
-    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -153,11 +145,14 @@ public class HomeController {
 
     // 給与情報（講師用）
     @GetMapping("/infoSalary")
-    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax) {
+    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax, @RequestParam("detail") String detail) {
         try {
             // 基本情報の取得
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
 
             // 給与明細の計算
             Date dateFrom = DateSet.getDatePeriod(year, month)[0];
@@ -230,20 +225,6 @@ public class HomeController {
                     sumSalaryFormatted[i] = Integer.toString(sumSalary[i]);
                 }
             }
-
-            // 給与情報の取得
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = String.format("%04d", calendar.get(Calendar.YEAR));
-            String monthNow = String.format("%02d", calendar.get(Calendar.MONTH)+1);
-            String dayNow = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
-            Salary salaryNow = salaryService.getByDate(UUID.fromString(userId), yearNow+"-"+monthNow+"-"+dayNow);
-            List<Salary> salaryNowList = salaryService.findByUserId(UUID.fromString(userId));
-            String salaryNowFormatted[] = new String[4];
-            salaryNowFormatted[0] = String.format("%,d", salaryNow.getClassSalary());
-            salaryNowFormatted[1] = String.format("%,d", salaryNow.getOfficeSalary());
-            salaryNowFormatted[2] = String.format("%,d", salaryNow.getSupportSalary());
-            salaryNowFormatted[3] = String.format("%,d", salaryNow.getCarfare());
-
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("salary", salary);
@@ -252,15 +233,15 @@ public class HomeController {
             model.addAttribute("salaryMap", salaryMap);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             model.addAttribute("yearBefore", yearBefore);
             model.addAttribute("monthBefore", monthBefore);
             model.addAttribute("yearNext", yearNext);
             model.addAttribute("monthNext", monthNext);
             model.addAttribute("tax", tax);
+            model.addAttribute("detail", detail);
             model.addAttribute("incomeTaxFormatted", incomeTaxFormatted);
-            model.addAttribute("salaryNow", salaryNow);
-            model.addAttribute("salaryNowFormatted", salaryNowFormatted);
-            model.addAttribute("salaryNowList", salaryNowList);
             redirectAttributes.addAttribute("user", userId);
             return "infoSalary";
         } catch (Exception e) {
@@ -284,6 +265,9 @@ public class HomeController {
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Work work = workService.findWorkById(UUID.fromString(detailId));
             Salary salary = salaryService.getByDate(UUID.fromString(userId), work.getDate());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String supportSalaryFormatted = String.format("%,d", salary.getSupportSalary());
             String carfareFormatted = String.format("%,d", work.getCarfare());
             Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
@@ -301,6 +285,8 @@ public class HomeController {
             model.addAttribute("work", work);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             model.addAttribute("lockStatus", lockStatus);
             redirectAttributes.addAttribute("user", userId);
             return "detailWork";
@@ -323,6 +309,9 @@ public class HomeController {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
             Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
             for (Salary salary : salaryList) {
@@ -339,6 +328,8 @@ public class HomeController {
             model.addAttribute("salaryMapFormatted", salaryMapFormatted);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
             return "detailSalary";
         } catch (Exception e) {
@@ -362,12 +353,17 @@ public class HomeController {
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
             String carfareFormatted = String.format("%,d", template.getCarfare());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("template", template);
             model.addAttribute("carfareFormatted", carfareFormatted);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
             return "detailTemplate";
         } catch (Exception e) {
@@ -389,12 +385,17 @@ public class HomeController {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("templateList", templateList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
             return "infoTemplate";
         } catch (Exception e) {
@@ -418,6 +419,9 @@ public class HomeController {
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             String yearBefore = DateSet.getDateBefore(year, month)[0];
             String monthBefore = DateSet.getDateBefore(year, month)[1];
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
             Work work = new Work();
             List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
@@ -429,6 +433,8 @@ public class HomeController {
             model.addAttribute("templateList", templateList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
             return "addForm";
         } catch (Exception e) {
@@ -452,6 +458,9 @@ public class HomeController {
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             String yearBefore = DateSet.getDateBefore(year, month)[0];
             String monthBefore = DateSet.getDateBefore(year, month)[1];
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
             WorkTemplate template = new WorkTemplate();
             template.setUserId(user.getId());
@@ -461,6 +470,8 @@ public class HomeController {
             model.addAttribute("templateCreateForm", template);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
             return "templateForm";
         } catch (Exception e) {
@@ -478,11 +489,14 @@ public class HomeController {
     
     // シフト修正（講師用）
     @GetMapping("/editForm")
-    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Work work = workService.findWorkById(UUID.fromString(editId));
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            Work work = workService.findWorkById(UUID.fromString(detailId));
             Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
             if (lock == null || !lock.getStatus()) {
                 if (work.getTimeStart().equals("     ")) {
@@ -510,6 +524,8 @@ public class HomeController {
                 model.addAttribute("templateList", templateList);
                 model.addAttribute("year", year);
                 model.addAttribute("month", month);
+                model.addAttribute("yearNow", yearNow);
+                model.addAttribute("monthNow", monthNow);
                 redirectAttributes.addAttribute("user", userId);
                 return "editForm";
             } else {
@@ -540,16 +556,22 @@ public class HomeController {
     
     // テンプレート修正（講師用）
     @GetMapping("/editTemplateForm")
-    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(editId));
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
+            model.addAttribute("template", template);
             model.addAttribute("templateUpdateForm", template);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
             return "editTemplateForm";
         } catch (Exception e) {
@@ -567,26 +589,15 @@ public class HomeController {
     
     // 講師基本情報（講師用）
     @GetMapping("/user")
-    String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
-            String yearNow = String.format("%04d", calendar.get(Calendar.YEAR));
-            String monthNow = String.format("%02d", calendar.get(Calendar.MONTH)+1);
-            String dayNow = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearNow+"-"+monthNow+"-"+dayNow);
-            List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
-            String salaryFormatted[] = new String[4];
-            salaryFormatted[0] = String.format("%,d", salary.getClassSalary());
-            salaryFormatted[1] = String.format("%,d", salary.getOfficeSalary());
-            salaryFormatted[2] = String.format("%,d", salary.getSupportSalary());
-            salaryFormatted[3] = String.format("%,d", salary.getCarfare());
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("salary", salary);
-            model.addAttribute("salaryFormatted", salaryFormatted);
-            model.addAttribute("salaryList", salaryList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             redirectAttributes.addAttribute("user", userId);
@@ -606,16 +617,15 @@ public class HomeController {
     
     // 講師アカウント情報修正（講師用）
     @GetMapping("/userForm")
-    String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("salary", salary);
             model.addAttribute("userUpdateForm", user);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
@@ -636,7 +646,7 @@ public class HomeController {
     
     // シフト登録（講師用）
     @PostMapping("/addForm")
-    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes) {
+    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes, @RequestParam("year") String yearSelected, @RequestParam("month") String monthSelected) {
         try {
             String year = DateSet.getYear(form.getDate());
             String month = DateSet.getMonth(form.getDate());
@@ -669,6 +679,8 @@ public class HomeController {
                     }
                 }
             } catch (Exception e) {
+                redirectAttributes.addAttribute("year", yearSelected);
+                redirectAttributes.addAttribute("month", monthSelected);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:addForm";
@@ -746,7 +758,7 @@ public class HomeController {
                     return redirectUrl;
                 }
             } catch (Exception e) {
-                redirectAttributes.addAttribute("edit", form.getId());
+                // redirectAttributes.addAttribute("edit", form.getId());
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:editForm";
@@ -816,9 +828,6 @@ public class HomeController {
     @PostMapping("/userForm")
     String userFormPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userUpdateForm") User form, RedirectAttributes redirectAttributes) {
         try {
-            Calendar calendar = Calendar.getInstance();
-            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             userService.update(form);
             Cookie cookieLoginId = new Cookie("userLoginId", form.getLoginId());
             cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
@@ -831,8 +840,6 @@ public class HomeController {
             cookiePassword.setPath("/");
             response.addCookie(cookiePassword);
             redirectAttributes.addAttribute("user", form.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:user";
@@ -865,7 +872,7 @@ public class HomeController {
             if (host.equals(domainLocal)) {
                 return "redirect:infoTemplate";
             } else {
-                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
+                String redirectUrl = String.format("redirect:https://%s/infoTesmplate", domainAWS);
                 return redirectUrl;
             }
         } catch (Exception e) {
@@ -964,12 +971,7 @@ public class HomeController {
                 cookiePassword.setPath("/");
                 response.addCookie(cookiePassword);
                 UUID userId = trueUser.getId();                        
-                Calendar calendar = Calendar.getInstance();
-                String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-                String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
                 redirectAttributes.addAttribute("user", userId);
-                redirectAttributes.addAttribute("year", year);
-                redirectAttributes.addAttribute("month", month);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:index";
@@ -1273,7 +1275,7 @@ public class HomeController {
     
     // ホーム > 講師管理 > 新規登録 > 給与管理
     @GetMapping("/detailUser")
-    String detailUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @Param("year") String year, @Param("month") String month, @Param("tax") String tax) {
+    String detailUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @Param("year") String year, @Param("month") String month, @Param("tax") String tax, @Param("detail") String detail) {
         try {
             Date dateFrom = DateSet.getDatePeriod(year, month)[0];
             Date dateTo = DateSet.getDatePeriod(year, month)[1];
@@ -1393,6 +1395,7 @@ public class HomeController {
             model.addAttribute("yearNext", yearNext);
             model.addAttribute("monthNext", monthNext);
             model.addAttribute("tax", tax);
+            model.addAttribute("detail", detail);
             model.addAttribute("incomeTaxFormatted", incomeTaxFormatted);
             model.addAttribute("lockStatus", lockStatus);
             redirectAttributes.addAttribute("manager", managerId);
@@ -1449,6 +1452,7 @@ public class HomeController {
         try {
             String year = DateSet.getYear(form.getDate());
             String month = DateSet.getMonth(form.getDate());
+            String detail = "off";
             String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
             User user = userService.getByUserId(form.getUserId());
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -1459,6 +1463,7 @@ public class HomeController {
             redirectAttributes.addAttribute("year", year);
             redirectAttributes.addAttribute("month", month);
             redirectAttributes.addAttribute("tax", tax);
+            redirectAttributes.addAttribute("detail", detail);
             try {
                 form = workService.calcTimeAndSalary(form);
                 workService.add(form);
@@ -1525,6 +1530,7 @@ public class HomeController {
         try {
             String year = DateSet.getYear(form.getDate());
             String month = DateSet.getMonth(form.getDate());
+            String detail = "off";
             String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
             User user = userService.getByUserId(form.getUserId());
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -1535,6 +1541,7 @@ public class HomeController {
             redirectAttributes.addAttribute("year", year);
             redirectAttributes.addAttribute("month", month);
             redirectAttributes.addAttribute("tax", tax);
+            redirectAttributes.addAttribute("detail", detail);
             try {
                 form = workService.calcTimeAndSalary(form);
                 workService.update(form);
@@ -1575,12 +1582,14 @@ public class HomeController {
             Work work = workService.findWorkById(UUID.fromString(deleteId));
             String year = DateSet.getYear(work.getDate());
             String month = DateSet.getMonth(work.getDate());
+            String detail = "off";
             workService.deleteById(UUID.fromString(deleteId));
             redirectAttributes.addAttribute("manager", managerId);
             redirectAttributes.addAttribute("user", userId);
             redirectAttributes.addAttribute("year", year);
             redirectAttributes.addAttribute("month", month);
             redirectAttributes.addAttribute("tax", tax);
+            redirectAttributes.addAttribute("detail", detail);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:detailUser";
@@ -1853,7 +1862,7 @@ public class HomeController {
     
     // ホーム > 講師管理 > 給与管理 > ロックス状態の変更
     @GetMapping("/changeStatus")
-    String changeStatus(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @Param("year") String year, @Param("month") String month, @Param("tax") String tax) {
+    String changeStatus(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @Param("year") String year, @Param("month") String month, @Param("tax") String tax, @Param("detail") String detail) {
         try {
             // ロック状態を変更・削除する
             Lock lock = lockService.getByTarget(UUID.fromString(managerId), UUID.fromString(userId), Integer.parseInt(year), Integer.parseInt(month));
@@ -1881,6 +1890,7 @@ public class HomeController {
             redirectAttributes.addAttribute("year", year);
             redirectAttributes.addAttribute("month", month);
             redirectAttributes.addAttribute("tax", tax);
+            redirectAttributes.addAttribute("detail", detail);
 
             // リダイレクト
             String host = request.getHeader("Host");

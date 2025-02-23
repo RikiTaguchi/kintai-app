@@ -140,6 +140,26 @@ td {
     border-radius: 5px;
 }
 
+#createButton_off {
+    position: relative;
+    margin: 0 auto;
+    border:none;
+    border-radius: 5px;
+    color:white;
+    cursor: pointer;
+    background-color: lightgray;
+    width: 300px;
+    height:35px;
+    margin-top: 20px;
+    font-size:14px;
+}
+
+#createButton_off p {
+    position: absolute;
+    top: -7px;
+    left:127px
+}
+
 #delete {
     background-color: rgb(222, 71, 71);
     width: 300px;
@@ -150,6 +170,26 @@ td {
 
 #delete:hover {
     background-color: rgb(192, 18, 18);
+}
+
+#deleteButton_off {
+    position: relative;
+    margin: 0 auto;
+    border:none;
+    border-radius: 5px;
+    color:white;
+    cursor: pointer;
+    background-color: lightgray;
+    width: 300px;
+    height:35px;
+    margin-top: 20px;
+    font-size:14px;
+}
+
+#deleteButton_off p {
+    position: absolute;
+    top: -7px;
+    left:127px
 }
 
 .side {
