@@ -11,10 +11,15 @@
 	<body>
 		<div class="header">
             <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+		    <a th:href="@{/index(user=${user.id})}"></a>
         </div>
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
+		</div>
+
+		<div>
+			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
+			<a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}">シフト管理</a>
 		</div>
 		
 		<div class="main">
@@ -82,27 +87,27 @@
 
 			<div class="sideContents" id="goHome">
 				<p>ホーム</p>
-				<a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href="@{/index(user=${user.id})}"></a>
 			</div>
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
 				<p>アカウント</p>
-				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
 			<div class="sideContents" id="goBack">
 				<p>戻る</p>
-				<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href = "@{/index(user=${user.id})}"></a>
 			</div>
 		</div>
 

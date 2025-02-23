@@ -3,16 +3,21 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
-        <script th:src="@{/js/tax.js}" defer></script>
+        <script th:src="@{/js/detail.js}" defer></script>
 		<link th:href="@{/css/infoSalary.css}" rel="stylesheet">
 	</head>
 	<body>
 		<div class="header">
             <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+		    <a th:href="@{/index(user=${user.id})}"></a>
         </div>
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
+		</div>
+
+        <div>
+			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
+			<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}">給与情報</a>
 		</div>
 		
 		<div class="salaryMain">
@@ -33,25 +38,28 @@
     
             <div class= "beforeMonth">
                 <p>前月</p>
-                <a th:href = "@{/infoSalary(user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax})}"></a>
+                <a id="back-button" th:href = "@{/infoSalary(user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax}, detail=${detail})}"></a>
             </div>
             <div class= "afterMonth">
                 <p>来月</p>
-                <a th:href = "@{/infoSalary(user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax})}"></a>
+                <a id="next-button" th:href = "@{/infoSalary(user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax}, detail=${detail})}"></a>
+            </div>
+
+            <div>
+                <button class="detail-button">詳細</button>
             </div>
             
             <div class="mainTable">
-                <div>
+                <div class="detail-text">
                     所得税
                     <input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
                     <input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
                     <div style="display: none;">
-                        <a id="tax-button" th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
+                        <a id="tax-button" th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${tax}, detail=${detail})}"></a>
                     </div>
                 </div>
-                <br>
                 <div>
-                    <table border="1" style="border-spacing: 0;" class="radius-table">
+                    <table border="1" style="border-spacing: 0;" class="radius-table detail-table">
                         <tr><th>コマ給</th><td>¥<span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
                         <tr><th>コマ数</th><td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td></tr>
                         <tr><th>①コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
@@ -62,9 +70,8 @@
                         <tr><th>所得税</th><td>¥<span th:text = "${incomeTaxFormatted}"></span></td></tr>
                         <tr><th>交通費計</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
                     </table>
-                    <br>
-                    ※「④研修費・時間外」内訳
-                    <table border="1" style="border-spacing: 0;" class="radius-table">
+                    <p class="detail-text">※「④研修費・時間外」内訳</p>
+                    <table border="1" style="border-spacing: 0;" class="radius-table detail-table">
                         <tr><th>研修・自習室(円/分)</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
                         <tr><th>時間外勤務(円/分)</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
                         <tr><th>超過勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
@@ -85,27 +92,27 @@
 
 			<div class="sideContents" id="goHome">
 				<p>ホーム</p>
-				<a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href="@{/index(user=${user.id})}"></a>
 			</div>
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
 				<p>アカウント</p>
-				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
 			<div class="sideContents" id="goBack">
 				<p>戻る</p>
-				<a th:href = "@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href = "@{/index(user=${user.id})}"></a>
 			</div>
 		</div>
 	</body>

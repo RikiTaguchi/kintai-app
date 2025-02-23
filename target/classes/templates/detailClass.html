@@ -30,13 +30,13 @@
 			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr colspan="3" th:each = "u : ${userList}">
 					<td th:text = "${u.userName}"></td>
-					<td class="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}"><p>給与管理</p>
+					<td class="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}"><p>給与管理</p>
 					</a></td>
 					<td class="information"><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><p>基本情報</p></a></td>
 				</tr>
 				<tr colspan="3" th:each = "u : ${userRetiredList}" style="background-color: lightgray;">
 					<td th:text = "${u.userName}"></td>
-					<td class="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'})}"><p>給与管理</p>
+					<td class="salaryDetails"><a th:href= "@{/detailUser(manager=${manager.id}, user=${u.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}"><p>給与管理</p>
 					</a></td>
 					<td class="information"><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><p>基本情報</p></a></td>
 				</tr>

@@ -9,10 +9,16 @@
 	<body>
 		<div class="header">
             <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+		    <a th:href="@{/index(user=${user.id})}"></a>
         </div>
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
+		</div>
+
+		<div>
+			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
+			<a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}">シフト管理</a> &gt;
+			<a th:href="@{/detailWork(user=${user.id}, detail=${work.id}, year=${year}, month=${month})}">シフト詳細</a>
 		</div>
 
 		<div class="main">
@@ -145,7 +151,7 @@
 			<th:block th:if="${!lockStatus}">
 				<div id="createButton">
 					<p>修正する</p>
-					<a th:href = "@{/editForm(user=${user.id}, edit=${work.id}, year=${year}, month=${month})}"></a>
+					<a th:href = "@{/editForm(user=${user.id}, detail=${work.id}, year=${year}, month=${month})}"></a>
 				</div>
 				
 				<div>
@@ -154,13 +160,21 @@
 							<input type = "text" name = "deleteId" th:value = "${work.id}">
 							<input type = "text" name = "userId" th:value = "${work.userId}">
 						</div>
-						<div><input id = "delete" type = "submit" value = "この勤務履歴を削除" onclick="return deleteConfirm()" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
+						<div><input id = "delete" type = "submit" value = "削除する" onclick="return deleteConfirm()" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
 					</form>
 				</div>
 			</th:block>
 
 			<th:block th:if="${lockStatus}">
-				<p>管理者によってロックされているため、修正・削除はできません。</p>
+				<div id="createButton_off">
+					<p>修正する</p>
+				</div>
+				<div id="deleteButton_off">
+					<p>削除する</p>
+				</div>
+				<div>
+					<p>管理者によりロックされているため、修正・削除はできません。</p>
+				</div>
 			</th:block>
 		</div>
 		
@@ -171,22 +185,22 @@
 
 			<div class="sideContents" id="goHome">
 				<p>ホーム</p>
-				<a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href="@{/index(user=${user.id})}"></a>
 			</div>
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
 				<p>アカウント</p>
-				<a th:href = "@{/user(user=${user.id}, year=${year}, month=${month})}"></a>
+				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
 			<div class="sideContents" id="goBack">

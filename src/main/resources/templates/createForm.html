@@ -14,7 +14,7 @@
 		<div>
 			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
             <a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a> &gt;
-			<a th:href="@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}">給与管理（<span th:text="${user.userName}"></span>）</a> &gt;
+			<a th:href="@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax}, detail=${'off'})}">給与管理（<span th:text="${user.userName}"></span>）</a> &gt;
 			<a th:href="@{/createForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}">シフト登録</a>
         </div>
 
@@ -111,7 +111,7 @@
 			
 			<div class="sideContents" id="goBack">
 				<p>戻る</p>
-				<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax})}"></a>
+				<a th:href = "@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax}, detail=${'off'})}"></a>
 			</div>
 		</div>
 	</body>
