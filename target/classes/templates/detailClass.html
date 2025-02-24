@@ -26,6 +26,12 @@
 			<div>
 				<a th:href="@{/signUp(manager=${manager.id})}">新しく講師を登録</a>
 			</div>
+			<div>
+				<a th:href="@{/downloadExcelAll(manager=${manager.id}, year=${year}, month=${month})}">講師給フォーム（Excelファイル）のダウンロード</a>
+			</div>
+			<div>
+				
+			</div>
 			<div class="mainTable">
 			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr colspan="3" th:each = "u : ${userList}">
