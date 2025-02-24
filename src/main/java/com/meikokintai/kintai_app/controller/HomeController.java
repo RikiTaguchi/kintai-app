@@ -73,7 +73,118 @@ public class HomeController {
         this.lockService = lockService;
     }
     
-    // 勤務履歴（講師用）
+    // 講師アカウントでの処理
+    /// シフトの登録・修正・削除
+    /// テンプレートの登録・修正・削除
+    /// 給与情報の確認
+    /// アカウント情報の修正
+
+    // ログイン（get）
+    @GetMapping("/login")
+    String loginGet(HttpServletRequest request, Model model) {
+        try {
+            User user = new User();
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("userLoginId".equals(cookie.getName())) {
+                        user.setLoginId(cookie.getValue());
+                    } else if ("userPassword".equals(cookie.getName())) {
+                        user.setPassword(cookie.getValue());
+                    }
+                }
+            }
+            model.addAttribute("userLoginForm", user);
+            return "login";
+        } catch (Exception e) {
+            System.out.println("Error happened in login.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ログイン（post）
+    @PostMapping("/login")
+    String loginPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userLoginForm") User loginUser, RedirectAttributes redirectAttributes) {
+        try {
+            User trueUser = userService.getByLoginId(loginUser.getLoginId());
+            if (trueUser == null || !trueUser.getPassword().equals(loginUser.getPassword())) {
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:login";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                    return redirectUrl;
+                }
+            } else {
+                Cookie cookieLoginId = new Cookie("userLoginId", trueUser.getLoginId());
+                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
+                cookieLoginId.setHttpOnly(true);
+                cookieLoginId.setPath("/");
+                response.addCookie(cookieLoginId);
+                Cookie cookiePassword = new Cookie("userPassword", trueUser.getPassword());
+                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
+                cookiePassword.setHttpOnly(true);
+                cookiePassword.setPath("/");
+                response.addCookie(cookiePassword);
+                UUID userId = trueUser.getId();                        
+                redirectAttributes.addAttribute("user", userId);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:index";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/index", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in login(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム
+    @GetMapping("/index")
+    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            redirectAttributes.addAttribute("user", userId);
+            return "index";
+        } catch (Exception e) {
+            System.out.println("Error happened in index.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > シフト管理
     @GetMapping("/info")
     String info(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
@@ -115,23 +226,138 @@ public class HomeController {
         }
     }
     
-    // 講師ホーム画面
-    @GetMapping("/index")
-    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+    // ホーム > シフト管理 > シフト登録（get）
+    @GetMapping("/addForm")
+    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            String yearBefore = DateSet.getDateBefore(year, month)[0];
+            String monthBefore = DateSet.getDateBefore(year, month)[1];
             Calendar calendar = Calendar.getInstance();
-            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+            Work work = new Work();
+            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+            work.setUserId(user.getId());
+            work.setCarfare(salary.getCarfare());
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
+            model.addAttribute("workCreateForm", work);
+            model.addAttribute("templateList", templateList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
-            return "index";
+            return "addForm";
         } catch (Exception e) {
-            System.out.println("Error happened in index.html");
+            System.out.println("Error happened in addForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > シフト管理 > シフト登録（post）
+    @PostMapping("/addForm")
+    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes, @RequestParam("year") String yearSelected, @RequestParam("month") String monthSelected) {
+        try {
+            String year = DateSet.getYear(form.getDate());
+            String month = DateSet.getMonth(form.getDate());
+            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
+            User user = userService.getByUserId(form.getUserId());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            form.setDayOfWeek(dayOfWeek);
+            form.setSupportSalary("true");
+            redirectAttributes.addAttribute("user", form.getUserId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            try {
+                if (lock == null || !lock.getStatus()) {
+                    form = workService.calcTimeAndSalary(form);
+                    workService.add(form);
+                    String host = request.getHeader("Host");
+                    if (host.equals(domainLocal)) {
+                        return "redirect:info";
+                    } else {
+                        String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
+                        return redirectUrl;
+                    }
+                } else {
+                    String host = request.getHeader("Host");
+                    if (host.equals(domainLocal)) {
+                        return "redirect:addForm";
+                    } else {
+                        String redirectUrl = String.format("redirect:https://%s/addForm", domainAWS);
+                        return redirectUrl;
+                    }
+                }
+            } catch (Exception e) {
+                redirectAttributes.addAttribute("year", yearSelected);
+                redirectAttributes.addAttribute("month", monthSelected);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:addForm";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/addForm", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in addForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > シフト管理 > シフト詳細
+    @GetMapping("/detailWork")
+    String detailWork(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Work work = workService.findWorkById(UUID.fromString(detailId));
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), work.getDate());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String supportSalaryFormatted = String.format("%,d", salary.getSupportSalary());
+            String carfareFormatted = String.format("%,d", work.getCarfare());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            Boolean lockStatus;
+            if (lock == null || !lock.getStatus()) {
+                lockStatus = false;
+            } else {
+                lockStatus = true;
+            }
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("salary", salary);
+            model.addAttribute("supportSalaryFormatted", supportSalaryFormatted);
+            model.addAttribute("carfareFormatted", carfareFormatted);
+            model.addAttribute("work", work);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
+            model.addAttribute("lockStatus", lockStatus);
+            redirectAttributes.addAttribute("user", userId);
+            return "detailWork";
+        } catch (Exception e) {
+            System.out.println("Error happened in detailWork.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -143,7 +369,388 @@ public class HomeController {
         }
     }
 
-    // 給与情報（講師用）
+    // ホーム > シフト管理 > シフト詳細 > 修正（get）
+    @GetMapping("/editForm")
+    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            Work work = workService.findWorkById(UUID.fromString(detailId));
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            if (lock == null || !lock.getStatus()) {
+                if (work.getTimeStart().equals("     ")) {
+                    work.setTimeStart("");
+                }
+                if (work.getTimeEnd().equals("     ")) {
+                    work.setTimeEnd("");
+                }
+                if (work.getOfficeTimeStart().equals("     ")) {
+                    work.setOfficeTimeStart("");
+                }
+                if (work.getOfficeTimeEnd().equals("     ")) {
+                    work.setOfficeTimeEnd("");
+                }
+                if (work.getOtherTimeStart().equals("     ")) {
+                    work.setOtherTimeStart("");
+                }
+                if (work.getOtherTimeEnd().equals("     ")) {
+                    work.setOtherTimeEnd("");
+                }
+                List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+                model.addAttribute("user", user);
+                model.addAttribute("manager", manager);
+                model.addAttribute("workUpdateForm", work);
+                model.addAttribute("templateList", templateList);
+                model.addAttribute("year", year);
+                model.addAttribute("month", month);
+                model.addAttribute("yearNow", yearNow);
+                model.addAttribute("monthNow", monthNow);
+                redirectAttributes.addAttribute("user", userId);
+                return "editForm";
+            } else {
+                redirectAttributes.addAttribute("user", user.getId());
+                redirectAttributes.addAttribute("detail", work.getId());
+                redirectAttributes.addAttribute("year", year);
+                redirectAttributes.addAttribute("month", month);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:detailWork";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > シフト管理 > シフト詳細 > 修正（post）
+    @PostMapping("/editForm")
+    String editFormPost(HttpServletRequest request, @ModelAttribute("workUpdateForm") Work form, RedirectAttributes redirectAttributes) {
+        try {
+            String year = DateSet.getYear(form.getDate());
+            String month = DateSet.getMonth(form.getDate());
+            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
+            User user = userService.getByUserId(form.getUserId());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            form.setDayOfWeek(dayOfWeek);
+            form.setSupportSalary("true");
+            redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("detail", form.getId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            try {
+                if (lock == null || !lock.getStatus()) {
+                    form = workService.calcTimeAndSalary(form);
+                    workService.update(form);
+                }
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:detailWork";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    return redirectUrl;
+                }
+            } catch (Exception e) {
+                // redirectAttributes.addAttribute("edit", form.getId());
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:editForm";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/editForm", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > シフト管理 > シフト詳細 > 削除
+    @PostMapping("/deleteWork")
+    String deleteWork(HttpServletRequest request, @Param("userId") String userId, @Param("deleteId") String deleteId, RedirectAttributes redirectAttributes) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Work work = workService.findWorkById(UUID.fromString(deleteId));
+            String year = DateSet.getYear(work.getDate());
+            String month = DateSet.getMonth(work.getDate());
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            if (lock == null || !lock.getStatus()) {
+                workService.deleteById(UUID.fromString(deleteId));
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:info";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
+                    return redirectUrl;
+                }
+            } else {
+                redirectAttributes.addAttribute("detail", work.getId());
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:detailWork";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    return redirectUrl;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteWork(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > シフト管理 > テンプレート
+    @GetMapping("/infoTemplate")
+    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("templateList", templateList);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
+            redirectAttributes.addAttribute("user", userId);
+            return "infoTemplate";
+        } catch (Exception e) {
+            System.out.println("Error happened in infoTemplate.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:loginManager";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > シフト管理 > テンプレート > 登録（get）
+    @GetMapping("/templateForm")
+    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            String yearBefore = DateSet.getDateBefore(year, month)[0];
+            String monthBefore = DateSet.getDateBefore(year, month)[1];
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+            WorkTemplate template = new WorkTemplate();
+            template.setUserId(user.getId());
+            template.setCarfare(salary.getCarfare());
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("templateCreateForm", template);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
+            redirectAttributes.addAttribute("user", userId);
+            return "templateForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in templateForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > シフト管理 > テンプレート > 登録（post）
+    @PostMapping("/templateForm")
+    String templateFormPost(HttpServletRequest request, @ModelAttribute("templateCreateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            workTemplateService.add(form);
+            redirectAttributes.addAttribute("user", form.getUserId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoTemplate";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in templateForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > シフト管理 > テンプレート > 詳細
+    @GetMapping("/detailTemplate")
+    String detailTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
+            String carfareFormatted = String.format("%,d", template.getCarfare());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("template", template);
+            model.addAttribute("carfareFormatted", carfareFormatted);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
+            redirectAttributes.addAttribute("user", userId);
+            return "detailTemplate";
+        } catch (Exception e) {
+            System.out.println("Error happened in detailTemplate.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > シフト管理 > テンプレート > 詳細 > 修正（get）
+    @GetMapping("/editTemplateForm")
+    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            User user = userService.getByUserId(UUID.fromString(userId));
+            Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
+            model.addAttribute("user", user);
+            model.addAttribute("manager", manager);
+            model.addAttribute("template", template);
+            model.addAttribute("templateUpdateForm", template);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
+            redirectAttributes.addAttribute("user", userId);
+            return "editTemplateForm";
+        } catch (Exception e) {
+            System.out.println("Error happened in editTemplateForm.html");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+    
+    // ホーム > シフト管理 > テンプレート > 詳細 > 修正（post）
+    @PostMapping("/editTemplateForm")
+    String editTemplateFormPost(HttpServletRequest request, @ModelAttribute("templateUpdateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            workTemplateService.update(form);
+            redirectAttributes.addAttribute("user", form.getUserId());
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoTemplate";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoTesmplate", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in editTemplateForm(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > シフト管理 > テンプレート > 詳細 > 削除
+    @PostMapping("/deleteTemplate")
+    String deleteTemplate(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            workTemplateService.deleteById(UUID.fromString(deleteId));
+            redirectAttributes.addAttribute("user", userId);
+            redirectAttributes.addAttribute("year", year);
+            redirectAttributes.addAttribute("month", month);
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:infoTemplate";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
+                return redirectUrl;
+            }
+        } catch (Exception e) {
+            System.out.println("Error happened in deleteTemplate(post)");
+            e.printStackTrace();
+            String host = request.getHeader("Host");
+            if (host.equals(domainLocal)) {
+                return "redirect:login";
+            } else {
+                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                return redirectUrl;
+            }
+        }
+    }
+
+    // ホーム > 給与情報
     @GetMapping("/infoSalary")
     String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax, @RequestParam("detail") String detail) {
         try {
@@ -257,53 +864,7 @@ public class HomeController {
         }
     }
 
-    // 勤務詳細（講師用）
-    @GetMapping("/detailWork")
-    String detailWork(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Work work = workService.findWorkById(UUID.fromString(detailId));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), work.getDate());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String supportSalaryFormatted = String.format("%,d", salary.getSupportSalary());
-            String carfareFormatted = String.format("%,d", work.getCarfare());
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
-            Boolean lockStatus;
-            if (lock == null || !lock.getStatus()) {
-                lockStatus = false;
-            } else {
-                lockStatus = true;
-            }
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salary", salary);
-            model.addAttribute("supportSalaryFormatted", supportSalaryFormatted);
-            model.addAttribute("carfareFormatted", carfareFormatted);
-            model.addAttribute("work", work);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            model.addAttribute("lockStatus", lockStatus);
-            redirectAttributes.addAttribute("user", userId);
-            return "detailWork";
-        } catch (Exception e) {
-            System.out.println("Error happened in detailWork.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 給与推移（講師用）
+    // ホーム > 給与情報 > 給与推移
     @GetMapping("/detailSalary")
     String detailSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
@@ -345,249 +906,7 @@ public class HomeController {
         }
     }
     
-    // テンプレート詳細（講師用）
-    @GetMapping("/detailTemplate")
-    String detailTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
-            String carfareFormatted = String.format("%,d", template.getCarfare());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("template", template);
-            model.addAttribute("carfareFormatted", carfareFormatted);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            redirectAttributes.addAttribute("user", userId);
-            return "detailTemplate";
-        } catch (Exception e) {
-            System.out.println("Error happened in detailTemplate.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート一覧（講師用）
-    @GetMapping("/infoTemplate")
-    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("templateList", templateList);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            redirectAttributes.addAttribute("user", userId);
-            return "infoTemplate";
-        } catch (Exception e) {
-            System.out.println("Error happened in infoTemplate.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:loginManager";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-
-    // シフト登録（講師用）
-    @GetMapping("/addForm")
-    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
-            Work work = new Work();
-            List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
-            work.setUserId(user.getId());
-            work.setCarfare(salary.getCarfare());
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("workCreateForm", work);
-            model.addAttribute("templateList", templateList);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            redirectAttributes.addAttribute("user", userId);
-            return "addForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in addForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート登録（講師用）
-    @GetMapping("/templateForm")
-    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
-            WorkTemplate template = new WorkTemplate();
-            template.setUserId(user.getId());
-            template.setCarfare(salary.getCarfare());
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("templateCreateForm", template);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            redirectAttributes.addAttribute("user", userId);
-            return "templateForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in templateForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト修正（講師用）
-    @GetMapping("/editForm")
-    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            Work work = workService.findWorkById(UUID.fromString(detailId));
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
-            if (lock == null || !lock.getStatus()) {
-                if (work.getTimeStart().equals("     ")) {
-                    work.setTimeStart("");
-                }
-                if (work.getTimeEnd().equals("     ")) {
-                    work.setTimeEnd("");
-                }
-                if (work.getOfficeTimeStart().equals("     ")) {
-                    work.setOfficeTimeStart("");
-                }
-                if (work.getOfficeTimeEnd().equals("     ")) {
-                    work.setOfficeTimeEnd("");
-                }
-                if (work.getOtherTimeStart().equals("     ")) {
-                    work.setOtherTimeStart("");
-                }
-                if (work.getOtherTimeEnd().equals("     ")) {
-                    work.setOtherTimeEnd("");
-                }
-                List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
-                model.addAttribute("user", user);
-                model.addAttribute("manager", manager);
-                model.addAttribute("workUpdateForm", work);
-                model.addAttribute("templateList", templateList);
-                model.addAttribute("year", year);
-                model.addAttribute("month", month);
-                model.addAttribute("yearNow", yearNow);
-                model.addAttribute("monthNow", monthNow);
-                redirectAttributes.addAttribute("user", userId);
-                return "editForm";
-            } else {
-                redirectAttributes.addAttribute("user", user.getId());
-                redirectAttributes.addAttribute("detail", work.getId());
-                redirectAttributes.addAttribute("year", year);
-                redirectAttributes.addAttribute("month", month);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:detailWork";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in editForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート修正（講師用）
-    @GetMapping("/editTemplateForm")
-    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("template", template);
-            model.addAttribute("templateUpdateForm", template);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            redirectAttributes.addAttribute("user", userId);
-            return "editTemplateForm";
-        } catch (Exception e) {
-            System.out.println("Error happened in editTemplateForm.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師基本情報（講師用）
+    // ホーム > アカウント
     @GetMapping("/user")
     String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
@@ -615,7 +934,7 @@ public class HomeController {
         }
     }
     
-    // 講師アカウント情報修正（講師用）
+    // ホーム > アカウント > アカウント情報修正（get）
     @GetMapping("/userForm")
     String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
@@ -644,187 +963,7 @@ public class HomeController {
         }
     }
     
-    // シフト登録（講師用）
-    @PostMapping("/addForm")
-    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes, @RequestParam("year") String yearSelected, @RequestParam("month") String monthSelected) {
-        try {
-            String year = DateSet.getYear(form.getDate());
-            String month = DateSet.getMonth(form.getDate());
-            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
-            User user = userService.getByUserId(form.getUserId());
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
-            form.setDayOfWeek(dayOfWeek);
-            form.setSupportSalary("true");
-            redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            try {
-                if (lock == null || !lock.getStatus()) {
-                    form = workService.calcTimeAndSalary(form);
-                    workService.add(form);
-                    String host = request.getHeader("Host");
-                    if (host.equals(domainLocal)) {
-                        return "redirect:info";
-                    } else {
-                        String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
-                        return redirectUrl;
-                    }
-                } else {
-                    String host = request.getHeader("Host");
-                    if (host.equals(domainLocal)) {
-                        return "redirect:addForm";
-                    } else {
-                        String redirectUrl = String.format("redirect:https://%s/addForm", domainAWS);
-                        return redirectUrl;
-                    }
-                }
-            } catch (Exception e) {
-                redirectAttributes.addAttribute("year", yearSelected);
-                redirectAttributes.addAttribute("month", monthSelected);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:addForm";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/addForm", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in addForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート登録（講師用）
-    @PostMapping("/templateForm")
-    String templateFormPost(HttpServletRequest request, @ModelAttribute("templateCreateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            workTemplateService.add(form);
-            redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoTemplate";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in templateForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト修正（講師用）
-    @PostMapping("/editForm")
-    String editFormPost(HttpServletRequest request, @ModelAttribute("workUpdateForm") Work form, RedirectAttributes redirectAttributes) {
-        try {
-            String year = DateSet.getYear(form.getDate());
-            String month = DateSet.getMonth(form.getDate());
-            String dayOfWeek = DateSet.getDayOfWeek(form.getDate());
-            User user = userService.getByUserId(form.getUserId());
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
-            form.setDayOfWeek(dayOfWeek);
-            form.setSupportSalary("true");
-            redirectAttributes.addAttribute("user", user.getId());
-            redirectAttributes.addAttribute("detail", form.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            try {
-                if (lock == null || !lock.getStatus()) {
-                    form = workService.calcTimeAndSalary(form);
-                    workService.update(form);
-                }
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:detailWork";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
-                    return redirectUrl;
-                }
-            } catch (Exception e) {
-                // redirectAttributes.addAttribute("edit", form.getId());
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:editForm";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/editForm", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in editForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // シフト削除（講師用）
-    @PostMapping("/deleteWork")
-    String deleteWork(HttpServletRequest request, @Param("userId") String userId, @Param("deleteId") String deleteId, RedirectAttributes redirectAttributes) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Work work = workService.findWorkById(UUID.fromString(deleteId));
-            String year = DateSet.getYear(work.getDate());
-            String month = DateSet.getMonth(work.getDate());
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
-            redirectAttributes.addAttribute("user", user.getId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            if (lock == null || !lock.getStatus()) {
-                workService.deleteById(UUID.fromString(deleteId));
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:info";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
-                    return redirectUrl;
-                }
-            } else {
-                redirectAttributes.addAttribute("detail", work.getId());
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:detailWork";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in deleteWork(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師アカウント情報修正（講師用）
+    // ホーム > アカウント > アカウント情報修正（post）
     @PostMapping("/userForm")
     String userFormPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userUpdateForm") User form, RedirectAttributes redirectAttributes) {
         try {
@@ -859,140 +998,7 @@ public class HomeController {
             }
         }
     }
-    
-    // テンプレート修正（講師用）
-    @PostMapping("/editTemplateForm")
-    String editTemplateFormPost(HttpServletRequest request, @ModelAttribute("templateUpdateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            workTemplateService.update(form);
-            redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoTemplate";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoTesmplate", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in editTemplateForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // テンプレート削除（講師用）
-    @PostMapping("/deleteTemplate")
-    String deleteTemplate(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            workTemplateService.deleteById(UUID.fromString(deleteId));
-            redirectAttributes.addAttribute("user", userId);
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:infoTemplate";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
-                return redirectUrl;
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in deleteTemplate(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
 
-    // 講師ログイン（講師用）
-    @GetMapping("/login")
-    String loginGet(HttpServletRequest request, Model model) {
-        try {
-            User user = new User();
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("userLoginId".equals(cookie.getName())) {
-                        user.setLoginId(cookie.getValue());
-                    } else if ("userPassword".equals(cookie.getName())) {
-                        user.setPassword(cookie.getValue());
-                    }
-                }
-            }
-            model.addAttribute("userLoginForm", user);
-            return "login";
-        } catch (Exception e) {
-            System.out.println("Error happened in login.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // 講師ログイン（講師用）
-    @PostMapping("/login")
-    String loginPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userLoginForm") User loginUser, RedirectAttributes redirectAttributes) {
-        try {
-            User trueUser = userService.getByLoginId(loginUser.getLoginId());
-            if (trueUser == null || !trueUser.getPassword().equals(loginUser.getPassword())) {
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:login";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                    return redirectUrl;
-                }
-            } else {
-                Cookie cookieLoginId = new Cookie("userLoginId", trueUser.getLoginId());
-                cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
-                cookieLoginId.setHttpOnly(true);
-                cookieLoginId.setPath("/");
-                response.addCookie(cookieLoginId);
-                Cookie cookiePassword = new Cookie("userPassword", trueUser.getPassword());
-                cookiePassword.setMaxAge(30 * 24 * 60 * 60);
-                cookiePassword.setHttpOnly(true);
-                cookiePassword.setPath("/");
-                response.addCookie(cookiePassword);
-                UUID userId = trueUser.getId();                        
-                redirectAttributes.addAttribute("user", userId);
-                String host = request.getHeader("Host");
-                if (host.equals(domainLocal)) {
-                    return "redirect:index";
-                } else {
-                    String redirectUrl = String.format("redirect:https://%s/index", domainAWS);
-                    return redirectUrl;
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error happened in login(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
     // 社員アカウントでの処理
     /// 機能
     //// 管理者アカウントの作成・修正・削除
@@ -1610,11 +1616,10 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 給与管理 > Excelファイルのエクスポート
+    // ホーム > 講師管理 > 給与管理 > Excelファイルのエクスポート（個人）
     @GetMapping("/downloadExcel")
-    public void downloadExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    void downloadExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
-
             // 講師情報・勤務情報
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -1623,7 +1628,7 @@ public class HomeController {
             List<Work> workList = workService.findByUserId(user.getId(), dateFrom, dateTo);
 
             // レスポンスヘッダーの設定
-            String fileName = URLEncoder.encode(user.getUserName().replace(" ", "")+"_"+year+"_"+month, StandardCharsets.UTF_8.toString());
+            String fileName = URLEncoder.encode(user.getUserName().split(" ")[0]+"."+year+"."+String.valueOf(Integer.parseInt(month)), StandardCharsets.UTF_8.toString());
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + ".xlsx\"");
             
@@ -1636,7 +1641,7 @@ public class HomeController {
             Sheet sheet = workbook.getSheetAt(0);
 
             // シート名を変更
-            String sheetName = user.getUserName().replace(" ", "")+"_"+year+"_"+month;
+            String sheetName = user.getUserName().split(" ")[0]+"."+year+"."+String.valueOf(Integer.parseInt(month));
             workbook.setSheetName(workbook.getSheetIndex(sheet), sheetName);
 
             // テンプレートのセルにデータを埋め込む
@@ -1664,12 +1669,11 @@ public class HomeController {
                 }
                 if (i == 2 || i == 3 || i == 4 || i == 6) {
                     cell.setCellValue(Integer.valueOf(headers[i]));
-                } else {
+                } else if (i == 0 || i == 1) {
                     cell.setCellValue(headers[i]);
                 }
             }
             int sumInt[] = new int[11];
-            int cellPointsInSum[] = {1, 4, 7, 11, 15, 19, 23, 27, 31, 39, 42};
             for (int i = 0; i < sumInt.length; i++) {
                 sumInt[i] = 0;
             }
@@ -1680,7 +1684,7 @@ public class HomeController {
                 for (int i = 0; i < values.length; i++) {
                     values[i] = "";
                 }
-                values[0] = work.getDate().substring(5,10).replace("-","月")+"日";
+                values[0] = work.getDate().replace("-","/");
                 values[1] = work.getDayOfWeek();
                 if (work.getClassM() == true) {
                     values[2] += "M";
@@ -1754,9 +1758,9 @@ public class HomeController {
                 }
                 if (!work.getOtherTimeStart().equals("     ")) {
                     if (Integer.valueOf(work.getOtherTimeStart().split(":")[0]) < 10) {
-                        values[15] = Integer.toString(Integer.valueOf(work.getOtherTimeStart().split(":")[0])) + ":" + work.getOtherTimeStart().split(":")[1];
+                        values[14] = Integer.toString(Integer.valueOf(work.getOtherTimeStart().split(":")[0])) + ":" + work.getOtherTimeStart().split(":")[1];
                     } else {
-                        values[15] = work.getOtherTimeStart();
+                        values[14] = work.getOtherTimeStart();
                     }
                 }
                 if (!work.getOtherTimeEnd().equals("     ")) {
@@ -1802,51 +1806,19 @@ public class HomeController {
                     if (cells[i] == null) {
                         cells[i] = row.createCell(cellPointsInWork[i]);
                     }
-                    if (i == 3 || i == 11 || i == 12) {
+                    if (i == 0 || i == 2 || i == 4 || i == 5 || i == 6 || i == 7 || i == 8 || i == 9 || i == 13 || i == 14 || i == 15 || i == 16) {
+                        if (!values[i].equals("")) {
+                            cells[i].setCellValue(values[i]);
+                        }
+                    } else if (i == 12) {
                         if (!values[i].equals("")) {
                             cells[i].setCellValue(Integer.valueOf(values[i]));
-                        }
-                    } else {
-                        cells[i].setCellValue(values[i]);
-                    }
-                }
-                if (!work.getTimeStart().equals("     ")) {
-                    for (int i = 5; i < 8; i++) {
-                        CellStyle style = workbook.createCellStyle();
-                        style.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-                        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                        style.setAlignment(HorizontalAlignment.CENTER);
-                        style.setVerticalAlignment(VerticalAlignment.CENTER);
-                        style.setBorderTop(BorderStyle.THIN);
-                        style.setBorderBottom(BorderStyle.THIN);
-                        if (i != 6) {
-                            style.setBorderLeft(BorderStyle.THIN);
                         } else {
-                            style.setBorderLeft(BorderStyle.DOTTED);
+                            cells[i].setCellValue("");
                         }
-                        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
-                        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-                        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-                        cells[i].setCellStyle(style);
                     }
                 }
                 rowIndex += 1;
-            }
-            if (salaryService.getByDate(user.getId(), workList.get(0).getDate()).getCarfare() != 0) {
-                sumInt[10] = salaryService.getByDate(user.getId(), workList.get(0).getDate()).getCarfare();
-            }
-            for (int i = 0; i < sumInt.length; i++) {
-                if (sumInt[i] != 0) {
-                    Row row = sheet.getRow(3);
-                    if (row == null) {
-                        row = sheet.createRow(3);
-                    }
-                    Cell cell = row.getCell(cellPointsInSum[i]);
-                    if (cell == null) {
-                        cell = row.createCell(cellPointsInSum[i]);
-                    }
-                    cell.setCellValue(sumInt[i]);
-                }
             }
 
             // Excelデータをレスポンスに書き込む
@@ -1855,7 +1827,7 @@ public class HomeController {
             response.getOutputStream().flush();
 
         } catch (Exception e) {
-            // エラー処理（jsでリダイレクトさせる）
+            // エラー処理
             e.printStackTrace();
         }
     }
@@ -1914,6 +1886,281 @@ public class HomeController {
 
     }
     
+    // ホーム > 講師管理 > Excelファイルのエクスポート（全体）
+    @GetMapping("/downloadExcelAll")
+    void downloadExcelAll(HttpServletRequest request, HttpServletResponse response, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
+        try {
+            // 管理者情報
+            Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
+            Date dateFrom = DateSet.getDatePeriod(year, month)[0];
+            Date dateTo = DateSet.getDatePeriod(year, month)[1];
+
+            // 講師情報
+            List<User> userList = userService.findByClassAreaId(manager.getId());
+
+            // レスポンスヘッダーの設定
+            String fileName = URLEncoder.encode("講師給フォーム("+year.substring(2, 4)+manager.getClassArea()+")"+year+"."+String.valueOf(Integer.parseInt(month)), StandardCharsets.UTF_8.toString());
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + ".xlsx\"");
+            
+            // テンプレートファイルを読み込み
+            ClassPathResource templateResource = new ClassPathResource("static/excel/excelTemplateAll.xlsx");
+            InputStream templateInputStream = templateResource.getInputStream();
+            Workbook workbook = new XSSFWorkbook(templateInputStream);
+
+            // トップシートの取得・初期設定
+            Sheet sheetTop = workbook.getSheetAt(0);
+            Cell topYear = sheetTop.getRow(0).getCell(6);
+            Cell topMonth = sheetTop.getRow(0).getCell(8);
+            Cell topClass = sheetTop.getRow(0).getCell(10);
+            topYear.setCellValue(Integer.parseInt(year));
+            topMonth.setCellValue(Integer.parseInt(month));
+            topClass.setCellValue(manager.getClassArea());
+
+            // シートの入力（全講師）
+            for (int i = 0; i < userList.size(); i++) {
+                // データリスト
+                String numberList[] = {"①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱"};
+
+                // 講師情報の取得
+                User user = userList.get(i);
+
+                // 勤務情報の取得
+                List<Work> workList = workService.findByUserId(user.getId(), dateFrom, dateTo);
+
+                // 講師級シートの取得
+                Sheet sheet = workbook.getSheetAt(i + 1);
+                String sheetName = numberList[i]+user.getUserName().split(" ")[0];
+                workbook.setSheetName(workbook.getSheetIndex(sheet), sheetName);
+
+                // cellへデータ入力
+                String headers[] = new String[8];
+                int cellPointsInHeader[] = {4, 16, 25, 29, 33, 35, 40, 42};
+                for (int j = 0; j < headers.length; j++) {
+                    headers[j] = "";
+                }
+                headers[0] = manager.getClassArea();
+                headers[1] = user.getUserName();
+                headers[2] = year;
+                headers[3] = Integer.toString(Integer.valueOf(month));
+                headers[4] = Integer.toString(Integer.valueOf(DateSet.getDateBefore(year, month)[1]));
+                headers[5] = "月26日";
+                headers[6] = Integer.toString(Integer.valueOf(month));
+                headers[7] = "月25日";
+                Row headerRow = sheet.getRow(0);
+                if (headerRow == null) {
+                    headerRow = sheet.createRow(0);
+                }
+                for (int j = 0; j < headers.length; j++) {
+                    Cell cell = headerRow.getCell(cellPointsInHeader[j]);
+                    if (cell == null) {
+                        cell = headerRow.createCell(cellPointsInHeader[j]);
+                    }
+                    if (j == 2 || j == 3 || j == 4 || j == 6) {
+                        cell.setCellValue(Integer.valueOf(headers[j]));
+                    } else if (j == 0 || j == 1) {
+                        cell.setCellValue(headers[j]);
+                    }
+                }
+                int sumInt[] = new int[11];
+                for (int j = 0; j < sumInt.length; j++) {
+                    sumInt[j] = 0;
+                }
+                int rowIndex = 7;
+                int cellPointsInWork[] = {1, 4, 5, 8, 10, 13, 15, 17, 19, 21, 23, 25, 27, 29, 33, 35, 37, 39, 41, 43, 45};
+                for (Work work : workList) {
+                    String values[] = new String[21];
+                    for (int j = 0; j < values.length; j++) {
+                        values[j] = "";
+                    }
+                    values[0] = work.getDate().replace("-","/");
+                    values[1] = work.getDayOfWeek();
+                    if (work.getClassM() == true) {
+                        values[2] += "M";
+                    }
+                    if (work.getClassK() == true) {
+                        values[2] += "K";
+                    }
+                    if (work.getClassS() == true) {
+                        values[2] += "S";
+                    }
+                    if (work.getClassA() == true) {
+                        values[2] += "A";
+                    }
+                    if (work.getClassB() == true) {
+                        values[2] += "B";
+                    }
+                    if (work.getClassC() == true) {
+                        values[2] += "C";
+                    }
+                    if (work.getClassD() == true) {
+                        values[2] += "D";
+                    }
+                    if (work.getClassCount() != 0) {
+                        values[3] = Integer.toString(work.getClassCount());
+                    }
+                    if (!work.getHelpArea().equals("")) {
+                        values[4] = work.getHelpArea();
+                    }
+                    if (!work.getTimeStart().equals("     ")) {
+                        if (Integer.valueOf(work.getTimeStart().split(":")[0]) < 10) {
+                            values[5] = Integer.toString(Integer.valueOf(work.getTimeStart().split(":")[0])) + ":" + work.getTimeStart().split(":")[1];
+                        } else {
+                            values[5] = work.getTimeStart();
+                        }
+                    }
+                    if (!work.getTimeEnd().equals("     ")) {
+                        if (Integer.valueOf(work.getTimeEnd().split(":")[0]) < 10) {
+                            values[6] = Integer.toString(Integer.valueOf(work.getTimeEnd().split(":")[0])) + ":" + work.getTimeEnd().split(":")[1];
+                        } else {
+                            values[6] = work.getTimeEnd();
+                        }
+                    }
+                    if (work.getBreakTime() != 0) {
+                        values[7] = Integer.toString(work.getBreakTime()/60)+":"+String.format("%02d", work.getBreakTime()%60);
+                    }
+                    if (!work.getOfficeTimeStart().equals("     ")) {
+                        if (Integer.valueOf(work.getOfficeTimeStart().split(":")[0]) < 10) {
+                            values[8] = Integer.toString(Integer.valueOf(work.getOfficeTimeStart().split(":")[0])) + ":" + work.getOfficeTimeStart().split(":")[1];
+                        } else {
+                            values[8] = work.getOfficeTimeStart();
+                        }
+                    }
+                    if (!work.getOfficeTimeEnd().equals("     ")) {
+                        if (Integer.valueOf(work.getOfficeTimeEnd().split(":")[0]) < 10) {
+                            values[9] = Integer.toString(Integer.valueOf(work.getOfficeTimeEnd().split(":")[0])) + ":" + work.getOfficeTimeEnd().split(":")[1];
+                        } else {
+                            values[9] = work.getOfficeTimeEnd();
+                        }
+                    }
+                    if (work.getOfficeTime() != 0) {
+                        values[10] = Integer.toString(work.getOfficeTime()/60)+":"+String.format("%02d", work.getOfficeTime()%60);
+                    }
+                    if (work.getSupportSalary().equals("true")) {
+                        values[11] = Integer.toString(salaryService.getByDate(user.getId(), work.getDate()).getSupportSalary());
+                    }
+                    if (work.getCarfare() != 0) {
+                        values[12] = Integer.toString(work.getCarfare());
+                    }
+                    if (!work.getOtherWork().equals("")) {
+                        values[13] = work.getOtherWork();
+                    }
+                    if (!work.getOtherTimeStart().equals("     ")) {
+                        if (Integer.valueOf(work.getOtherTimeStart().split(":")[0]) < 10) {
+                            values[14] = Integer.toString(Integer.valueOf(work.getOtherTimeStart().split(":")[0])) + ":" + work.getOtherTimeStart().split(":")[1];
+                        } else {
+                            values[14] = work.getOtherTimeStart();
+                        }
+                    }
+                    if (!work.getOtherTimeEnd().equals("     ")) {
+                        if (Integer.valueOf(work.getOtherTimeEnd().split(":")[0]) < 10) {
+                            values[15] = Integer.toString(Integer.valueOf(work.getOtherTimeEnd().split(":")[0])) + ":" + work.getOtherTimeEnd().split(":")[1];
+                        } else {
+                            values[15] = work.getOtherTimeEnd();
+                        }
+                    }
+                    if (work.getOtherBreakTime() != 0) {
+                        values[16] = Integer.toString(work.getOtherBreakTime()/60)+":"+String.format("%02d", work.getOtherBreakTime()%60);
+                    }
+                    if (work.getOtherTime() != 0) {
+                        values[17] = Integer.toString(work.getOtherTime()/60)+":"+String.format("%02d", work.getOtherTime()%60);
+                    }
+                    if (work.getOutOfTime() != 0) {
+                        values[18] = Integer.toString(work.getOutOfTime()/60)+":"+String.format("%02d", work.getOutOfTime()%60);
+                    }
+                    if (work.getOverTime() != 0) {
+                        values[19] = Integer.toString(work.getOverTime()/60)+":"+String.format("%02d", work.getOverTime()%60);
+                    }
+                    if (work.getNightTime() != 0) {
+                        values[20] = Integer.toString(work.getNightTime()/60)+":"+String.format("%02d", work.getNightTime()%60);
+                    }
+                    sumInt[0] += work.getClassCount();
+                    sumInt[1] += 1;
+                    sumInt[2] += work.getOfficeTime();
+                    if (work.getSupportSalary().equals("true")) {
+                        sumInt[3] += salaryService.getByDate(user.getId(), work.getDate()).getSupportSalary();
+                    }
+                    sumInt[4] += work.getCarfare();
+                    sumInt[5] += work.getOtherTime();
+                    sumInt[6] += work.getOutOfTime();
+                    sumInt[7] += work.getOverTime();
+                    sumInt[8] += work.getNightTime();
+                    Row row = sheet.getRow(rowIndex);
+                    if (row == null) {
+                        row = sheet.createRow(rowIndex);
+                    }
+                    Cell cells[] = new Cell[values.length];
+                    for (int j = 0; j < cells.length; j++) {
+                        cells[j] = row.getCell(cellPointsInWork[j]);
+                        if (cells[j] == null) {
+                            cells[j] = row.createCell(cellPointsInWork[j]);
+                        }
+                        if (j == 0 || j == 2 || j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9 || j == 13 || j == 14 || j == 15 || j == 16) {
+                            if (!values[j].equals("")) {
+                                cells[j].setCellValue(values[j]);
+                            }
+                        } else if (j == 12) {
+                            if (!values[j].equals("")) {
+                                cells[j].setCellValue(Integer.valueOf(values[j]));
+                            } else {
+                                cells[j].setCellValue("");
+                            }
+                        }
+                    }
+                    rowIndex += 1;
+                }
+
+                // トップシートの入力
+                Row rowTop = sheetTop.getRow(i + 33);
+                if (rowTop == null) {
+                    rowTop = sheetTop.createRow(i + 33);
+                }
+                for (int j = 0; j < 13; j++) {
+                    Cell cellTop = rowTop.getCell(j);
+                    if (j == 0) {
+                        // No.
+                        cellTop.setCellValue(i + 1);
+                    } else if (j == 1) {
+                        // 講師No.
+                        cellTop.setCellValue(user.getTeacherNo());
+                    } else if (j == 2) {
+                        // 講師氏名
+                        cellTop.setCellValue(user.getUserName());
+                    } else if (j == 3) {
+                        // 退職日
+                        if (!user.getState()) {
+                            String retireYear = user.getRetireDate().split("-")[0];
+                            String retireMonth = String.valueOf(Integer.parseInt(user.getRetireDate().split("-")[1]));
+                            String retireValue = retireYear + "年" + retireMonth + "月";
+                            cellTop.setCellValue(retireValue);
+                        }
+                    }
+                }
+                if (!user.getState()) {
+                    for (int j = 1; j < 4; j++) {
+                        Cell cellTop = rowTop.getCell(j);
+                        CellStyle originalStyle = cellTop.getCellStyle();
+                        CellStyle newStyle = workbook.createCellStyle();
+                        newStyle.cloneStyleFrom(originalStyle);
+                        newStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+                        newStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                        cellTop.setCellStyle(newStyle);
+                    }
+                }
+            }
+
+            // Excelデータをレスポンスに書き込む
+            workbook.write(response.getOutputStream());
+            workbook.close();
+            response.getOutputStream().flush();
+
+        } catch (Exception e) {
+            // エラー処理
+            System.out.println("Error happened");
+            e.printStackTrace();
+        }
+    }
+
     // ホーム > 講師管理 > 基本情報
     @GetMapping("/infoUser")
     String infoUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
@@ -2108,7 +2355,7 @@ public class HomeController {
     
     // ホーム > 講師管理 > 基本情報 > アカウント削除
     @GetMapping("/deleteUser")
-    public String deleteUser(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String deleteUser(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
             for (Work work : workService.findAllByUserId(UUID.fromString(userId))) {
                 workService.deleteById(work.getId());
@@ -2271,7 +2518,7 @@ public class HomeController {
     
     // ホーム > 講師管理 > 基本情報 > 給与情報削除
     @PostMapping("/deleteSalary")
-    public String deleteSalary(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("managerId") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String deleteSalary(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("managerId") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
             salaryService.delete(salaryService.getBySalaryId(UUID.fromString(deleteId)));
             redirectAttributes.addAttribute("user", userId);
@@ -2426,5 +2673,5 @@ public class HomeController {
             }
         }
     }
-    
+
 }
