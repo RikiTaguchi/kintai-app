@@ -13,7 +13,7 @@ import com.meikokintai.kintai_app.model.User;
 
 public interface UserRepository extends JpaRepository<User, UUID>{
     
-    @Query(nativeQuery = true, value = "SELECT * FROM users WHERE classareaid = :classareaid")
+    @Query(nativeQuery = true, value = "SELECT * FROM users WHERE classareaid = :classareaid ORDER BY teacherno")
     List<User> findByClassAreaId(@Param("classareaid") UUID classareaid);
     
     @Query(nativeQuery = true, value = "SELECT * FROM users WHERE id = :userid LIMIT 1")
