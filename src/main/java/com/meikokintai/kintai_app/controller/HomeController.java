@@ -3,7 +3,6 @@ package com.meikokintai.kintai_app.controller;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,9 +11,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.net.URLEncoder;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.repository.query.Param;
@@ -1184,17 +1188,8 @@ public class HomeController {
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(UUID.fromString(managerId));
-            List<User> userRetiredList = new ArrayList<>();
-            for (int i = 0; i < userList.size(); i++) {
-                if (!userList.get(i).getState()) {
-                    userRetiredList.add(userList.get(i));
-                    userList.remove(userList.get(i));
-                    i -= 1;
-                }
-            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
-            model.addAttribute("userRetiredList", userRetiredList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             redirectAttributes.addAttribute("manager", managerId);
@@ -1635,10 +1630,10 @@ public class HomeController {
             // テンプレートファイルを読み込み
             ClassPathResource templateResource = new ClassPathResource("static/excel/excelTemplate.xlsx");
             InputStream templateInputStream = templateResource.getInputStream();
-            Workbook workbook = new XSSFWorkbook(templateInputStream);
+            XSSFWorkbook workbook = new XSSFWorkbook(templateInputStream);
 
             // テンプレートのシートを取得
-            Sheet sheet = workbook.getSheetAt(0);
+            XSSFSheet sheet = workbook.getSheetAt(0);
 
             // シート名を変更
             String sheetName = user.getUserName().split(" ")[0]+"."+year+"."+String.valueOf(Integer.parseInt(month));
@@ -1673,6 +1668,11 @@ public class HomeController {
                     cell.setCellValue(headers[i]);
                 }
             }
+            Cell carfareCell = sheet.getRow(3).getCell(39);
+            int carfareTarget = salaryService.getByDate(user.getId(), year+"-"+month+"-25").getCarfare();
+            if (carfareTarget != 0) {
+                carfareCell.setCellValue(carfareTarget);
+            }
             int sumInt[] = new int[11];
             for (int i = 0; i < sumInt.length; i++) {
                 sumInt[i] = 0;
@@ -1684,7 +1684,7 @@ public class HomeController {
                 for (int i = 0; i < values.length; i++) {
                     values[i] = "";
                 }
-                values[0] = work.getDate().replace("-","/");
+                values[0] = String.valueOf(Integer.parseInt(work.getDate().split("-")[0]))+"/"+String.valueOf(Integer.parseInt(work.getDate().split("-")[1]))+"/"+String.valueOf(Integer.parseInt(work.getDate().split("-")[2]));
                 values[1] = work.getDayOfWeek();
                 if (work.getClassM() == true) {
                     values[2] += "M";
@@ -1752,6 +1752,8 @@ public class HomeController {
                 }
                 if (work.getCarfare() != 0) {
                     values[12] = Integer.toString(work.getCarfare());
+                } else {
+                    values[12] = "0";
                 }
                 if (!work.getOtherWork().equals("")) {
                     values[13] = work.getOtherWork();
@@ -1806,20 +1808,29 @@ public class HomeController {
                     if (cells[i] == null) {
                         cells[i] = row.createCell(cellPointsInWork[i]);
                     }
-                    if (i == 0 || i == 2 || i == 4 || i == 5 || i == 6 || i == 7 || i == 8 || i == 9 || i == 13 || i == 14 || i == 15 || i == 16) {
+                    if (i == 0) {
+                        String infoDate[] = values[i].split("/");
+                        LocalDate localDate = LocalDate.of(Integer.parseInt(infoDate[0]), Integer.parseInt(infoDate[1]), Integer.parseInt(infoDate[2]));
+                        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());;
+                        cells[i].setCellValue(date);
+                    } else if (i == 2 || i == 4 || i == 5 || i == 6 || i == 7 || i == 8 || i == 9 || i == 13 || i == 14 || i == 15 || i == 16) {
                         if (!values[i].equals("")) {
                             cells[i].setCellValue(values[i]);
                         }
                     } else if (i == 12) {
-                        if (!values[i].equals("")) {
-                            cells[i].setCellValue(Integer.valueOf(values[i]));
-                        } else {
-                            cells[i].setCellValue("");
+                        if (Integer.valueOf(values[i]) != carfareTarget) {
+                            if (cells[i].getCellType() == CellType.FORMULA) {
+                                cells[i].setBlank();
+                                cells[i].setCellValue(Integer.valueOf(values[i]));
+                            }
                         }
                     }
                 }
                 rowIndex += 1;
             }
+
+            // ファイルオープン時に関数を再計算させる
+            workbook.setForceFormulaRecalculation(true);
 
             // Excelデータをレスポンスに書き込む
             workbook.write(response.getOutputStream());
@@ -1898,6 +1909,9 @@ public class HomeController {
             // 講師情報
             List<User> userList = userService.findByClassAreaId(manager.getId());
 
+            // シート名データ
+            String numberList[] = {"①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱"};
+
             // レスポンスヘッダーの設定
             String fileName = URLEncoder.encode("講師給フォーム("+year.substring(2, 4)+manager.getClassArea()+")"+year+"."+String.valueOf(Integer.parseInt(month)), StandardCharsets.UTF_8.toString());
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -1906,7 +1920,7 @@ public class HomeController {
             // テンプレートファイルを読み込み
             ClassPathResource templateResource = new ClassPathResource("static/excel/excelTemplateAll.xlsx");
             InputStream templateInputStream = templateResource.getInputStream();
-            Workbook workbook = new XSSFWorkbook(templateInputStream);
+            XSSFWorkbook workbook = new XSSFWorkbook(templateInputStream);
 
             // トップシートの取得・初期設定
             Sheet sheetTop = workbook.getSheetAt(0);
@@ -1919,9 +1933,6 @@ public class HomeController {
 
             // シートの入力（全講師）
             for (int i = 0; i < userList.size(); i++) {
-                // データリスト
-                String numberList[] = {"①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱"};
-
                 // 講師情報の取得
                 User user = userList.get(i);
 
@@ -1929,7 +1940,7 @@ public class HomeController {
                 List<Work> workList = workService.findByUserId(user.getId(), dateFrom, dateTo);
 
                 // 講師級シートの取得
-                Sheet sheet = workbook.getSheetAt(i + 1);
+                XSSFSheet sheet = workbook.getSheetAt(i + 1);
                 String sheetName = numberList[i]+user.getUserName().split(" ")[0];
                 workbook.setSheetName(workbook.getSheetIndex(sheet), sheetName);
 
@@ -1962,6 +1973,11 @@ public class HomeController {
                         cell.setCellValue(headers[j]);
                     }
                 }
+                Cell carfareCell = sheet.getRow(3).getCell(39);
+                int carfareTarget = salaryService.getByDate(user.getId(), year+"-"+month+"-25").getCarfare();
+                if (carfareTarget != 0) {
+                    carfareCell.setCellValue(carfareTarget);
+                }
                 int sumInt[] = new int[11];
                 for (int j = 0; j < sumInt.length; j++) {
                     sumInt[j] = 0;
@@ -1973,7 +1989,7 @@ public class HomeController {
                     for (int j = 0; j < values.length; j++) {
                         values[j] = "";
                     }
-                    values[0] = work.getDate().replace("-","/");
+                    values[0] = String.valueOf(Integer.parseInt(work.getDate().split("-")[0]))+"/"+String.valueOf(Integer.parseInt(work.getDate().split("-")[1]))+"/"+String.valueOf(Integer.parseInt(work.getDate().split("-")[2]));
                     values[1] = work.getDayOfWeek();
                     if (work.getClassM() == true) {
                         values[2] += "M";
@@ -2041,6 +2057,8 @@ public class HomeController {
                     }
                     if (work.getCarfare() != 0) {
                         values[12] = Integer.toString(work.getCarfare());
+                    } else {
+                        values[12] = "0";
                     }
                     if (!work.getOtherWork().equals("")) {
                         values[13] = work.getOtherWork();
@@ -2095,15 +2113,22 @@ public class HomeController {
                         if (cells[j] == null) {
                             cells[j] = row.createCell(cellPointsInWork[j]);
                         }
-                        if (j == 0 || j == 2 || j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9 || j == 13 || j == 14 || j == 15 || j == 16) {
+                        if (j == 0) {
+                            String infoDate[] = values[j].split("/");
+                            LocalDate localDate = LocalDate.of(Integer.parseInt(infoDate[0]), Integer.parseInt(infoDate[1]), Integer.parseInt(infoDate[2]));
+                            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());;
+                            cells[j].setCellValue(date);
+                        }
+                        if (j == 2 || j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9 || j == 13 || j == 14 || j == 15 || j == 16) {
                             if (!values[j].equals("")) {
                                 cells[j].setCellValue(values[j]);
                             }
                         } else if (j == 12) {
-                            if (!values[j].equals("")) {
-                                cells[j].setCellValue(Integer.valueOf(values[j]));
-                            } else {
-                                cells[j].setCellValue("");
+                            if (Integer.valueOf(values[j]) != carfareTarget) {
+                                if (cells[j].getCellType() == CellType.FORMULA) {
+                                    cells[j].setBlank();
+                                    cells[j].setCellValue(Integer.valueOf(values[j]));
+                                }
                             }
                         }
                     }
@@ -2117,10 +2142,7 @@ public class HomeController {
                 }
                 for (int j = 0; j < 13; j++) {
                     Cell cellTop = rowTop.getCell(j);
-                    if (j == 0) {
-                        // No.
-                        cellTop.setCellValue(i + 1);
-                    } else if (j == 1) {
+                    if (j == 1) {
                         // 講師No.
                         cellTop.setCellValue(user.getTeacherNo());
                     } else if (j == 2) {
@@ -2146,8 +2168,31 @@ public class HomeController {
                         newStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
                         cellTop.setCellStyle(newStyle);
                     }
+                    byte[] rgbColor = new byte[] {
+                        (byte) 204,
+                        (byte) 204,
+                        (byte) 204
+                    };
+                    XSSFColor customColor = new XSSFColor(rgbColor, workbook.getStylesSource().getIndexedColors());
+                    sheet.setTabColor(customColor);
                 }
             }
+
+            // 新採用講師シート
+            for (int i = userList.size(); i < 18; i++) {
+                Sheet sheet = workbook.getSheetAt(i + 1);
+                String sheetName = numberList[i]+"新採用"+Integer.toString(i - userList.size() + 1);
+                workbook.setSheetName(workbook.getSheetIndex(sheet), sheetName);
+                Row row = sheet.getRow(0);
+                row.getCell(4).setCellValue(manager.getClassArea());
+                row.getCell(25).setCellValue(Integer.parseInt(year));
+                row.getCell(29).setCellValue(Integer.parseInt(month));
+                row.getCell(33).setCellValue(Integer.parseInt(DateSet.getDateBefore(year, month)[1]));
+                row.getCell(40).setCellValue(Integer.parseInt(month));
+            }
+
+            // ファイルオープン時に関数を再計算させる
+            workbook.setForceFormulaRecalculation(true);
 
             // Excelデータをレスポンスに書き込む
             workbook.write(response.getOutputStream());
