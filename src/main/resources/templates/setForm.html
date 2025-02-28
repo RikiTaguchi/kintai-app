@@ -90,15 +90,6 @@
 					<input id="createButton" type = "submit" value = "修正" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
-			<form th:action = "@{/clearWork}" method = "post">
-				<div style = "display: none;">
-					<input type = "text" name = "deleteId" th:value = "${workUpdateForm.id}">
-					<input type = "text" name = "userId" th:value = "${user.id}">
-					<input type = "text" name = "managerId" th:value = "${manager.id}">
-					<input type="text" name="tax" th:value="${tax}">
-				</div>
-				<div><input id ="delete" type = "submit" value = "シフトを削除" onclick="return deleteConfirm()" style="border:none; border-radius: 5px; color:white; cursor: pointer;"></div>
-			</form>
 			</div>
 		</div>
 		

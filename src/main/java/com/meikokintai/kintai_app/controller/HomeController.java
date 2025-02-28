@@ -204,6 +204,20 @@ public class HomeController {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
+            Map<UUID, String> supportSalaryMap = new HashMap<>();
+            Map<UUID, String> carfareMap = new HashMap<>();
+            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            Boolean lockStatus;
+            if (lock == null || !lock.getStatus()) {
+                lockStatus = false;
+            } else {
+                lockStatus = true;
+            }
+            for (Work work : workList) {
+                supportSalaryMap.put(work.getId(), formatter.format(salaryService.getByDate(UUID.fromString(userId), work.getDate()).getSupportSalary()));
+                carfareMap.put(work.getId(), formatter.format(work.getCarfare()));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("workList", workList);
@@ -215,6 +229,9 @@ public class HomeController {
             model.addAttribute("monthBefore", monthBefore);
             model.addAttribute("yearNext", yearNext);
             model.addAttribute("monthNext", monthNext);
+            model.addAttribute("lockStatus", lockStatus);
+            model.addAttribute("supportSalaryMap", supportSalaryMap);
+            model.addAttribute("carfareMap", carfareMap);
             redirectAttributes.addAttribute("user", userId);
             return "info";
         } catch (Exception e) {
@@ -327,52 +344,6 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > シフト詳細
-    @GetMapping("/detailWork")
-    String detailWork(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            Work work = workService.findWorkById(UUID.fromString(detailId));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), work.getDate());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String supportSalaryFormatted = String.format("%,d", salary.getSupportSalary());
-            String carfareFormatted = String.format("%,d", work.getCarfare());
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
-            Boolean lockStatus;
-            if (lock == null || !lock.getStatus()) {
-                lockStatus = false;
-            } else {
-                lockStatus = true;
-            }
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("salary", salary);
-            model.addAttribute("supportSalaryFormatted", supportSalaryFormatted);
-            model.addAttribute("carfareFormatted", carfareFormatted);
-            model.addAttribute("work", work);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            model.addAttribute("lockStatus", lockStatus);
-            redirectAttributes.addAttribute("user", userId);
-            return "detailWork";
-        } catch (Exception e) {
-            System.out.println("Error happened in detailWork.html");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-
     // ホーム > シフト管理 > シフト詳細 > 修正（get）
     @GetMapping("/editForm")
     String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
@@ -416,14 +387,13 @@ public class HomeController {
                 return "editForm";
             } else {
                 redirectAttributes.addAttribute("user", user.getId());
-                redirectAttributes.addAttribute("detail", work.getId());
                 redirectAttributes.addAttribute("year", year);
                 redirectAttributes.addAttribute("month", month);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
-                    return "redirect:detailWork";
+                    return "redirect:info";
                 } else {
-                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
                     return redirectUrl;
                 }
             }
@@ -452,7 +422,6 @@ public class HomeController {
             form.setDayOfWeek(dayOfWeek);
             form.setSupportSalary("true");
             redirectAttributes.addAttribute("user", user.getId());
-            redirectAttributes.addAttribute("detail", form.getId());
             redirectAttributes.addAttribute("year", year);
             redirectAttributes.addAttribute("month", month);
             try {
@@ -462,13 +431,12 @@ public class HomeController {
                 }
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
-                    return "redirect:detailWork";
+                    return "redirect:info";
                 } else {
-                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
                     return redirectUrl;
                 }
             } catch (Exception e) {
-                // redirectAttributes.addAttribute("edit", form.getId());
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:editForm";
@@ -512,12 +480,11 @@ public class HomeController {
                     return redirectUrl;
                 }
             } else {
-                redirectAttributes.addAttribute("detail", work.getId());
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
-                    return "redirect:detailWork";
+                    return "redirect:info";
                 } else {
-                    String redirectUrl = String.format("redirect:https://%s/detailWork", domainAWS);
+                    String redirectUrl = String.format("redirect:https://%s/info", domainAWS);
                     return redirectUrl;
                 }
             }
@@ -544,6 +511,11 @@ public class HomeController {
             String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+            Map<UUID, String> carfareMap = new HashMap<>();
+            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+            for (WorkTemplate template : templateList) {
+                carfareMap.put(template.getId(), formatter.format(template.getCarfare()));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("templateList", templateList);
@@ -551,6 +523,7 @@ public class HomeController {
             model.addAttribute("month", month);
             model.addAttribute("yearNow", yearNow);
             model.addAttribute("monthNow", monthNow);
+            model.addAttribute("carfareMap", carfareMap);
             redirectAttributes.addAttribute("user", userId);
             return "infoTemplate";
         } catch (Exception e) {
@@ -620,40 +593,6 @@ public class HomeController {
             }
         } catch (Exception e) {
             System.out.println("Error happened in templateForm(post)");
-            e.printStackTrace();
-            String host = request.getHeader("Host");
-            if (host.equals(domainLocal)) {
-                return "redirect:login";
-            } else {
-                String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
-                return redirectUrl;
-            }
-        }
-    }
-    
-    // ホーム > シフト管理 > テンプレート > 詳細
-    @GetMapping("/detailTemplate")
-    String detailTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
-        try {
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
-            String carfareFormatted = String.format("%,d", template.getCarfare());
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            model.addAttribute("user", user);
-            model.addAttribute("manager", manager);
-            model.addAttribute("template", template);
-            model.addAttribute("carfareFormatted", carfareFormatted);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            redirectAttributes.addAttribute("user", userId);
-            return "detailTemplate";
-        } catch (Exception e) {
-            System.out.println("Error happened in detailTemplate.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {

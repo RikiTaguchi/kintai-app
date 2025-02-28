@@ -4,6 +4,8 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/info.css}" rel="stylesheet">
+		<script th:src="@{/js/display.js}" defer></script>
+		<script th:src="@{/js/confirm.js}" defer></script>
 		<!-- <script th:src="@{/js/hamburgerMenu.js}"></script> -->
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	</head>
@@ -58,9 +60,9 @@
 					<tr th:each = "w : ${workList}">
 						<td>
 							<div>
-							<a th:href = "@{/detailWork(user=${user.id}, detail=${w.id}, year=${year}, month=${month})}">
-							<span th:text = "${w.date.substring(5,10).replace('-','/')+'/'+w.dayOfWeek}"></span>
-							</a>
+								<a href="#" th:class="${w.id + '-on detail-listener-on'}">
+									<span th:text = "${w.date.substring(5,10).replace('-','/')+'/'+w.dayOfWeek}"></span>
+								</a>
 							</div>
 						</td>
 						<td>
@@ -79,6 +81,154 @@
 				</table>
 			</div>
 		</div>
+
+		<th:block th:if = "${!#lists.isEmpty(workList)}">
+		<div th:each = "w : ${workList}" th:class="${w.id + '-element'}" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 300px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
+			<a href="#" th:class="${w.id + '-off detail-listener-off'}">閉じる</a>
+			<table>
+				<tr><th>勤務日</th><td><div><span th:text = "${w.date.substring(0, 5).replace('-','/')+w.date.substring(5,10).replace('-','/')+'/'+w.dayOfWeek}"></span></div></td></tr>
+				<tr>
+					<th>勤務コマ</th>
+					<td>
+						<div>
+						<th:block th:if = "${w.classM}"><span th:text = "'M'"></span></th:block>
+						<th:block th:if = "${w.classK}"><span th:text = "'K'"></span></th:block>
+						<th:block th:if = "${w.classS}"><span th:text = "'S'"></span></th:block>
+						<th:block th:if = "${w.classA}"><span th:text = "'A'"></span></th:block>
+						<th:block th:if = "${w.classB}"><span th:text = "'B'"></span></th:block>
+						<th:block th:if = "${w.classC}"><span th:text = "'C'"></span></th:block>
+						<th:block th:if = "${w.classD}"><span th:text = "'D'"></span></th:block>
+						<th:block th:if = "${w.classCount == 0}"><span th:text = "'-'"></span></th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>コマ数</th>
+					<td>
+						<div>
+							<th:block th:if="${w.classCount != 0}"><span th:text = "${w.classCount}"></span></th:block>
+							<th:block th:if="${w.classCount == 0}"><span th:text = "'-'"></span></th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>ヘルプ勤務教室</th>
+					<td>
+						<div>
+							<th:block th:if = "${!w.helpArea.equals('')}"><span th:text = "${w.helpArea}"></span></th:block>
+							<th:block th:if = "${w.helpArea.equals('')}"><span th:text = "'-'"></span></th:block>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>授業業務</th>
+					<td>
+						<th:block th:if = "${!w.timeStart.equals('     ') && !w.timeEnd.equals('     ')}">
+							<div><label for = "timeStart">開始 - </label><span id = "timeStart" th:text = "${w.timeStart}"></span></div>
+							<div><label for = "timeEnd">終了 - </label><span id = "timeEnd" th:text = "${w.timeEnd}"></span></div>
+						</th:block>
+						<th:block th:if = "${!(!w.timeStart.equals('     ') && !w.timeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>休憩</th>
+					<td><div>
+						<th:block th:if="${w.breakTime != 0}"><span th:text = "${w.breakTime}"></span>分</th:block>
+						<th:block th:if="${w.breakTime == 0}"><span th:text = "'-'"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>日時手当</th>
+					<td>
+						<th:block th:if = "${w.supportSalary == 'true'}"><div><span th:text = "${supportSalaryMap.get(w.id)}"></span>円</div></th:block>
+						<th:block th:if = "${w.supportSalary != 'true'}"><div><span th:text = "${'-'}"></span></div></th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>交通費</th>
+					<td><div>
+						<th:block th:if="${w.carfare != 0}"><span th:text = "${carfareMap.get(w.id)}"></span>円</th:block>
+						<th:block th:if="${w.carfare == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>事務業務</th>
+					<td>
+						<th:block th:if = "${!w.officeTimeStart.equals('     ') && !w.officeTimeEnd.equals('     ')}">
+							<div><label for = "officeTimeStart">開始 - </label><span id = "officeTimeStart" th:text = "${w.officeTimeStart}"></span></div>
+							<div><label for = "officeTimeEnd">終了 - </label><span id = "officeTimeEnd" th:text = "${w.officeTimeEnd}"></span></div>
+						</th:block>
+						<th:block th:if = "${!(!w.officeTimeStart.equals('     ') && !w.officeTimeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>研修/自習室</th>
+					<td>
+						<th:block th:if = "${!w.otherTimeStart.equals('     ') && !w.otherTimeEnd.equals('     ')}">
+							<div><span id = "otherWork" th:text = "${w.otherWork}"></span></div>
+							<div><label for = "otherTimeStart">開始 - </label><span id = "otherTimeStart" th:text = "${w.otherTimeStart}"></span></div>
+							<div><label for = "otherTimeEnd">終了 - </label><span id = "otherTimeEnd" th:text = "${w.otherTimeEnd}"></span></div>
+							<th:block th:if="${w.otherBreakTime != 0}"><div><label for = "otherBreakTime">休憩 - </label><span id = "otherBreakTime" th:text = "${w.otherBreakTime}"></span>分</div></th:block>
+						</th:block>
+						<th:block th:if = "${!(!w.otherTimeStart.equals('     ') && !w.otherTimeEnd.equals('     '))}">
+							<span th:text = "'-'"></span>
+						</th:block>
+					</td>
+				</tr>
+				<tr>
+					<th>時間外</th>
+					<td><div>
+						<th:block th:if="${w.outOfTime != 0}"><span th:text = "${w.outOfTime}"></span>分</th:block>
+						<th:block th:if="${w.outOfTime == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>超過</th>
+					<td><div>
+						<th:block th:if="${w.overTime != 0}"><span th:text = "${w.overTime}"></span>分</th:block>
+						<th:block th:if="${w.overTime == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+				<tr>
+					<th>深夜</th>
+					<td><div>
+						<th:block th:if="${w.nightTime != 0}"><span th:text = "${w.nightTime}"></span>分</th:block>
+						<th:block th:if="${w.nightTime == 0}"><span th:text = "${'-'}"></span></th:block>
+					</div></td>
+				</tr>
+			</table>
+			<th:block th:if="${!lockStatus}">
+				<div>
+					<a th:href = "@{/editForm(user=${user.id}, detail=${w.id}, year=${year}, month=${month})}">
+						修正
+					</a>
+				</div>
+				
+				<div>
+					<form th:action = "@{/deleteWork}" method = "post">
+						<div style = "display: none;">
+							<input type = "text" name = "deleteId" th:value = "${w.id}">
+							<input type = "text" name = "userId" th:value = "${w.userId}">
+						</div>
+						<div><input type = "submit" value = "削除" onclick="return deleteConfirm()"></div>
+					</form>
+				</div>
+			</th:block>
+
+			<th:block th:if="${lockStatus}">
+				<div>
+					<p>修正</p>
+				</div>
+				<div>
+					<p>削除</p>
+				</div>
+			</th:block>
+		</div>
+		</th:block>
 		
 		<div class="side">
 			<div class="sideContents" id="teacherName">

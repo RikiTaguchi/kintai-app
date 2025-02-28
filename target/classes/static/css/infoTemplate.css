@@ -61,7 +61,7 @@ h1 {
   
 }
 
-table {
+/* table {
   border-collapse: separate;
   width: auto;
   height: auto;
@@ -70,9 +70,17 @@ table {
   font-size: 18px;
   font-weight: bold;
   box-shadow: 5px 5px 5px rgb(76, 76, 78)
-}
+} */
 
 .radius-table{
+  border-collapse: separate;
+  width: auto;
+  height: auto;
+  background-color: white;
+  border-color: rgb(230, 230, 230);
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 5px 5px 5px rgb(76, 76, 78);
   border-radius: 10px;
   border-spacing: 0;
   border: none;
@@ -108,7 +116,7 @@ table {
   text-align: center;
 }
 
-td {
+.radius-table td {
   height: 80px;
   width: 300px;
 }
