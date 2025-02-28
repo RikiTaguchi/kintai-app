@@ -3,7 +3,9 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
-		<script th:src="@{/js/detail.js}" defer></script>
+		<script th:src="@{/js/display.js}" defer></script>
+		<script th:src="@{/js/tax.js}" defer></script>
+		<script th:src="@{/js/confirm.js}" defer></script>
 		<link th:href="@{/css/detailUser.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -55,56 +57,7 @@
 			</div>
 
 			<div>
-				<button class="detail-button">詳細</button>
-			</div>
-			<br>
-			<div class="tax detail-text">
-				所得税
-				<input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
-				<input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
-				<div style="display: none;">
-					<a id="tax-button" th:href="@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax}, detail=${detail})}"></a>
-				</div>
-			</div>
-			<br>
-			<div>
-				<table border="1" style="border-spacing: 0;" class="table11 detail-table">
-					<tr><th>コマ給</th><th>コマ数</th><th>①コマ給×コマ数</th><th>②日時手当</th><th>③事務給</th></tr>
-					<tr>
-						<td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td>
-						<td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td>
-						<td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td>
-						<td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td>
-						<td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td>
-					</tr>
-					<tr><th colspan = "2">④研修費・時間外</th><th>⑤その他</th><th>所得税</th><th>交通費計</th></tr>
-					<tr>
-						<td colspan = "2">¥<span th:text = "${sumSalaryFormatted[19]}"></span></td>
-						<td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td>
-						<td>¥<span th:text = "${incomeTaxFormatted}"></span></td>
-						<td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td>
-					</tr>
-				</table>
-			</div>
-			<br>
-			<div>
-				<div class="alart detail-text">※「④研修費・時間外」内訳</div>
-				<table border="1" style="border-spacing: 0;" class="table12 detail-table">
-					<tr><th>研修・自習室(円/分)</th><th>時間外勤務(円/分)</th><th>超過勤務割増(円/分)</th><th>深夜勤務割増(円/分)</th></tr>
-					<tr>
-						<td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td>
-						<td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td>
-						<td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td>
-						<td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td>
-					</tr>
-				</table>
-			</div>
-			<br>
-			<div>
-				<table border="1" style="border-spacing: 0;" class="table13 detail-table">
-					<tr><th>差引支給額</th></tr>
-					<tr><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
-				</table>
+				<button class="detail-button">給与明細</button>
 			</div>
 
 			<div class="mainTable">
@@ -182,7 +135,7 @@
 					</tr>
 					<th:block th:if = "${!#lists.isEmpty(workList)}">
 					<tr th:each = "w : ${workList}">
-						<td class="table8 table9"><a th:href = "@{/setForm(manager=${manager.id}, user=${user.id}, edit=${w.id}, year=${year}, month=${month}, tax=${tax})}"><span th:text = "${w.date.substring(5,10).replace('-','月')+'日'}"></span></a></td>
+						<td class="table8 table9"><a href = "#" th:class="${w.id + '-on detail-listener-on'}"><span th:text = "${w.date.substring(5,10).replace('-','月')+'日'}"></span></a></td>
 						<td class="table8" th:text = "${w.dayOfWeek}"></td>
 						<td class="table8 table9">
 							<th:block th:if = "${w.classM}"><span th:text = "'M'"></span></th:block>
@@ -220,6 +173,187 @@
 				</table>
 			</div>
 			</div>
+		</div>
+
+		<div>
+			<th:block th:if = "${!#lists.isEmpty(workList)}">
+			<div th:each = "w : ${workList}" th:class="${w.id + '-element'}" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 300px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
+				<a href="#" th:class="${w.id + '-off detail-listener-off'}">閉じる</a>
+				<table style="box-shadow: none; background-color: transparent;">
+					<tr>
+						<th>勤務日</th>
+						<td th:text = "${w.date.substring(5,10).replace('-','月')+'日('+w.dayOfWeek + ')'}"></td>
+					</tr>
+					<tr>
+						<th>勤務コマ</th>
+						<td>
+							<th:block th:if = "${w.classM}"><span th:text = "'M'"></span></th:block>
+							<th:block th:if = "${w.classK}"><span th:text = "'K'"></span></th:block>
+							<th:block th:if = "${w.classS}"><span th:text = "'S'"></span></th:block>
+							<th:block th:if = "${w.classA}"><span th:text = "'A'"></span></th:block>
+							<th:block th:if = "${w.classB}"><span th:text = "'B'"></span></th:block>
+							<th:block th:if = "${w.classC}"><span th:text = "'C'"></span></th:block>
+							<th:block th:if = "${w.classD}"><span th:text = "'D'"></span></th:block>
+							<th:block th:if = "${w.classCount == 0}"><span th:text = "'-'"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>コマ数</th>
+						<td>
+							<th:block th:if = "${w.classCount != 0}"><span th:text = "${w.classCount}"></span></th:block>
+							<th:block th:if="${w.classCount == 0}"><span th:text = "'-'"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>ヘルプ勤務教室</th>
+						<td>
+							<th:block th:if = "${!w.helpArea.equals('')}"><span th:text = "${w.helpArea}"></span></th:block>
+							<th:block th:if = "${w.helpArea.equals('')}"><span th:text = "'-'"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>授業業務</th>
+						<td>
+							<th:block th:if = "${!w.timeStart.equals('     ') && !w.timeEnd.equals('     ')}">
+								<div><label for = "timeStart">開始 - </label><span id = "timeStart" th:text = "${w.timeStart}"></span></div>
+								<div><label for = "timeEnd">終了 - </label><span id = "timeEnd" th:text = "${w.timeEnd}"></span></div>
+							</th:block>
+							<th:block th:if = "${!(!w.timeStart.equals('     ') && !w.timeEnd.equals('     '))}">
+								<span th:text = "'-'"></span>
+							</th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>休憩</th>
+						<td>
+							<th:block th:if="${w.breakTime != 0}"><span th:text = "${w.breakTime}"></span>分</th:block>
+							<th:block th:if="${w.breakTime == 0}"><span th:text = "'-'"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>日時手当</th>
+						<td>
+							<th:block th:if = "${w.supportSalary == 'true'}"><span th:text = "${supportSalaryMap.get(w.id)}"></span>円</th:block>
+							<th:block th:if = "${w.supportSalary != 'true'}"><span th:text = "'-'"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>交通費</th>
+						<td>
+							<th:block th:if = "${w.carfare != 0}"><span th:text = "${carfareMap.get(w.id)}"></span>円</th:block>
+							<th:block th:if = "${w.carfare == 0}"><span th:text = "'-'"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>事務業務</th>
+						<td>
+							<th:block th:if = "${!w.officeTimeStart.equals('     ') && !w.officeTimeEnd.equals('     ')}">
+								<div><label for = "officeTimeStart">開始 - </label><span id = "officeTimeStart" th:text = "${w.officeTimeStart}"></span></div>
+								<div><label for = "officeTimeEnd">終了 - </label><span id = "officeTimeEnd" th:text = "${w.officeTimeEnd}"></span></div>
+							</th:block>
+							<th:block th:if = "${!(!w.officeTimeStart.equals('     ') && !w.officeTimeEnd.equals('     '))}">
+								<span th:text = "'-'"></span>
+							</th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>研修/自習室</th>
+						<td>
+							<th:block th:if = "${!w.otherTimeStart.equals('     ') && !w.otherTimeEnd.equals('     ')}">
+								<div><span id = "otherWork" th:text = "${w.otherWork}"></span></div>
+								<div><label for = "otherTimeStart">開始 - </label><span id = "otherTimeStart" th:text = "${w.otherTimeStart}"></span></div>
+								<div><label for = "otherTimeEnd">終了 - </label><span id = "otherTimeEnd" th:text = "${w.otherTimeEnd}"></span></div>
+								<th:block th:if="${w.otherBreakTime != 0}"><div><label for = "otherBreakTime">休憩 - </label><span id = "otherBreakTime" th:text = "${w.otherBreakTime}"></span>分</div></th:block>
+							</th:block>
+							<th:block th:if = "${!(!w.otherTimeStart.equals('     ') && !w.otherTimeEnd.equals('     '))}">
+								<span th:text = "'-'"></span>
+							</th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>時間外</th>
+						<td>
+							<th:block th:if="${w.outOfTime != 0}"><span th:text = "${w.outOfTime}"></span>分</th:block>
+							<th:block th:if="${w.outOfTime == 0}"><span th:text = "${'-'}"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>超過</th>
+						<td>
+							<th:block th:if="${w.overTime != 0}"><span th:text = "${w.overTime}"></span>分</th:block>
+							<th:block th:if="${w.overTime == 0}"><span th:text = "${'-'}"></span></th:block>
+						</td>
+					</tr>
+					<tr>
+						<th>深夜</th>
+						<td>
+							<th:block th:if="${w.nightTime != 0}"><span th:text = "${w.nightTime}"></span>分</th:block>
+							<th:block th:if="${w.nightTime == 0}"><span th:text = "${'-'}"></span></th:block>
+						</td>
+					</tr>
+				</table>
+				<a th:href = "@{/setForm(manager=${manager.id}, user=${user.id}, edit=${w.id}, year=${year}, month=${month}, tax=${tax})}">
+					編集
+				</a>
+				<form th:action = "@{/clearWork}" method = "post">
+					<div style = "display: none;">
+						<input type = "text" name = "deleteId" th:value = "${w.id}">
+						<input type = "text" name = "userId" th:value = "${user.id}">
+						<input type = "text" name = "managerId" th:value = "${manager.id}">
+						<input type="text" name="tax" th:value="${tax}">
+					</div>
+					<div><input type = "submit" value = "削除" onclick="return deleteConfirm()"></div>
+				</form>
+			</div>
+			</th:block>
+		</div>
+
+		<div class="detail-table" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 800px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
+			<div>
+				<button class="detail-button">閉じる</button>
+			</div>
+			<div class="tax">
+				所得税
+				<input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
+				<input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
+				<div style="display: none;">
+					<a id="tax-button" th:href="@{/detailUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month}, tax=${tax}, detail=${detail})}"></a>
+				</div>
+			</div>
+			<br>
+			<table border="1" style="border-spacing: 0;" class="table11">
+				<tr><th>コマ給</th><th>コマ数</th><th>①コマ給×コマ数</th><th>②日時手当</th><th>③事務給</th></tr>
+				<tr>
+					<td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td>
+					<td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td>
+					<td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td>
+					<td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td>
+					<td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td>
+				</tr>
+				<tr><th colspan = "2">④研修費・時間外</th><th>⑤その他</th><th>所得税</th><th>交通費計</th></tr>
+				<tr>
+					<td colspan = "2">¥<span th:text = "${sumSalaryFormatted[19]}"></span></td>
+					<td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td>
+					<td>¥<span th:text = "${incomeTaxFormatted}"></span></td>
+					<td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td>
+				</tr>
+			</table>
+			<br>
+			<div class="alart detail-text">※「④研修費・時間外」内訳</div>
+			<table border="1" style="border-spacing: 0;" class="table12">
+				<tr><th>研修・自習室(円/分)</th><th>時間外勤務(円/分)</th><th>超過勤務割増(円/分)</th><th>深夜勤務割増(円/分)</th></tr>
+				<tr>
+					<td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td>
+					<td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td>
+					<td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td>
+					<td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td>
+				</tr>
+			</table>
+			<br>
+			<table border="1" style="border-spacing: 0;" class="table13">
+				<tr><th>差引支給額</th></tr>
+				<tr><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
+			</table>
 		</div>
 
 		<div class="side">

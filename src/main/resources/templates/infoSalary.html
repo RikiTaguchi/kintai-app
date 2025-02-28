@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
-        <script th:src="@{/js/detail.js}" defer></script>
+        <script th:src="@{/js/tax.js}" defer></script>
 		<link th:href="@{/css/infoSalary.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -50,7 +50,7 @@
             </div>
             
             <div class="mainTable">
-                <div class="detail-text">
+                <div>
                     所得税
                     <input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
                     <input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
@@ -59,31 +59,40 @@
                     </div>
                 </div>
                 <div>
-                    <table border="1" style="border-spacing: 0;" class="radius-table detail-table">
-                        <tr><th>コマ給</th><td>¥<span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
-                        <tr><th>コマ数</th><td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td></tr>
-                        <tr><th>①コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
-                        <tr><th>②日時手当</th><td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td></tr>
-                        <tr><th>③事務給</th><td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td></tr>
-                        <tr><th>④研修費・時間外</th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
-                        <tr><th>⑤その他</th><td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td></tr>
-                        <tr><th>所得税</th><td>¥<span th:text = "${incomeTaxFormatted}"></span></td></tr>
-                        <tr><th>交通費計</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
-                    </table>
-                    <p class="detail-text">※「④研修費・時間外」内訳</p>
-                    <table border="1" style="border-spacing: 0;" class="radius-table detail-table">
-                        <tr><th>研修・自習室(円/分)</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
-                        <tr><th>時間外勤務(円/分)</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
-                        <tr><th>超過勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
-                        <tr><th>深夜勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td></tr>
-                    </table>
-                    <br>
                     <table border="1" style="border-spacing: 0;" class="radius-table">
                         <tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
                     </table>
                 </div>
             </div>
 		</div>
+
+        <div class="detail-table" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 450px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
+            <div>
+                <button class="detail-button">閉じる</button>
+            </div>
+            <table border="1" style="border-spacing: 0;" class="radius-table">
+                <tr><th>コマ給</th><td>¥<span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
+                <tr><th>コマ数</th><td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td></tr>
+                <tr><th>①コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
+                <tr><th>②日時手当</th><td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td></tr>
+                <tr><th>③事務給</th><td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td></tr>
+                <tr><th>④研修費・時間外</th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
+                <tr><th>⑤その他</th><td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td></tr>
+                <tr><th>所得税</th><td>¥<span th:text = "${incomeTaxFormatted}"></span></td></tr>
+                <tr><th>交通費計</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
+            </table>
+            <p>※「④研修費・時間外」内訳</p>
+            <table border="1" style="border-spacing: 0;" class="radius-table">
+                <tr><th>研修・自習室(円/分)</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
+                <tr><th>時間外勤務(円/分)</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
+                <tr><th>超過勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
+                <tr><th>深夜勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td></tr>
+            </table>
+            <br>
+            <table border="1" style="border-spacing: 0;" class="radius-table">
+                <tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
+            </table>
+        </div>
 
 		<div class="side">
 			<div class="sideContents" id="teacherName">
