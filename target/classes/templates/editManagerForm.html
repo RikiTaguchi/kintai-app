@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/editManagerForm.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -11,19 +12,12 @@
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
         </div>
 
-        <div>
-            <a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
-            <a th:href="@{/infoManager(manager=${manager.id})}">アカウント</a> &gt;
-            <a th:href="@{/editManagerForm(edit=${manager.id})}">アカウント情報修正</a>
-        </div>
-
 		<div class="main">
-            <div class="editInformation">
+            <div class="subHeader">
 				<p>アカウント情報修正</p>
-			</div>
-			<div class="border">
 				<hr size="2" color="lightgray">
 			</div>
+			
 			<form th:action = "@{/editManagerForm}" method = "post" th:object = "${managerUpdateForm}">
 				<div>
                     <label for="classArea">教室名</label>
@@ -44,6 +38,10 @@
 					<input id = "updateButton" type = "submit" value = "更新" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				</div>
 			</form>
+
+			<div>
+				<a th:href="@{/infoManager(manager=${manager.id})}">戻る</a>
+			</div>
 		</div>
 
 		<div class="side">
@@ -60,16 +58,21 @@
                 <p>講師管理</p>
                 <a th:href="@{/detailClass(manager=${manager.id})}"></a>
             </div>
+
+            <div class="sideContents" id="detailSalary">
+				<p>給与管理</p>
+				<a th:href="@{/detail(manager=${manager.id}, user=${userList.get(0).id}, year=${year}, month=${month})}"></a>
+			</div>
     
             <div class="sideContents" id="classInformation">
                 <p>アカウント</p>
                 <a th:href="@{/infoManager(manager=${manager.id})}"></a>
             </div>
             
-            <div class="sideContents" id="goBack">
-                <p>戻る</p>
-                <a th:href="@{/infoManager(manager=${manager.id})}"></a>
-            </div>
+            <div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href="@{/loginManager}"></a>
+			</div>
         </div>
 	</body>
 </html>

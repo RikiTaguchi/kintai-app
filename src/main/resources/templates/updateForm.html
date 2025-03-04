@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/updateForm.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -11,37 +12,33 @@
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
         </div>
 
-		<div>
-			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
-            <a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a> &gt;
-			<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">基本情報（<span th:text="${user.userName}"></span>）</a> &gt;
-			<a th:href="@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">給与更新</a>
-        </div>
-
 		<div class="main">
-			<div class="createSalary">
-				<p>給与更新</p>
-			</div>
-			<div class="border">
+			<div class="subHeader">
+				<p>給与情報更新</p>
 				<hr size="2" color="lightgray">
 			</div>
+			
 			<div class="mainTable">
-			<form th:action = "@{/updateForm}" method = "post" th:object = "${salaryUpdateForm}">
-				<table border="1" style="border-spacing: 0;" class="radius-table">
-					<tr><th>対象期間</th><td><div><input id = "dateFrom" type = "date" th:field = "*{dateFrom}" required> 〜</div></td></tr>
-					<tr><th>コマ給(90分)</th><td><div><input id = "classSalary" type = "number" th:field = "*{classSalary}" required> 円</div></td></tr>
-					<tr><th>事務給(60分)</th><td><div><input id = "officeSalary" type = "number" th:field = "*{officeSalary}" required> 円</div></td></tr>
-					<tr><th>日時手当</th><td><div><input id = "supportSalary" type = "number" th:field = "*{supportSalary}" required> 円</div></td></tr>
-					<tr><th>交通費(往復)</th><td><div><input id = "carfare" type = "number" th:field = "*{carfare}" required> 円</div></td></tr>
-				</table>
-				<div>
-					<input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
-				</div>
-				<div style = "display: none;">
-					<input id = "id" type = "text" th:field = "*{userId}">
-				</div>
-			</form>
+				<form th:action = "@{/updateForm}" method = "post" th:object = "${salaryUpdateForm}">
+					<table border="1" style="border-spacing: 0;" class="radius-table">
+						<tr><th>対象期間</th><td><div><input id = "dateFrom" type = "date" th:field = "*{dateFrom}" required> 〜</div></td></tr>
+						<tr><th>コマ給(90分)</th><td><div><input id = "classSalary" type = "number" th:field = "*{classSalary}" required> 円</div></td></tr>
+						<tr><th>事務給(60分)</th><td><div><input id = "officeSalary" type = "number" th:field = "*{officeSalary}" required> 円</div></td></tr>
+						<tr><th>日時手当</th><td><div><input id = "supportSalary" type = "number" th:field = "*{supportSalary}" required> 円</div></td></tr>
+						<tr><th>交通費(往復)</th><td><div><input id = "carfare" type = "number" th:field = "*{carfare}" required> 円</div></td></tr>
+					</table>
+					<div>
+						<input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+					</div>
+					<div style = "display: none;">
+						<input id = "id" type = "text" th:field = "*{userId}">
+					</div>
+				</form>
 		    </div>
+
+			<div>
+				<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">戻る</a>
+			</div>
 		</div>
 
 		<div class="side">
@@ -58,15 +55,20 @@
 				<p>講師管理</p>
 				<a th:href="@{/detailClass(manager=${manager.id})}"></a>
 			</div>
+
+			<div class="sideContents" id="detailSalary">
+				<p>給与管理</p>
+				<a th:href="@{/detail(manager=${manager.id}, user=${userList.get(0).id}, year=${year}, month=${month})}"></a>
+			</div>
 	
 			<div class="sideContents" id="classInformation">
 				<p>アカウント</p>
 				<a th:href="@{/infoManager(manager=${manager.id})}"></a>
 			</div>
 			
-			<div class="sideContents" id="goBack">
-				<p>戻る</p>
-				<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}"></a>
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href="@{/loginManager}"></a>
 			</div>
 		</div>
 	</body>

@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
+        <link th:href="@{/css/common.css}" rel="stylesheet">
         <link th:href="@{/css/infoManager.css}" rel="stylesheet">
         <script th:src="@{/js/confirm.js}" defer></script>
 	</head>
@@ -11,25 +12,20 @@
             <h1>明光義塾 勤怠管理システム</h1>
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
         </div>
-
-        <div>
-            <a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
-            <a th:href="@{/infoManager(manager=${manager.id})}">アカウント</a>
-        </div>
         
-        <div class="accountMain">
-            <div class="accountInformation">
+        <div class="main">
+            <div class="subHeader">
                 <p>アカウント</p>
-                <div class="accountBorder">
-                    <hr class="border2" size="2" color="lightgray">
-                </div>
+                <hr class="border2" size="2" color="lightgray">
             </div>
 
-            <div>
-                <a th:href="@{/editManagerForm(edit=${manager.id})}">アカウント情報を修正</a>
-            </div>
-            <div>
-                <a th:href="@{/deleteManager(delete=${manager.id})}" onclick="return deleteConfirm()">アカウントを削除</a>
+            <div style="display: flex;">
+                <div style="margin-left: 20px; margin-right: 20px;">
+                    <a th:href="@{/editManagerForm(edit=${manager.id})}">アカウント情報修正</a>
+                </div>
+                <div style="margin-left: 20px; margin-right: 20px;">
+                    <a th:href="@{/deleteManager(delete=${manager.id})}" onclick="return deleteConfirm()">アカウント削除</a>
+                </div>
             </div>
 
             <div class="accountTable">
@@ -55,16 +51,21 @@
                 <p>講師管理</p>
                 <a th:href="@{/detailClass(manager=${manager.id})}"></a>
             </div>
+
+            <div class="sideContents" id="detailSalary">
+				<p>給与管理</p>
+				<a th:href="@{/detail(manager=${manager.id}, user=${userList.get(0).id}, year=${year}, month=${month})}"></a>
+			</div>
     
             <div class="sideContents" id="classInformation">
                 <p>アカウント</p>
                 <a th:href="@{/infoManager(manager=${manager.id})}"></a>
             </div>
             
-            <div class="sideContents" id="goBack">
-                <p>戻る</p>
-                <a th:href="@{/indexManager(manager=${manager.id})}"></a>
-            </div>
+            <div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href="@{/loginManager}"></a>
+			</div>
         </div>
            
 	</body>

@@ -7,24 +7,21 @@
 	</head>
 	<body>
 		<div>
-			<h1 class="loginTeacher">講師ログイン</h1>
-			    <div class="main">
-			    <form th:action = "@{/login}" method = "post" th:object = "${userLoginForm}">
-				    <div>
-					<label for = "loginId">ログインID</label>
-					<input id = "loginId" type = "text" th:field = "*{loginId}" required>
-				    </div>
-				    <div>
-					<label for = "password">パスワード</label>
-					<input id = "password" type = "text" th:field = "*{password}" required>
-				    </div>
-				    <div>
-					<input id = "loginButton" type = "submit" value = "ログイン" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
-				    </div>	
-			    </form>
-			    </div>
-			<div class="managerLogin">
-				<a th:href="@{/loginManager}">管理者の方はこちら</a>
+			<h1 class="loginTeacher">明光義塾 勤怠管理システム</h1>
+			<div class="main">
+				<form th:action = "@{/login}" method = "post" th:object = "${userLoginForm}">
+					<div>
+						<label for = "loginId">ログインID</label>
+						<input id = "loginId" type = "text" th:field = "*{loginId}" required>
+					</div>
+					<div>
+						<label for = "password">パスワード</label>
+						<input id = "password" type = "text" th:field = "*{password}" required>
+					</div>
+					<div>
+						<input id = "loginButton" type = "submit" value = "ログイン" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+					</div>	
+				</form>
 			</div>
 			<p class="tradeMark">&trade;明光義塾 勤怠管理システム</p>
 		</div>
