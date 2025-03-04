@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
+		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/indexManager.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -11,17 +12,12 @@
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
 		</div>
 
-		<div>
-			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a>
-		</div>
-
 		<div class="main">
-			<div class="teacherTable">
-			<p>ホーム</p>
-			</div>
-			<div class="border">
+			<div class="subHeader">
+				<p>ホーム</p>
 				<hr size="2" color="lightgray">
 			</div>
+			
 			<div>
 				内容未定
 			</div>
@@ -29,29 +25,34 @@
 		<br>
 
 		<div class="side">
-		<div class="sideContents" id="className">
-			<span th:text = "${manager.classArea}"></span>教室
-		</div>
+			<div class="sideContents" id="className">
+				<span th:text = "${manager.classArea}"></span>教室
+			</div>
 
-		<div class="sideContents" id="goHome">
-			<p>ホーム</p>
-            <a th:href="@{/indexManager(manager=${manager.id})}"></a>
-		</div>
+			<div class="sideContents" id="goHome">
+				<p>ホーム</p>
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</div>
 
-		<div class="sideContents" id="newAccount">
-			<p>講師管理</p>
-			<a th:href="@{/detailClass(manager=${manager.id})}"></a>
-		</div>
+			<div class="sideContents" id="newAccount">
+				<p>講師管理</p>
+				<a th:href="@{/detailClass(manager=${manager.id})}"></a>
+			</div>
 
-		<div class="sideContents" id="classInformation">
-			<p>アカウント</p>
-			<a th:href="@{/infoManager(manager=${manager.id})}"></a>
-		</div>
-		
-		<div class="sideContents" id="logout">
-			<p>ログアウト</p>
-			<a th:href="@{/loginManager}"></a>
-		</div>
+			<div class="sideContents" id="detailSalary">
+				<p>給与管理</p>
+				<a th:href="@{/detail(manager=${manager.id}, user=${userList.get(0).id}, year=${year}, month=${month})}"></a>
+			</div>
+
+			<div class="sideContents" id="classInformation">
+				<p>アカウント</p>
+				<a th:href="@{/infoManager(manager=${manager.id})}"></a>
+			</div>
+			
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href="@{/loginManager}"></a>
+			</div>
 		</div>
 	</body>
 </html>

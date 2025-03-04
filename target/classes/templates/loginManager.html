@@ -7,7 +7,7 @@
 	</head>
 	<body>
 		<div>
-			<h1 class="loginManager">管理者ログイン</h1>
+			<h1 class="loginManager">明光義塾 勤怠管理システム</h1>
 		    <div class="main">
 			    <form th:action = "@{/loginManager}" method = "post" th:object = "${managerLoginForm}">
 				    <div>
@@ -24,9 +24,6 @@
 			    </form>
 		    <br>
 			<a th:href="@{/signUpManager}">新しくアカウントを作成</a>
-			</div>
-			<div class="teacherLogin">
-				<a th:href="@{/login}">講師の方はこちら</a>
 			</div>
 			<p class="tradeMark">&trade;明光義塾 勤怠管理システム</p>
         </div>

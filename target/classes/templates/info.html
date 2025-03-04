@@ -55,7 +55,10 @@
 		
 			<div class="mainTable">
 				<table border="1" style="border-spacing: 0;" class="radius-table">
-					<tr><th>勤務日</th><th>勤務コマ</th><th>事務等</th></tr>
+					<tr>
+						<th>勤務日</th>
+						<th>勤務コマ</th>
+					</tr>
 					<th:block th:if = "${!#lists.isEmpty(workList)}">
 					<tr th:each = "w : ${workList}">
 						<td>
@@ -75,7 +78,6 @@
 							<th:block th:if = "${w.classD}"><span th:text = "'D'"></span></th:block>
 							<th:block th:if = "${w.classCount == 0}"><span th:text = "'-'"></span></th:block>
 						</td>
-						<td><span th:text = "${(w.officeTime + w.otherTime) != 0 ? w.officeTime + w.otherTime + '分' : '-'}"></span></td>
 					</tr>
 					</th:block>
 				</table>

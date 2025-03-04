@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
+		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/signUp.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -11,19 +12,12 @@
 		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
 		</div>
 
-		<div>
-			<a th:href="@{/indexManager(manager=${manager.id})}">ホーム</a> &gt;
-			<a th:href="@{/detailClass(manager=${manager.id})}">講師管理</a> &gt;
-			<a th:href="@{/signUp(manager=${manager.id})}">講師登録</a>
-        </div>
-
 		<div class="main">
-			<div class="createAccount">
+			<div class="subHeader">
 				<p>講師登録</p>
-			</div>
-			<div class="border">
 				<hr size="2" color="lightgray">
 			</div>
+			
 			<form th:action = "@{/signUp}" method = "post">
 				<div>
 					<label id = "teacherName" for = "userName">講師氏名</label>
@@ -46,7 +40,7 @@
 					<input id = "dateFrom" type = "date" th:field = "*{salaryCreateForm.dateFrom}" required>
 				</div>
 				<div>
-					<label id = "salary" for = "classSalary">コマ給(90分/円)</label>
+					<label id = "salary" for = "classSalary">コマ給(100分/円)</label>
 					<input id = "classSalary" type = "number" th:field = "*{salaryCreateForm.classSalary}" required>
 				</div>
 				<div>
@@ -68,6 +62,10 @@
 					<input id="manager" type="text" th:field="*{userCreateForm.classAreaId}">
 				</div>
 		    </form>
+
+			<div>
+				<a th:href="@{/detailClass(manager=${manager.id})}">戻る</a>
+			</div>
 		</div>
 
 		<div class="side">
@@ -84,16 +82,21 @@
                 <p>講師管理</p>
                 <a th:href="@{/detailClass(manager=${manager.id})}"></a>
             </div>
+
+			<div class="sideContents" id="detailSalary">
+				<p>給与管理</p>
+				<a th:href="@{/detail(manager=${manager.id}, user=${userList.get(0).id}, year=${year}, month=${month})}"></a>
+			</div>
     
             <div class="sideContents" id="classInformation">
                 <p>アカウント</p>
                 <a th:href="@{/infoManager(manager=${manager.id})}"></a>
             </div>
             
-            <div class="sideContents" id="goBack">
-                <p>戻る</p>
-                <a th:href="@{/detailClass(manager=${manager.id})}"></a>
-            </div>
+            <div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href="@{/loginManager}"></a>
+			</div>
         </div>
 	</body>
 </html>
