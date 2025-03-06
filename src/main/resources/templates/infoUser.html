@@ -15,31 +15,33 @@
 
 		<div class="main">
 			<div class="subHeader">
-				<p th:text="${user.userName}"></p>
+				<p>講師詳細</p>
 				<hr size="2" color="lightgray">
 		    </div>
 
-			<div style="display: flex;">
-				<div style="margin-left: 20px; margin-right: 20px;">
-					<a th:href="@{/editUserForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">基本情報を更新</a>
-				</div>
-				<div style="margin-left: 20px; margin-right: 20px;">
-					<a th:href = "@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">給与情報を更新</a>
-				</div>
-				<div style="margin-left: 20px; margin-right: 20px;">
-					<th:block th:if="${user.state}"><a th:href = "@{/retireForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}">退職手続</a></th:block>
-					<th:block th:if="${!user.state}"><a th:href = "@{/resetRetire(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return retireConfirm()">退職を取り消す</a></th:block>
-				</div>
-				<div style="margin-left: 20px; margin-right: 20px;">
-					<a th:href="@{/deleteUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return deleteConfirm()">講師アカウント削除</a>
-				</div>
-				<div style="margin-left: 20px; margin-right: 20px;">
-					<a th:href="@{/detailClass(manager=${manager.id})}">講師一覧へ戻る</a>
-				</div>
-			</div>
-
 			<div class="mainTable">
-				<p>基本情報</p>
+				<div class="miniMenu">
+					<p class="miniTitle">基本情報</p>
+					<div class="miniMenuContents">
+						<p>更新</p>
+						<a th:href="@{/editUserForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
+					</div>
+					<div class="miniMenuContents">
+						<th:block th:if="${user.state}">
+							<p>退職手続</p>
+							<a th:href = "@{/retireForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
+						</th:block>
+						<th:block th:if="${!user.state}">
+							<p>退職取消</p>
+							<a th:href = "@{/resetRetire(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return retireConfirm()"></a>
+						</th:block>
+					</div>
+					<div class="miniMenuContents">
+						<p>削除</p>
+						<a th:href="@{/deleteUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return deleteConfirm()"></a>
+					</div>
+				</div>
+
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>氏名</th><td th:text = "${user.userName}"></td></tr>
 					<tr><th>講師No.</th><td th:text = "${user.teacherNo}"></td></tr>
@@ -50,7 +52,14 @@
 					</tr>
 				</table>
 
-				<p>給与情報</p>
+				<div class="miniMenu">
+					<p class="miniTitle">給与情報</p>
+					<div class="miniMenuContents">
+						<p>更新</p>
+						<a th:href = "@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
+					</div>
+				</div>
+
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>コマ給</th><td th:text = "${'¥'+salaryFormatted[0]}"></td></tr>
 					<tr><th>事務給</th><td th:text = "${'¥'+salaryFormatted[1]}"></td></tr>
@@ -58,7 +67,10 @@
 					<tr><th>交通費</th><td th:text = "${'¥'+salaryFormatted[3]}"></td></tr>
 				</table>
 
-				<p>給与推移</p>
+				<div class="miniMenu">
+					<p class="miniTitle">給与推移</p>
+				</div>
+				
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
 					<th:block th:each = "s : ${salaryList}">

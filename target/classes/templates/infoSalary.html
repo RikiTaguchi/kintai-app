@@ -3,8 +3,10 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+        <link th:href="@{/css/common2.css}" rel="stylesheet">
+        <link th:href="@{/css/infoSalary.css}" rel="stylesheet">
         <script th:src="@{/js/tax.js}" defer></script>
-		<link th:href="@{/css/infoSalary.css}" rel="stylesheet">
+        <script th:src="@{/js/display.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
@@ -14,83 +16,67 @@
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-
-        <div>
-			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
-			<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}">給与情報</a>
-		</div>
 		
-		<div class="salaryMain">
-            <div class="salaryDetails">
+		<div class="main">
+            <div class="subHeader">
                 <p>給与情報</p>
-            </div>
-            <div class="border">
                 <hr size="2" color="lightgray">
             </div>
 
-            <div>
-				<a th:href="@{/detailSalary(user=${user.id}, year=${year}, month=${month})}">給与推移</a>
-			</div>
+            <div class="subMenu">
+                <div class="subMenuContents">
+                    <p>給与推移</p>
+                    <a th:href="@{/detailSalary(user=${user.id})}"></a>
+                </div>
+            </div>
     
             <div class="date">
-                <span th:text = "${year+'年'+month+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span>
+                <span th:text = "${yearNow+'年'+monthNow+'月分　'+monthBefore+'月26日〜'+monthNow+'月25日'}"></span>
             </div>
     
             <div class= "beforeMonth">
                 <p>前月</p>
-                <a id="back-button" th:href = "@{/infoSalary(user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax}, detail=${detail})}"></a>
+                <a id="back-button" th:href = "@{/infoSalary(user=${user.id}, year=${yearBefore}, month=${monthBefore}, tax=${tax})}"></a>
             </div>
             <div class= "afterMonth">
                 <p>来月</p>
-                <a id="next-button" th:href = "@{/infoSalary(user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax}, detail=${detail})}"></a>
-            </div>
-
-            <div>
-                <button class="detail-button">詳細</button>
+                <a id="next-button" th:href = "@{/infoSalary(user=${user.id}, year=${yearNext}, month=${monthNext}, tax=${tax})}"></a>
             </div>
             
-            <div class="mainTable">
-                <div>
-                    所得税
-                    <input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
-                    <input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
-                    <div style="display: none;">
-                        <a id="tax-button" th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${tax}, detail=${detail})}"></a>
-                    </div>
-                </div>
-                <div>
-                    <table border="1" style="border-spacing: 0;" class="radius-table">
-                        <tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
-                    </table>
+            <div style="margin-top: 10px;">
+                所得税
+                <input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
+                <input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
+                <div style="display: none;">
+                    <a id="tax-button" th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${tax})}"></a>
                 </div>
             </div>
-		</div>
 
-        <div class="detail-table" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 450px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
-            <div>
-                <button class="detail-button">閉じる</button>
-            </div>
-            <table border="1" style="border-spacing: 0;" class="radius-table">
+            <table border="1" style="border-spacing: 0; margin-top: 10px;" class="radius-table">
                 <tr><th>コマ給</th><td>¥<span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
                 <tr><th>コマ数</th><td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td></tr>
                 <tr><th>①コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
                 <tr><th>②日時手当</th><td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td></tr>
                 <tr><th>③事務給</th><td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td></tr>
-                <tr><th>④研修費・時間外</th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
+                <tr><th><a href="#" class="detail-salary-button">④研修費・時間外</a></th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
                 <tr><th>⑤その他</th><td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td></tr>
                 <tr><th>所得税</th><td>¥<span th:text = "${incomeTaxFormatted}"></span></td></tr>
                 <tr><th>交通費計</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
             </table>
-            <p>※「④研修費・時間外」内訳</p>
-            <table border="1" style="border-spacing: 0;" class="radius-table">
+
+            <table border="1" style="border-spacing: 0; margin-top: 10px;" class="radius-table">
+                <tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
+            </table>
+		</div>
+
+        <div class="detail-salary-element" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 300px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
+            <a href="#" class="detail-salary-button">閉じる</a>
+            <p>④研修費・時間外 内訳</p>
+            <table>
                 <tr><th>研修・自習室(円/分)</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
                 <tr><th>時間外勤務(円/分)</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
                 <tr><th>超過勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
                 <tr><th>深夜勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td></tr>
-            </table>
-            <br>
-            <table border="1" style="border-spacing: 0;" class="radius-table">
-                <tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
             </table>
         </div>
 
@@ -106,12 +92,12 @@
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
@@ -119,9 +105,9 @@
 				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
-			<div class="sideContents" id="goBack">
-				<p>戻る</p>
-				<a th:href = "@{/index(user=${user.id})}"></a>
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href = "@{/login}"></a>
 			</div>
 		</div>
 	</body>

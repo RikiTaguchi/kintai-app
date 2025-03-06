@@ -188,26 +188,26 @@ public class HomeController {
         }
     }
 
-    // ホーム > シフト管理
+    // シフト管理
     @GetMapping("/info")
-    String info(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String info(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
         try {
-            Date dateFrom = DateSet.getDatePeriod(year, month)[0];
-            Date dateTo = DateSet.getDatePeriod(year, month)[1];
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            String yearNext = DateSet.getDateNext(year, month)[0];
-            String monthNext = DateSet.getDateNext(year, month)[1];
+            Date dateFrom = DateSet.getDatePeriod(yearNow, monthNow)[0];
+            Date dateTo = DateSet.getDatePeriod(yearNow, monthNow)[1];
+            String yearBefore = DateSet.getDateBefore(yearNow, monthNow)[0];
+            String monthBefore = DateSet.getDateBefore(yearNow, monthNow)[1];
+            String yearNext = DateSet.getDateNext(yearNow, monthNow)[0];
+            String monthNext = DateSet.getDateNext(yearNow, monthNow)[1];
             Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
             Map<UUID, String> supportSalaryMap = new HashMap<>();
             Map<UUID, String> carfareMap = new HashMap<>();
             NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(yearNow), Integer.parseInt(monthNow));
             Boolean lockStatus;
             if (lock == null || !lock.getStatus()) {
                 lockStatus = false;
@@ -220,9 +220,11 @@ public class HomeController {
             }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("workList", workList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("workList", workList);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             model.addAttribute("yearNow", yearNow);
             model.addAttribute("monthNow", monthNow);
             model.addAttribute("yearBefore", yearBefore);
@@ -235,7 +237,6 @@ public class HomeController {
             redirectAttributes.addAttribute("user", userId);
             return "info";
         } catch (Exception e) {
-            System.out.println("Error happened in index.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -247,17 +248,17 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > シフト登録（get）
+    // シフト管理 > シフト登録（get）
     @GetMapping("/addForm")
-    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
+            String yearBefore = DateSet.getDateBefore(yearNow, monthNow)[0];
+            String monthBefore = DateSet.getDateBefore(yearNow, monthNow)[1];
             Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
             Work work = new Work();
             List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
@@ -265,16 +266,17 @@ public class HomeController {
             work.setCarfare(salary.getCarfare());
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("workCreateForm", work);
-            model.addAttribute("templateList", templateList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("workCreateForm", work);
+            model.addAttribute("templateList", templateList);
+            model.addAttribute("yearNow", yearNow);
+            model.addAttribute("monthNow", monthNow);
             model.addAttribute("yearNow", yearNow);
             model.addAttribute("monthNow", monthNow);
             redirectAttributes.addAttribute("user", userId);
             return "addForm";
         } catch (Exception e) {
-            System.out.println("Error happened in addForm.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -286,9 +288,9 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > シフト登録（post）
+    // シフト管理 > シフト登録（post）
     @PostMapping("/addForm")
-    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes, @RequestParam("year") String yearSelected, @RequestParam("month") String monthSelected) {
+    String addFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
         try {
             String year = DateSet.getYear(form.getDate());
             String month = DateSet.getMonth(form.getDate());
@@ -321,8 +323,8 @@ public class HomeController {
                     }
                 }
             } catch (Exception e) {
-                redirectAttributes.addAttribute("year", yearSelected);
-                redirectAttributes.addAttribute("month", monthSelected);
+                redirectAttributes.addAttribute("year", yearNow);
+                redirectAttributes.addAttribute("month", monthNow);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:addForm";
@@ -332,7 +334,6 @@ public class HomeController {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error happened in addForm(post)");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -344,17 +345,17 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > シフト修正（get）
+    // シフト管理 > シフト修正（get）
     @GetMapping("/editForm")
-    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Work work = workService.findWorkById(UUID.fromString(detailId));
-            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(year), Integer.parseInt(month));
+            Lock lock = lockService.getByTarget(user.getClassAreaId(), user.getId(), Integer.parseInt(yearNow), Integer.parseInt(monthNow));
             if (lock == null || !lock.getStatus()) {
                 if (work.getTimeStart().equals("     ")) {
                     work.setTimeStart("");
@@ -377,10 +378,10 @@ public class HomeController {
                 List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
                 model.addAttribute("user", user);
                 model.addAttribute("manager", manager);
-                model.addAttribute("workUpdateForm", work);
-                model.addAttribute("templateList", templateList);
                 model.addAttribute("year", year);
                 model.addAttribute("month", month);
+                model.addAttribute("workUpdateForm", work);
+                model.addAttribute("templateList", templateList);
                 model.addAttribute("yearNow", yearNow);
                 model.addAttribute("monthNow", monthNow);
                 redirectAttributes.addAttribute("user", userId);
@@ -398,7 +399,6 @@ public class HomeController {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error happened in editForm.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -410,7 +410,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > シフト修正（post）
+    // シフト管理 > シフト修正（post）
     @PostMapping("/editForm")
     String editFormPost(HttpServletRequest request, @ModelAttribute("workUpdateForm") Work form, RedirectAttributes redirectAttributes) {
         try {
@@ -446,7 +446,6 @@ public class HomeController {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error happened in editForm(post)");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -458,7 +457,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > シフト管理 > 削除
+    // シフト管理 > 削除
     @PostMapping("/deleteWork")
     String deleteWork(HttpServletRequest request, @Param("userId") String userId, @Param("deleteId") String deleteId, RedirectAttributes redirectAttributes) {
         try {
@@ -489,7 +488,6 @@ public class HomeController {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error happened in deleteWork(post)");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -501,15 +499,15 @@ public class HomeController {
         }
     }
 
-    // ホーム > シフト管理 > テンプレート
+    // シフト管理 > テンプレート
     @GetMapping("/infoTemplate")
-    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
             Map<UUID, String> carfareMap = new HashMap<>();
             NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
@@ -518,16 +516,13 @@ public class HomeController {
             }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("templateList", templateList);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
+            model.addAttribute("templateList", templateList);
             model.addAttribute("carfareMap", carfareMap);
             redirectAttributes.addAttribute("user", userId);
             return "infoTemplate";
         } catch (Exception e) {
-            System.out.println("Error happened in infoTemplate.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -539,32 +534,29 @@ public class HomeController {
         }
     }
 
-    // ホーム > シフト管理 > テンプレート > 登録（get）
+    // シフト管理 > テンプレート > 登録（get）
     @GetMapping("/templateForm")
-    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
+            Calendar calendar = Calendar.getInstance();
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String yearBefore = DateSet.getDateBefore(year, month)[0];
             String monthBefore = DateSet.getDateBefore(year, month)[1];
-            Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
             WorkTemplate template = new WorkTemplate();
             template.setUserId(user.getId());
             template.setCarfare(salary.getCarfare());
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("templateCreateForm", template);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
+            model.addAttribute("templateCreateForm", template);
             redirectAttributes.addAttribute("user", userId);
             return "templateForm";
         } catch (Exception e) {
-            System.out.println("Error happened in templateForm.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -576,14 +568,12 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > テンプレート > 登録（post）
+    // シフト管理 > テンプレート > 登録（post）
     @PostMapping("/templateForm")
-    String templateFormPost(HttpServletRequest request, @ModelAttribute("templateCreateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String templateFormPost(HttpServletRequest request, @ModelAttribute("templateCreateForm") WorkTemplate form, RedirectAttributes redirectAttributes) {
         try {
             workTemplateService.add(form);
             redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoTemplate";
@@ -592,7 +582,6 @@ public class HomeController {
                 return redirectUrl;
             }
         } catch (Exception e) {
-            System.out.println("Error happened in templateForm(post)");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -604,28 +593,25 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > テンプレート > 修正（get）
+    // シフト管理 > テンプレート > 修正（get）
     @GetMapping("/editTemplateForm")
-    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("template", template);
-            model.addAttribute("templateUpdateForm", template);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
+            model.addAttribute("template", template);
+            model.addAttribute("templateUpdateForm", template);
             redirectAttributes.addAttribute("user", userId);
             return "editTemplateForm";
         } catch (Exception e) {
-            System.out.println("Error happened in editTemplateForm.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -637,14 +623,12 @@ public class HomeController {
         }
     }
     
-    // ホーム > シフト管理 > テンプレート > 修正（post）
+    // シフト管理 > テンプレート > 修正（post）
     @PostMapping("/editTemplateForm")
-    String editTemplateFormPost(HttpServletRequest request, @ModelAttribute("templateUpdateForm") WorkTemplate form, RedirectAttributes redirectAttributes, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String editTemplateFormPost(HttpServletRequest request, @ModelAttribute("templateUpdateForm") WorkTemplate form, RedirectAttributes redirectAttributes) {
         try {
             workTemplateService.update(form);
             redirectAttributes.addAttribute("user", form.getUserId());
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoTemplate";
@@ -653,7 +637,6 @@ public class HomeController {
                 return redirectUrl;
             }
         } catch (Exception e) {
-            System.out.println("Error happened in editTemplateForm(post)");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -665,14 +648,12 @@ public class HomeController {
         }
     }
 
-    // ホーム > シフト管理 > テンプレート > 削除
+    // シフト管理 > テンプレート > 削除
     @PostMapping("/deleteTemplate")
-    String deleteTemplate(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String deleteTemplate(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId) {
         try {
             workTemplateService.deleteById(UUID.fromString(deleteId));
             redirectAttributes.addAttribute("user", userId);
-            redirectAttributes.addAttribute("year", year);
-            redirectAttributes.addAttribute("month", month);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoTemplate";
@@ -681,7 +662,6 @@ public class HomeController {
                 return redirectUrl;
             }
         } catch (Exception e) {
-            System.out.println("Error happened in deleteTemplate(post)");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -693,24 +673,24 @@ public class HomeController {
         }
     }
 
-    // ホーム > 給与情報
+    // 給与情報
     @GetMapping("/infoSalary")
-    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("tax") String tax, @RequestParam("detail") String detail) {
+    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam("tax") String tax) {
         try {
             // 基本情報の取得
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
 
             // 給与明細の計算
-            Date dateFrom = DateSet.getDatePeriod(year, month)[0];
-            Date dateTo = DateSet.getDatePeriod(year, month)[1];
-            String yearBefore = DateSet.getDateBefore(year, month)[0];
-            String monthBefore = DateSet.getDateBefore(year, month)[1];
-            String yearNext = DateSet.getDateNext(year, month)[0];
-            String monthNext = DateSet.getDateNext(year, month)[1];
+            Date dateFrom = DateSet.getDatePeriod(yearNow, monthNow)[0];
+            Date dateTo = DateSet.getDatePeriod(yearNow, monthNow)[1];
+            String yearBefore = DateSet.getDateBefore(yearNow, monthNow)[0];
+            String monthBefore = DateSet.getDateBefore(yearNow, monthNow)[1];
+            String yearNext = DateSet.getDateNext(yearNow, monthNow)[0];
+            String monthNext = DateSet.getDateNext(yearNow, monthNow)[1];
             Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
             Map<UUID, Salary> salaryMap = new HashMap<>();
             int sumSalaryPre[] = new int[17];
@@ -777,12 +757,12 @@ public class HomeController {
             }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
+            model.addAttribute("year", year);
+            model.addAttribute("month", month);
             model.addAttribute("salary", salary);
             model.addAttribute("sumSalary", sumSalary);
             model.addAttribute("sumSalaryFormatted", sumSalaryFormatted);
             model.addAttribute("salaryMap", salaryMap);
-            model.addAttribute("year", year);
-            model.addAttribute("month", month);
             model.addAttribute("yearNow", yearNow);
             model.addAttribute("monthNow", monthNow);
             model.addAttribute("yearBefore", yearBefore);
@@ -790,12 +770,9 @@ public class HomeController {
             model.addAttribute("yearNext", yearNext);
             model.addAttribute("monthNext", monthNext);
             model.addAttribute("tax", tax);
-            model.addAttribute("detail", detail);
             model.addAttribute("incomeTaxFormatted", incomeTaxFormatted);
-            redirectAttributes.addAttribute("user", userId);
             return "infoSalary";
         } catch (Exception e) {
-            System.out.println("Error happened in infoSalary.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -807,15 +784,15 @@ public class HomeController {
         }
     }
 
-    // ホーム > 給与情報 > 給与推移
+    // 給与情報 > 給与推移
     @GetMapping("/detailSalary")
-    String detailSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    String detailSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
-            String yearNow = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
-            String monthNow = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
             Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
             for (Salary salary : salaryList) {
@@ -828,16 +805,12 @@ public class HomeController {
             }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
-            model.addAttribute("salaryList", salaryList);
-            model.addAttribute("salaryMapFormatted", salaryMapFormatted);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            redirectAttributes.addAttribute("user", userId);
+            model.addAttribute("salaryList", salaryList);
+            model.addAttribute("salaryMapFormatted", salaryMapFormatted);
             return "detailSalary";
         } catch (Exception e) {
-            System.out.println("Error happened in detailSalary.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -849,7 +822,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > アカウント
+    // アカウント
     @GetMapping("/user")
     String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
@@ -865,7 +838,6 @@ public class HomeController {
             redirectAttributes.addAttribute("user", userId);
             return "user";
         } catch (Exception e) {
-            System.out.println("Error happened in user.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -877,7 +849,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > アカウント > アカウント情報修正（get）
+    // アカウント > アカウント情報修正（get）
     @GetMapping("/userForm")
     String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
         try {
@@ -894,7 +866,6 @@ public class HomeController {
             redirectAttributes.addAttribute("user", userId);
             return "userForm";
         } catch (Exception e) {
-            System.out.println("Error happened in userForm.html");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -906,7 +877,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > アカウント > アカウント情報修正（post）
+    // アカウント > アカウント情報修正（post）
     @PostMapping("/userForm")
     String userFormPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userUpdateForm") User form, RedirectAttributes redirectAttributes) {
         try {
@@ -930,7 +901,6 @@ public class HomeController {
                 return redirectUrl;
             }
         } catch (Exception e) {
-            System.out.println("Error happened in userForm(post)");
             e.printStackTrace();
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -1118,7 +1088,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 講師管理
+    // 講師管理
     @GetMapping("/detailClass")
     String detailClass(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
         try {
@@ -1144,7 +1114,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 講師管理 > 新規登録（get）
+    // 講師管理 > 新規登録（get）
     @GetMapping("/signUp")
     String signUpGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
         try {
@@ -1175,7 +1145,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 新規登録（post）
+    // 講師管理 > 新規登録（post）
     @PostMapping("/signUp")
     String signUpPost(HttpServletRequest request, @ModelAttribute("userCreateForm") User user, @ModelAttribute("salaryCreateForm") Salary salary, RedirectAttributes redirectAttributes) {
         try {
@@ -1189,9 +1159,9 @@ public class HomeController {
                 redirectAttributes.addAttribute("manager", user.getClassAreaId());
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
-                    return "redirect:indexManager";
+                    return "redirect:detailClass";
                 } else {
-                    String redirectUrl = String.format("redirect:https://%s/indexManager", domainAWS);
+                    String redirectUrl = String.format("redirect:https://%s/detailClass", domainAWS);
                     return redirectUrl;
                 }
             } else {
@@ -1216,7 +1186,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 基本情報
+    // 講師管理 > 基本情報
     @GetMapping("/infoUser")
     String infoUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
         try {
@@ -1273,7 +1243,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 基本情報 > アカウント情報修正（get）
+    // 講師管理 > 基本情報 > アカウント情報修正（get）
     @GetMapping("editUserForm")
     String editUserFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
         try {
@@ -1302,7 +1272,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 講師管理 > 基本情報 > アカウント情報修正（post）
+    // 講師管理 > 基本情報 > アカウント情報修正（post）
     @PostMapping("/editUserForm")
     String editUserFormPost(HttpServletRequest request, @ModelAttribute("userUpdateForm") User user, RedirectAttributes redirectAttributes) {
         try {
@@ -1330,7 +1300,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 講師管理 > 基本情報 > 退職手続（get）
+    // 講師管理 > 基本情報 > 退職手続（get）
     @GetMapping("/retireForm")
     String retireFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
         try {
@@ -1360,7 +1330,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 講師管理 > 基本情報 > 退職手続（post）
+    // 講師管理 > 基本情報 > 退職手続（post）
     @PostMapping("/retireForm")
     String retireFormPost(HttpServletRequest request, RedirectAttributes redirectAttributes, @ModelAttribute("retireCreateForm") User user) {
         try {
@@ -1388,7 +1358,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 基本情報 > 退職取消
+    // 講師管理 > 基本情報 > 退職取消
     @GetMapping("/resetRetire")
     String deleteRetire(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
         try {
@@ -1418,7 +1388,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 基本情報 > アカウント削除
+    // 講師管理 > 基本情報 > アカウント削除
     @GetMapping("/deleteUser")
     String deleteUser(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("manager") String managerId) {
         try {
@@ -1455,7 +1425,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 講師管理 > 基本情報 > 給与更新（get）
+    // 講師管理 > 基本情報 > 給与更新（get）
     @GetMapping("/updateForm")
     String updateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
         try {
@@ -1488,7 +1458,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 講師管理 > 基本情報 > 給与更新（post）
+    // 講師管理 > 基本情報 > 給与更新（post）
     @PostMapping("/updateForm")
     String updateFormPost(HttpServletRequest request, @ModelAttribute("salaryUpdateForm") Salary form, RedirectAttributes redirectAttributes) {
         try {
@@ -1516,7 +1486,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 基本情報 > 給与修正（get）
+    // 講師管理 > 基本情報 > 給与修正（get）
     @GetMapping("/salaryForm")
     String salaryFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("salary") String salaryId) {
         try {
@@ -1546,7 +1516,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 基本情報 > 給与修正（post）
+    // 講師管理 > 基本情報 > 給与修正（post）
     @PostMapping("/salaryForm")
     String salaryFormPost(HttpServletRequest request, @ModelAttribute("salaryUpdateForm") Salary form, RedirectAttributes redirectAttributes) {
         try {
@@ -1574,7 +1544,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 講師管理 > 基本情報 > 給与情報削除
+    // 講師管理 > 基本情報 > 給与情報削除
     @PostMapping("/deleteSalary")
     String deleteSalary(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId, @RequestParam("managerId") String managerId) {
         try {
@@ -1600,7 +1570,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 給与管理
+    // 給与管理
     @GetMapping("/detail")
     String detail(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
         try {
@@ -1732,7 +1702,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 給与管理 > シフト登録（get）
+    // 給与管理 > シフト登録（get）
     @GetMapping("/createForm")
     String createFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
         try {
@@ -1769,7 +1739,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 給与管理 > シフト登録（post）
+    // 給与管理 > シフト登録（post）
     @PostMapping("/createForm")
     String createFormPost(HttpServletRequest request, @ModelAttribute("workCreateForm") Work form, RedirectAttributes redirectAttributes) {
         try {
@@ -1815,7 +1785,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 給与管理 > シフト修正（get）
+    // 給与管理 > シフト修正（get）
     @GetMapping("/setForm")
     String setFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
         try {
@@ -1847,7 +1817,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 給与管理 > シフト修正（post）
+    // 給与管理 > シフト修正（post）
     @PostMapping("/setForm")
     String setFormPost(HttpServletRequest request, @ModelAttribute("workUpdateForm") Work form, RedirectAttributes redirectAttributes) {
         try {
@@ -1894,7 +1864,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > 給与管理 > シフト削除
+    // 給与管理 > シフト削除
     @PostMapping("/clearWork")
     String clearWork(HttpServletRequest request, @Param("managerId") String managerId, @Param("userId") String userId, @Param("deleteId") String deleteId, RedirectAttributes redirectAttributes) {
         try {
@@ -1925,7 +1895,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > 給与管理 > ロック状態の変更
+    // 給与管理 > ロック状態変更
     @GetMapping("/changeStatus")
     String changeStatus(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
@@ -1976,7 +1946,7 @@ public class HomeController {
 
     }
     
-    // ホーム > 給与管理 > Excelファイルのエクスポート
+    // 給与管理 > Excelファイルのエクスポート
     @GetMapping("/downloadExcelAll")
     void downloadExcelAll(HttpServletRequest request, HttpServletResponse response, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
         try {
@@ -2284,7 +2254,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > アカウント
+    // アカウント
     @GetMapping("/infoManager")
     String infoManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
         try {
@@ -2310,7 +2280,7 @@ public class HomeController {
         }
     }
     
-    // ホーム > アカウント > アカウント情報修正（get）
+    // アカウント > アカウント情報修正（get）
     @GetMapping("/editManagerForm")
     String editManagerFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("edit") String managerId) {
         try {
@@ -2337,7 +2307,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > アカウント > アカウント情報修正（post）
+    // アカウント > アカウント情報修正（post）
     @PostMapping("/editManagerForm")
     String editManagerFormPost(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @ModelAttribute("managerUpdateForm") Manager manager) {
         try {
@@ -2372,7 +2342,7 @@ public class HomeController {
         }
     }
 
-    // ホーム > アカウント > アカウント削除
+    // アカウント > アカウント削除
     @GetMapping("/deleteManager")
     String deleteManager(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @RequestParam("delete") String managerId) {
         try {

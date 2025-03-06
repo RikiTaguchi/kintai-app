@@ -18,9 +18,13 @@
 				<hr size="2" color="lightgray">
 			</div>
 
-			<div>
-				<a th:href="@{/signUp(manager=${manager.id})}">新しく講師を登録</a>
+			<div class="subMenu">
+				<div class="subMenuContents">
+					<p>講師登録</p>
+					<a th:href="@{/signUp(manager=${manager.id})}"></a>
+				</div>
 			</div>
+
 			<div class="mainTable">
 			<table border="1" style="border-spacing: 0;" class="radius-table">
 				<tr th:each = "u : ${userList}" th:style="'background-color: '+(${u.state} ? 'white' : 'lightgray')">

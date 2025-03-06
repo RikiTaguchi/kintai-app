@@ -19,12 +19,14 @@
                 <hr class="border2" size="2" color="lightgray">
             </div>
 
-            <div style="display: flex;">
-                <div style="margin-left: 20px; margin-right: 20px;">
-                    <a th:href="@{/editManagerForm(edit=${manager.id})}">アカウント情報修正</a>
+            <div class="subMenu">
+                <div class="subMenuContents">
+                    <p>修正</p>
+                    <a th:href="@{/editManagerForm(edit=${manager.id})}"></a>
                 </div>
-                <div style="margin-left: 20px; margin-right: 20px;">
-                    <a th:href="@{/deleteManager(delete=${manager.id})}" onclick="return deleteConfirm()">アカウント削除</a>
+                <div class="subMenuContents">
+                    <p>削除</p>
+                    <a th:href="@{/deleteManager(delete=${manager.id})}" onclick="return deleteConfirm()"></a>
                 </div>
             </div>
 

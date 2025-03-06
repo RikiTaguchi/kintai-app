@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
+		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/editManagerForm.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -14,14 +15,14 @@
 
 		<div class="main">
             <div class="subHeader">
-				<p>アカウント情報修正</p>
+				<p>アカウント情報</p>
 				<hr size="2" color="lightgray">
 			</div>
 			
-			<form th:action = "@{/editManagerForm}" method = "post" th:object = "${managerUpdateForm}">
+			<form th:action = "@{/editManagerForm}" method = "post" th:object = "${managerUpdateForm}" class="form">
 				<div>
                     <label for="classArea">教室名</label>
-                    <input id="classArea" type="text" th:field="*{classArea}" required>教室
+                    <input id="classArea" type="text" th:field="*{classArea}" required>
                 </div>
                 <div>
 					<label for = "loginId">ログインID</label>
@@ -31,17 +32,19 @@
 					<label for = "password">パスワード</label>
 					<input id = "password" type = "text" th:field = "*{password}" required>
 				</div>
+
                 <div style="display: none;">
                     <input id="id" type="text" th:field="*{id}">
                 </div>
+
 				<div>
-					<input id = "updateButton" type = "submit" value = "更新" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+					<input id = "submitButton" type = "submit" value = "更新">
+				</div>
+
+				<div style="margin-top: 30px;">
+					<a th:href="@{/infoManager(manager=${manager.id})}">戻る</a>
 				</div>
 			</form>
-
-			<div>
-				<a th:href="@{/infoManager(manager=${manager.id})}">戻る</a>
-			</div>
 		</div>
 
 		<div class="side">
