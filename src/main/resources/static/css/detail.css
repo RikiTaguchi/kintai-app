@@ -10,7 +10,7 @@
     height: 30px;
     width: 50px;
     border-radius: 5px;
-    background-color: rgb(20, 111, 201);
+    background-color: rgb(17, 156, 156);
     color: white;
     font-weight:bold;
     font-size:13px;
@@ -31,7 +31,7 @@
 }
 
 .beforeMonth:hover {
-    background-color:rgb(22, 92, 162);
+    background-color:rgb(0, 139, 139);
     border-radius: 5px;
 }
 
@@ -42,7 +42,7 @@
     height: 30px;
     width: 50px;
     border-radius: 5px;
-    background-color: rgb(20, 111, 201);
+    background-color: rgb(17, 156, 156);
     color: white;
     font-weight:bold;
     font-size:13px;
@@ -63,7 +63,39 @@
 }
 
 .afterMonth:hover {
-    background-color:rgb(22, 92, 162);
+    background-color:rgb(0, 139, 139);
+    border-radius: 5px;
+}
+
+.salaryForm {
+    position: relative;
+    margin-left: 535px;
+    margin-top:-30px;
+    height: 30px;
+    width: 113px;
+    border-radius: 5px;
+    background-color: rgb(17, 156, 156);
+    color: white;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.salaryForm a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.salaryForm p {
+    position: absolute;
+    top:-7px;
+    left:12px;
+}
+
+.salaryForm:hover {
+    background-color:rgb(0, 139, 139);
     border-radius: 5px;
 }
 
@@ -75,10 +107,16 @@ table {
     box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }
 
-
 .mainTable {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 20px;
+}
+
+.change-select {
+    background-color: transparent;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
 }
 
 .table1 {
@@ -145,17 +183,4 @@ table {
 .table13 {
     width: 207px;
     height: 80px;
-}
-
-.tax {
-    margin-right: 700px;
-}
-
-.alart {
-    margin-right: 700px;
-    margin-bottom: 20px;
-}
-
-.lastStatement {
-    padding-bottom: 70px;
 }

@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
+		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/retireForm.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -18,10 +19,10 @@
 				<hr size="2" color="lightgray">
 			</div>
 			
-			<form th:action = "@{/retireForm}" method = "post" th:object = "${retireCreateForm}">
+			<form th:action = "@{/retireForm}" method = "post" th:object = "${retireCreateForm}" class="form">
 				<div>
-					<label id="teacherName" for = "teacher">講師氏名</label>
-					<span th:text="${user.userName}"></span>
+					<label id="teacherName" for = "teacher">氏名</label>
+					<input id = "teacher" type = "text" th:value = "${user.userName}" disabled>
 				</div>
 				<div>
 					<label id = "retire" for = "retireDate">退職日</label>
@@ -37,13 +38,13 @@
 					<input id="state"  type="text" th:field="*{state}">
 				</div>
 				<div>
-					<input type = "submit" value = "登録">
+					<input id="submitButton" type = "submit" value = "登録">
+				</div>
+
+				<div style="margin-top: 30px;">
+					<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">戻る</a>
 				</div>
 			</form>
-
-			<div>
-				<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">戻る</a>
-			</div>
 		</div>
 		
 		<div class="side">

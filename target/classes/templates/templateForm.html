@@ -3,6 +3,8 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/common2.css}" rel="stylesheet">
+		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/templateForm.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -14,83 +16,93 @@
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
 
-		<div>
-			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
-			<a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}">シフト管理</a> &gt;
-			<a th:href="@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}">テンプレート</a> &gt;
-			<a th:href="@{/templateForm(user=${user.id}, year=${year}, month=${month})}">登録</a>
-		</div>
-
 		<div class="main">
-			<div class="mainInformation">
+			<div class="subHeader">
 				<p>テンプレート登録</p>
-		    </div>
-			<div class="border">
 				<hr size="2" color="lightgray">
-			</div>
-			<div class="mainTable">
-			<form th:action = "@{/templateForm}" method = "post" th:object = "${templateCreateForm}">
-				<table border="1" style="border-spacing: 0;" class="radius-table">
-					<tr><th>タイトル</th><td><div><input id = "title" type = "text" th:field = "*{title}" required></div></td></tr>
-					<tr>
-						<th>勤務コマ</th>
-						<td>
-							<div>
-							<input id = "classM" type = "checkbox" th:field = "*{classM}" value = "true">
-							<label for = "classM">M　</label>
-							<input id = "classK" type = "checkbox" th:field = "*{classK}" value = "true">
-							<label for = "classK">K　</label>
-							<input id = "classS" type = "checkbox" th:field = "*{classS}" value = "true">
-							<label for = "classS">S　</label>
-							<input id = "classA" type = "checkbox" th:field = "*{classA}" value = "true">
-							<label for = "classA">A　</label>
-							<br>
-							<input id = "classB" type = "checkbox" th:field = "*{classB}" value = "true">
-							<label for = "classB">B　</label>
-							<input id = "classC" type = "checkbox" th:field = "*{classC}" value = "true">
-							<label for = "classC">C　</label>
-							<input id = "classD" type = "checkbox" th:field = "*{classD}" value = "true">
-							<label for = "classD">D　</label>
+		    </div>
+
+			<form th:action = "@{/templateForm}" method = "post" th:object = "${templateCreateForm}" class="form">
+				<div class="formContents">
+					<div>
+						<div>
+							<label for="title">タイトル</label>
+							<input id = "title" type = "text" th:field = "*{title}" required>
+						</div>
+						<div>
+							<label for="classN">勤務コマ</label>
+							<div id="classN" style="display: flex;">
+								<input id = "classM" class="checkbox" type = "checkbox" th:field = "*{classM}" value = "true">
+								<label for = "classM" class="checklabel">M</label>
+								<input id = "classK" class="checkbox" type = "checkbox" th:field = "*{classK}" value = "true">
+								<label for = "classK" class="checklabel">K</label>
+								<input id = "classS" class="checkbox" type = "checkbox" th:field = "*{classS}" value = "true">
+								<label for = "classS" class="checklabel">S</label>
+								<input id = "classA" class="checkbox" type = "checkbox" th:field = "*{classA}" value = "true">
+								<label for = "classA" class="checklabel">A</label>
+								<input id = "classB" class="checkbox" type = "checkbox" th:field = "*{classB}" value = "true">
+								<label for = "classB" class="checklabel">B</label>
+								<input id = "classC" class="checkbox" type = "checkbox" th:field = "*{classC}" value = "true">
+								<label for = "classC" class="checklabel">C</label>
+								<input id = "classD" class="checkbox" type = "checkbox" th:field = "*{classD}" value = "true">
+								<label for = "classD" class="checklabel">D</label>
 							</div>
-						</td>
-					</tr>
-					<tr><th>ヘルプ勤務教室</th><td><div><input id = "helpArea" type = "text" th:field = "*{helpArea}"></div></td></tr>
-					<tr>
-						<th>授業業務</th>
-						<td>
-							<div><label for = "timeStart">開始 - </label><input id = "timeStart" type = "time" th:field = "*{timeStart}"></div>
-							<div><label for = "timeEnd">終了 - </label><input id = "timeEnd" type = "time" th:field = "*{timeEnd}"></div>
-						</td>
-					</tr>
-					<tr><th>休憩</th><td><div><input id = "breakTime" type = "number" th:field = "*{breakTime}" required> 分</div></td></tr>
-					<tr><th>交通費</th><td><div><input id = "carfare" type = "number" th:field = "*{carfare}" required> 円</div></td></tr>
-					<tr>
-						<th>事務</th>
-						<td>
-							<div><label for = "officeTimeStart">開始 - </label><input id = "officeTimeStart" type = "time" th:field = "*{officeTimeStart}"></div>
-							<div><label for = "officeTimeEnd">終了 - </label><input id = "officeTimeEnd" type = "time" th:field = "*{officeTimeEnd}"></div>
-						</td>
-					</tr>
-					<tr>
-						<th>研修/自習教室</th>
-						<td>
-							<div><label for = "otherWork">内容 - </label><input id = "otherWork" type = "text" th:field = "*{otherWork}"></div>
-							<div><label for = "otherTimeStart">開始 - </label><input id = "otherTimeStart" type = "time" th:field = "*{otherTimeStart}"></div>
-							<div><label for = "otherTimeEnd">終了 - </label><input id = "otherTimeEnd" type = "time" th:field = "*{otherTimeEnd}"></div>
-							<div><label for = "otherBreakTime">休憩 - </label><input id = "otherBreakTime" type = "number" th:field = "*{otherBreakTime}" required> 分</div>
-						</td>
-					</tr>
-				</table>
+						</div>
+						<div>
+							<label for="classTimeDetail">授業業務</label>
+							<div id="classTimeDetail" class="subBlock">
+								<label for = "timeStart" class="sublabel">開始</label><input id = "timeStart" type = "time" th:field = "*{timeStart}">
+								<label for = "timeEnd" class="sublabel">終了</label><input id = "timeEnd" type = "time" th:field = "*{timeEnd}">
+							</div>
+						</div>
+						<div>
+							<label for="breakTime">休憩</label>
+							<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+						</div>
+						<div>
+							<label for="carfare">交通費</label>
+							<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+						</div>
+					</div>
+					<div>
+						<hr style="width: 1px; height: 485px; margin-top: 18px; margin-left: 25px; margin-right: 25px;">
+					</div>
+					<div>
+						<div>
+							<label for="officeTimeDetail">事務</label>
+							<div id="officeTimeDetail" class="subBlock">
+								<label for = "officeTimeStart" class="sublabel">開始</label><input id = "officeTimeStart" type = "time" th:field = "*{officeTimeStart}">
+								<label for = "officeTimeEnd" class="sublabel">終了</label><input id = "officeTimeEnd" type = "time" th:field = "*{officeTimeEnd}">
+							</div>
+						</div>
+						<div>
+							<label for="otherTimeDetail">研修/自習室</label>
+							<div id="otherTimeDetail" class="subBlock">
+								<label for = "otherWork" class="sublabel">内容</label><input id = "otherWork" type = "text" th:field = "*{otherWork}">
+								<label for = "otherTimeStart" class="sublabel">開始</label><input id = "otherTimeStart" type = "time" th:field = "*{otherTimeStart}">
+								<label for = "otherTimeEnd" class="sublabel">終了</label><input id = "otherTimeEnd" type = "time" th:field = "*{otherTimeEnd}">
+								<label for = "otherBreakTime" class="sublabel">休憩</label><input id = "otherBreakTime" type = "number" th:field = "*{otherBreakTime}" required>
+							</div>
+						</div>
+						<div>
+							<label for="helpArea">ヘルプ勤務教室</label>
+							<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+						</div>
+					</div>
+				</div>
+
 				<div style = "display: none;">
 					<input id = "userId" type = "text" th:field = "*{userId}">
-					<input id = "year" name = "year" type = "number" th:value = "${year}">
-					<input id = "month" name = "month" type = "number" th:value = "${month}">
 				</div>
+
 				<div>
-					<input id="createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+					<input id="submitButton" type = "submit" value = "登録">
+				</div>
+
+				<div style="margin-top: 30px;">
+					<a th:href="@{/infoTemplate(user=${user.id})}">戻る</a>
 				</div>
 			</form>
-			</div>
 		</div>
 
 		<div class="side">
@@ -105,12 +117,12 @@
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
@@ -118,9 +130,9 @@
 				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
-			<div class="sideContents" id="goBack">
-				<p>戻る</p>
-				<a th:href = "@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}"></a>
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href = "@{/login}"></a>
 			</div>
 		</div>
 	</body>

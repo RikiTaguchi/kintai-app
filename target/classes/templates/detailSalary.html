@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
+		<link th:href="@{/css/common2.css}" rel="stylesheet">
 		<link th:href="@{/css/detailSalary.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -14,32 +15,25 @@
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
 
-		<div>
-			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
-			<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}">給与情報</a> &gt;
-			<a th:href="@{/detailSalary(user=${user.id}, year=${year}, month=${month})}">給与推移</a>
-		</div>
-
 		<div class="main">
-			<div class="mainInformation">
+			<div class="subHeader">
 				<p>給与推移</p>
+				<hr size="2" color="lightgray">
 		    </div>
-				<div class="border">
-					<hr size="2" color="lightgray">
-				</div>
+
 			<div class="mainTable">
-			<table border="1" style="border-spacing: 0;" class="radius-table">
-				<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
-				<th:block th:each = "s : ${salaryList}">
-					<tr>
-						<td th:text = "${s.dateFrom.substring(0, 5).replace('-','/')+s.dateFrom.substring(5,10).replace('-','/')+'〜'}"></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[0]}"></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[1]}"></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[2]}"></td>
-						<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[3]}"></td>
-					</tr>
-				</th:block>
-			</table>
+				<table border="1" style="border-spacing: 0;" class="radius-table">
+					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
+					<th:block th:each = "s : ${salaryList}">
+						<tr>
+							<td th:text = "${s.dateFrom.substring(0, 5).replace('-','/')+s.dateFrom.substring(5,10).replace('-','/')+'〜'}"></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[0]}"></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[1]}"></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[2]}"></td>
+							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[3]}"></td>
+						</tr>
+					</th:block>
+				</table>
 			</div>
 		</div>
 		
@@ -55,12 +49,12 @@
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
@@ -68,9 +62,9 @@
 				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
-			<div class="sideContents" id="goBack">
-				<p>戻る</p>
-				<a th:href = "@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}"></a>
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href = "@{/login}"></a>
 			</div>
 		</div>
 	</body>

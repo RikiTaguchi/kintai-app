@@ -15,6 +15,7 @@ table {
     border: none;
     border-left: 1px solid #999;
     border-top: 1px solid #999;
+    margin-bottom: 50px;
 }
 .radius-table tr>*{
     padding: 5px 10px;
@@ -37,8 +38,8 @@ table {
 
 .mainTable {
     text-align: center;
-    margin-top: 30px;
-    margin-bottom: 60px;
+    margin-top: -20px;
+    margin-bottom: 100px;
 }
 
 td {

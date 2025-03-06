@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/common2.css}" rel="stylesheet">
 		<link th:href="@{/css/info.css}" rel="stylesheet">
 		<script th:src="@{/js/display.js}" defer></script>
 		<script th:src="@{/js/confirm.js}" defer></script>
@@ -18,36 +19,31 @@
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-
-		<div>
-			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
-			<a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}">シフト管理</a>
-		</div>
 		
 		<div class="main">
-			<div class="mainInformation">
+			<div class="subHeader">
 				<p>シフト管理</p>
-		    </div>
-			<div class="border">
 				<hr size="2" color="lightgray">
-			</div>
+		    </div>
 
-            <div>
-                <a th:href="@{/addForm(user=${user.id}, year=${year}, month=${month})}">シフト登録</a>
-            </div>
-            <div>
-                <a th:href="@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}">テンプレート</a>
-            </div>
+			<div class="subMenu">
+				<div class="subMenuContents">
+					<p>シフト登録</p>
+					<a th:href="@{/addForm(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+				</div>
+				<div class="subMenuContents">
+					<p>テンプレート</p>
+					<a th:href="@{/infoTemplate(user=${user.id})}"></a>
+				</div>
+			</div>
 
 			<div class="date">
-				<span th:text = "${year+'年'+month+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span>
+				<span th:text = "${yearNow+'年'+monthNow+'月分　'+monthBefore+'月26日〜'+monthNow+'月25日'}"></span>
 			</div>
-	
 			<div class= "beforeMonth">
 				<p>前月</p>
 				<a th:href = "@{/info(user=${user.id}, year=${yearBefore}, month=${monthBefore})}"></a>
 			</div>
-
 			<div class= "afterMonth">
 				<p>来月</p>
 				<a th:href = "@{/info(user=${user.id}, year=${yearNext}, month=${monthNext})}"></a>
@@ -64,7 +60,7 @@
 						<td>
 							<div>
 								<a href="#" th:class="${w.id + '-on detail-listener-on'}">
-									<span th:text = "${w.date.substring(5,10).replace('-','/')+'/'+w.dayOfWeek}"></span>
+									<span th:text = "${w.date.substring(5,10).replace('-','/')+'('+w.dayOfWeek+')'}"></span>
 								</a>
 							</div>
 						</td>
@@ -88,7 +84,7 @@
 		<div th:each = "w : ${workList}" th:class="${w.id + '-element'}" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 300px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
 			<a href="#" th:class="${w.id + '-off detail-listener-off'}">閉じる</a>
 			<table>
-				<tr><th>勤務日</th><td><div><span th:text = "${w.date.substring(0, 5).replace('-','/')+w.date.substring(5,10).replace('-','/')+'/'+w.dayOfWeek}"></span></div></td></tr>
+				<tr><th>勤務日</th><td><div><span th:text = "${w.date.substring(0, 5).replace('-','/')+w.date.substring(5,10).replace('-','/')+'('+w.dayOfWeek+')'}"></span></div></td></tr>
 				<tr>
 					<th>勤務コマ</th>
 					<td>
@@ -205,7 +201,7 @@
 			</table>
 			<th:block th:if="${!lockStatus}">
 				<div>
-					<a th:href = "@{/editForm(user=${user.id}, detail=${w.id}, year=${year}, month=${month})}">
+					<a th:href = "@{/editForm(user=${user.id}, detail=${w.id}, year=${yearNow}, month=${monthNow})}">
 						修正
 					</a>
 				</div>
@@ -244,12 +240,12 @@
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
@@ -257,9 +253,9 @@
 				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
-			<div class="sideContents" id="goBack">
-				<p>戻る</p>
-				<a th:href = "@{/index(user=${user.id})}"></a>
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href = "@{/login}"></a>
 			</div>
 		</div>
 

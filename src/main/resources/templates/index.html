@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/common2.css}" rel="stylesheet">
 		<link th:href="@{/css/index.css}" rel="stylesheet">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	</head>
@@ -15,18 +16,13 @@
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-
-		<div>
-			<a th:href="@{/index(user=${user.id})}">ホーム</a>
-		</div>
 		
 		<div class="main">
-			<div class="mainInformation">
+			<div class="subHeader">
 				<p>ホーム</p>
-		    </div>
-			<div class="border">
 				<hr size="2" color="lightgray">
-			</div>
+		    </div>
+
 			<div>
 				<p>内容未定</p>
 			</div>
@@ -49,7 +45,7 @@
 
 			<div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">

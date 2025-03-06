@@ -1,71 +1,30 @@
-table {
-    border-collapse: separate;
-    width: auto;
-    height: auto;
+.checkbox {
+    width: 15px;
+    height: 15px;
+    margin-left: 12px;
+}
+
+.checklabel {
+    display: block;
+    margin-top: 0px;
+}
+
+#classN {
+    margin-top: 7px;
+    margin-bottom: 15px;
+}
+
+.sublabel {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: rgb(64, 64, 64);
+}
+
+.subBlock {
     margin-left: 20px;
-    background-color: white;
-    border-color: rgb(230, 230, 230);
-    font-size: 18px;
-    font-weight: bold;
-    box-shadow: 5px 5px 5px rgb(76, 76, 78)
 }
 
-.radius-table{
-    border-radius: 10px;
-    border-spacing: 0;
-    border: none;
-    border-left: 1px solid #999;
-    border-top: 1px solid #999;
-}
-.radius-table tr>*{
-    padding: 5px 10px;
-    border: none;
-    border-right: 1px solid #999;
-    border-bottom: 1px solid #999;
-}
-.radius-table tr:first-child>*:first-child{
-    border-radius: 10px 0 0 0;
-}
-.radius-table tr:first-child>*:last-child{
-    border-radius: 0 10px 0 0;
-}
-.radius-table tr:last-child>*:first-child{
-    border-radius: 0 0 0 10px;
-}
-.radius-table tr:last-child>*:last-child{
-    border-radius: 0 0 10px 0;
-}
-
-.mainTable {
-    text-align: center;
-    margin-top: 30px;
-}
-
-td {
-    height: 60px;
-    width: 300px;
-}
-
-#createButton {
-    background-color: rgb(20, 111, 201);
-    width: 300px;
-    height:35px;
-    margin-top: 40px
-
-}
-
-#createButton:hover {
-    background-color: rgb(22, 92, 162);
-}
-
-#delete {
-    background-color: rgb(222, 71, 71);
-    width: 300px;
-    height:35px;
-    margin-top: 20px
-
-}
-
-#delete:hover {
-    background-color: rgb(192, 18, 18);
+.subBlock input {
+    width: 280px;
 }

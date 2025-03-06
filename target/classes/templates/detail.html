@@ -6,6 +6,7 @@
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/detail.css}" rel="stylesheet">
 		<script th:src="@{/js/display.js}" defer></script>
+		<script th:src="@{/js/change.js}" defer></script>
 		<script th:src="@{/js/confirm.js}" defer></script>
 	</head>
 	<body>
@@ -21,7 +22,7 @@
 			</div>
 
 			<div class="date">
-				<span th:text = "${yearNow+'年'+monthNow+'月分　'+monthBefore+'月26日〜'+month+'月25日'}"></span>
+				<span th:text = "${yearNow+'年'+monthNow+'月分　'+monthBefore+'月26日〜'+monthNow+'月25日'}"></span>
 			</div>
 
 			<div class= "beforeMonth">
@@ -32,38 +33,56 @@
 				<p>来月</p>
 				<a id="next-button" th:href = "@{/detail(manager=${manager.id}, user=${user.id}, year=${yearNext}, month=${monthNext})}"></a>
 			</div>
-
-            <div>
-				<a href="#" class="detail-form-button">講師給フォームをダウンロード</a>
+            <div class="salaryForm">
+				<p>講師給フォーム</p>
+				<a href="#" class="detail-form-button"></a>
 			</div>
 
-            <div style="display: flex; margin-top: 10px;">
-                <div th:each = "u : ${userList}" style="margin-left: 20px; margin-right: 20px;">
-                    <a th:href="@{/detail(manager=${manager.id}, user=${u.id}, year=${yearNow}, month=${monthNow})}">
-                        <span th:text="${u.userName}"></span>
-                    </a>
-                </div>
-            </div>
-
-            <div style="display: flex; margin-top: 10px;">
-                <div style="margin-left: 20px; margin-right: 20px;">
-                    <th:block th:if="${lockStatus == 'false'}"><span>ステータス：解放中</span></th:block>
-                    <th:block th:if="${lockStatus == 'true'}"><span>ステータス：ロック中</span></th:block>
-                    <a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}">変更</a>
-                </div>
-                <div style="margin-left: 20px; margin-right: 20px;">
-                    <a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}">シフト登録</a>
-                </div>
-            </div>
-
 			<div class="mainTable">
-			<div>
+			<div style="display: flex; align-items: center;">
 				<table border="1" style="border-spacing: 0;" class="table1">
 					<tr>
-						<th>教室名</th><td id="tableClassName"><span th:text = "${manager.classArea}"></span>　　教室</td>
-						<th>講師氏名</th><td id="tableTeacherName"><span th:text = "${user.userName}"></span></td>
+						<th>教室名</th>
+						<td id="tableClassName"><span th:text = "${manager.classArea}"></span>　　教室</td>
+						<th>講師氏名</th>
+						<td id="tableTeacherName">
+							<select class="change-select">
+								<th:block th:each="u : ${userList}">
+									<th:block th:if="${user.id.equals(u.id)}">
+										<option th:text="${u.userName}" th:class="${'option-'+u.id}" selected></option>
+										<a th:class="${'button-'+u.id}" th:href="@{/detail(manager=${manager.id}, user=${u.id}, year=${yearNow}, month=${monthNow})}" style="display: none;"></a>
+									</th:block>
+									<th:block th:if="${!user.id.equals(u.id)}">
+										<option th:text="${u.userName}" th:class="${'option-'+u.id}"></option>
+										<a th:class="${'button-'+u.id}" th:href="@{/detail(manager=${manager.id}, user=${u.id}, year=${yearNow}, month=${monthNow})}" style="display: none;"></a>
+									</th:block>
+								</th:block>
+							</select>
+						</td>
 					</tr>
 				</table>
+
+				<div style="display: flex;">
+					<div class="subMenu" style="margin-left: 20px;">
+						<div class="subMenuContents">
+							<p>シフト登録</p>
+							<a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+						</div>
+					</div>
+					<div style="margin-left: 10px; margin-right: 20px;">
+						<th:block th:if="${lockStatus == 'false'}">
+							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}">
+								<img th:src="@{/img/lock-open.svg}" style="width: 35px; height: 35px;">
+							</a>
+						</th:block>
+						<th:block th:if="${lockStatus == 'true'}">
+							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}">
+								<img th:src="@{/img/lock.svg}" style="width: 35px; height: 35px;">
+							</a>
+						</th:block>
+					</div>
+				</div>
+
 			</div>
 			<br>
 			<div style = "display: flex;">

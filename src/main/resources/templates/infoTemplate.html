@@ -3,9 +3,10 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/infoTemplate.css}" rel="stylesheet">
+		<link th:href="@{/css/common2.css}" rel="stylesheet">
 		<script th:src="@{/js/confirm.js}" defer></script>
 		<script th:src="@{/js/display.js}" defer></script>
-		<link th:href="@{/css/infoTemplate.css}" rel="stylesheet">
 	</head>
 	<body>
 		<div class="header">
@@ -15,23 +16,18 @@
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-
-		<div>
-			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
-			<a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}">シフト管理</a> &gt;
-			<a th:href="@{/infoTemplate(user=${user.id}, year=${year}, month=${month})}">テンプレート</a>
-		</div>
 		
 		<div class="main">
-			<div class="template">
+			<div class="subHeader">
 				<p>テンプレート</p>
-				<div class="border">
-					<hr class="border1" size="2" color="lightgray">
-				</div>
+				<hr class="border1" size="2" color="lightgray">
 			</div>
 
-			<div>
-				<a th:href="@{/templateForm(user=${user.id}, year=${year}, month=${month})}">テンプレートを登録</a>
+			<div class="subMenu">
+				<div class="subMenuContents">
+					<p>新規登録</p>
+					<a th:href="@{/templateForm(user=${user.id})}"></a>
+				</div>
 			</div>
 
 			<div>
@@ -129,15 +125,13 @@
 						</td>
 					</tr>
 				</table>
-				<a th:href = "@{/editTemplateForm(user=${user.id}, template=${t.id}, year=${year}, month=${month})}">
+				<a th:href = "@{/editTemplateForm(user=${user.id}, template=${t.id})}">
 					修正
 				</a>
 				<form th:action = "@{/deleteTemplate}" method = "post">
 					<div style = "display: none;">
 						<input type = "text" name = "deleteId" th:value = "${t.id}">
 						<input type = "text" name = "userId" th:value = "${t.userId}">
-						<input type = "text" name = "year" th:value = "${year}">
-						<input type = "text" name = "month" th:value = "${month}">
 					</div>
 					<div><input type = "submit" value = "削除" onclick="return deleteConfirm()"></div>
 				</form>
@@ -157,12 +151,12 @@
 
 			<div class="sideContents" id="workInfo">
                 <p>シフト管理</p>
-                <a th:href="@{/info(user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+                <a th:href="@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
             </div>
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${'off'}, detail=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
@@ -170,9 +164,9 @@
 				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
-			<div class="sideContents" id="goBack">
-				<p>戻る</p>
-				<a th:href = "@{/info(user=${user.id}, year=${year}, month=${month})}"></a>
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href = "@{/login}"></a>
 			</div>
 		</div>
 	</body>

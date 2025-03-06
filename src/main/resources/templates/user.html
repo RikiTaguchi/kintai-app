@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
+		<link th:href="@{/css/common2.css}" rel="stylesheet">
 		<link th:href="@{/css/user.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -13,29 +14,25 @@
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
 		</div>
-
-		<div>
-			<a th:href="@{/index(user=${user.id})}">ホーム</a> &gt;
-			<a th:href="@{/user(user=${user.id})}">アカウント</a>
-		</div>
 		
-		<div class="accountMain">
-			<div class="accountInformation">
+		<div class="main">
+			<div class="subHeader">
 				<p>アカウント</p>
-				<div class="accountBorder">
-					<hr class="border2" size="2" color="lightgray">
-				</div>
+				<hr class="border2" size="2" color="lightgray">
             </div>
 
-			<div>
-				<a th:href="@{/userForm(user=${user.id})}">アカウント情報を修正</a>
+			<div class="subMenu">
+				<div class="subMenuContents">
+					<p>修正</p>
+					<a th:href="@{/userForm(user=${user.id})}"></a>
+				</div>
 			</div>
 
             <div class="accountTable">
-			<table border="1" style="border-spacing: 0;" class="radius-table">
-				<tr><th>ログインID</th><td><div><span th:text = "${user.loginId}"></span></div></td></tr>
-				<tr><th>パスワード</th><td><div><span th:text = "${user.password}"></span></div></td></tr>
-			</table>
+				<table border="1" style="border-spacing: 0;" class="radius-table">
+					<tr><th>ログインID</th><td><div><span th:text = "${user.loginId}"></span></div></td></tr>
+					<tr><th>パスワード</th><td><div><span th:text = "${user.password}"></span></div></td></tr>
+				</table>
 			</div>
 		</div>
 
@@ -56,7 +53,7 @@
 
             <div class="sideContents" id="detailSalary">
 				<p>給与情報</p>
-				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'}, detail=${'off'})}"></a>
+				<a th:href="@{/infoSalary(user=${user.id}, year=${year}, month=${month}, tax=${'off'})}"></a>
 			</div>
 	
 			<div class="sideContents" id="teacherInformation">
@@ -64,9 +61,9 @@
 				<a th:href = "@{/user(user=${user.id})}"></a>
 			</div>
 
-			<div class="sideContents" id="goBack">
-				<p>戻る</p>
-				<a th:href = "@{/index(user=${user.id})}"></a>
+			<div class="sideContents" id="logout">
+				<p>ログアウト</p>
+				<a th:href = "@{/login}"></a>
 			</div>
 		</div>
 	</body>

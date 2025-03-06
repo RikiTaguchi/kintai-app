@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
+		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/editUserForm.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -14,13 +15,13 @@
 
 		<div class="main">
 			<div class="subHeader">
-				<p>基本情報更新</p>
+				<p>基本情報</p>
 				<hr size="2" color="lightgray">
 			</div>
 
-			<form th:action = "@{/editUserForm}" method = "post" th:object = "${userUpdateForm}">
+			<form th:action = "@{/editUserForm}" method = "post" th:object = "${userUpdateForm}" class="form">
 				<div>
-					<label id = "teacherName" for = "userName">講師氏名</label>
+					<label id = "teacherName" for = "userName">氏名</label>
 					<input id = "userName" type = "text" th:field = "*{userName}" required>
 				</div>
 				<div>
@@ -36,13 +37,13 @@
                     <input id="retireDate" type="text" th:field="*{retireDate}">
 				</div>
                 <div>
-                    <input type = "submit" value = "更新">
+                    <input id="submitButton" type = "submit" value = "更新">
                 </div>
-		    </form>
 
-			<div>
-				<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">戻る</a>
-			</div>
+				<div style="margin-top: 30px;">
+					<a th:href="@{/infoUser(manager=${manager.id}, user=${user.id})}">戻る</a>
+				</div>
+		    </form>
 		</div>
 
 		<div class="side">
