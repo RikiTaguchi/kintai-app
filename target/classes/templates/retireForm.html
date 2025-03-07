@@ -21,7 +21,7 @@
 			
 			<form th:action = "@{/retireForm}" method = "post" th:object = "${retireCreateForm}" class="form">
 				<div>
-					<label id="teacherName" for = "teacher">氏名</label>
+					<label id="teacherInfo" for = "teacher">氏名</label>
 					<input id = "teacher" type = "text" th:value = "${user.userName}" disabled>
 				</div>
 				<div>

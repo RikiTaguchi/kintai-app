@@ -21,7 +21,7 @@
 
 			<form th:action = "@{/editUserForm}" method = "post" th:object = "${userUpdateForm}" class="form">
 				<div>
-					<label id = "teacherName" for = "userName">氏名</label>
+					<label id = "teacherInfo" for = "userName">氏名</label>
 					<input id = "userName" type = "text" th:field = "*{userName}" required>
 				</div>
 				<div>

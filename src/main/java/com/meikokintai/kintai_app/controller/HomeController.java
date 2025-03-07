@@ -1947,15 +1947,13 @@ public class HomeController {
     }
     
     // 給与管理 > Excelファイルのエクスポート
-    @GetMapping("/downloadExcelAll")
-    void downloadExcelAll(HttpServletRequest request, HttpServletResponse response, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month) {
+    @GetMapping("/downloadExcel")
+    void downloadExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam("manager") String managerId, @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("lock") String lock) {
         try {
-            // 管理者情報
+            // 情報の取得
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             Date dateFrom = DateSet.getDatePeriod(year, month)[0];
             Date dateTo = DateSet.getDatePeriod(year, month)[1];
-
-            // 講師情報
             List<User> userList = userService.findByClassAreaId(manager.getId());
 
             // シート名データ
@@ -1967,7 +1965,7 @@ public class HomeController {
             response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + ".xlsx\"");
             
             // テンプレートファイルを読み込み
-            ClassPathResource templateResource = new ClassPathResource("static/excel/excelTemplateAll.xlsx");
+            ClassPathResource templateResource = new ClassPathResource("static/excel/excelTemplate.xlsx");
             InputStream templateInputStream = templateResource.getInputStream();
             XSSFWorkbook workbook = new XSSFWorkbook(templateInputStream);
 
@@ -1983,14 +1981,14 @@ public class HomeController {
             // シートの入力（全講師）
             for (int i = 0; i < userList.size(); i++) {
                 // 講師情報の取得
-                User user = userList.get(i);
+                User u = userList.get(i);
 
                 // 勤務情報の取得
-                List<Work> workList = workService.findByUserId(user.getId(), dateFrom, dateTo);
+                List<Work> workList = workService.findByUserId(u.getId(), dateFrom, dateTo);
 
                 // 講師級シートの取得
                 XSSFSheet sheet = workbook.getSheetAt(i + 1);
-                String sheetName = numberList[i]+user.getUserName().split(" ")[0];
+                String sheetName = numberList[i]+u.getUserName().split(" ")[0];
                 workbook.setSheetName(workbook.getSheetIndex(sheet), sheetName);
 
                 // cellへデータ入力
@@ -2000,7 +1998,7 @@ public class HomeController {
                     headers[j] = "";
                 }
                 headers[0] = manager.getClassArea();
-                headers[1] = user.getUserName();
+                headers[1] = u.getUserName();
                 headers[2] = year;
                 headers[3] = Integer.toString(Integer.valueOf(month));
                 headers[4] = Integer.toString(Integer.valueOf(DateSet.getDateBefore(year, month)[1]));
@@ -2023,7 +2021,7 @@ public class HomeController {
                     }
                 }
                 Cell carfareCell = sheet.getRow(3).getCell(39);
-                int carfareTarget = salaryService.getByDate(user.getId(), year+"-"+month+"-25").getCarfare();
+                int carfareTarget = salaryService.getByDate(u.getId(), year+"-"+month+"-25").getCarfare();
                 if (carfareTarget != 0) {
                     carfareCell.setCellValue(carfareTarget);
                 }
@@ -2102,7 +2100,7 @@ public class HomeController {
                         values[10] = Integer.toString(work.getOfficeTime()/60)+":"+String.format("%02d", work.getOfficeTime()%60);
                     }
                     if (work.getSupportSalary().equals("true")) {
-                        values[11] = Integer.toString(salaryService.getByDate(user.getId(), work.getDate()).getSupportSalary());
+                        values[11] = Integer.toString(salaryService.getByDate(u.getId(), work.getDate()).getSupportSalary());
                     }
                     if (work.getCarfare() != 0) {
                         values[12] = Integer.toString(work.getCarfare());
@@ -2145,7 +2143,7 @@ public class HomeController {
                     sumInt[1] += 1;
                     sumInt[2] += work.getOfficeTime();
                     if (work.getSupportSalary().equals("true")) {
-                        sumInt[3] += salaryService.getByDate(user.getId(), work.getDate()).getSupportSalary();
+                        sumInt[3] += salaryService.getByDate(u.getId(), work.getDate()).getSupportSalary();
                     }
                     sumInt[4] += work.getCarfare();
                     sumInt[5] += work.getOtherTime();
@@ -2193,21 +2191,21 @@ public class HomeController {
                     Cell cellTop = rowTop.getCell(j);
                     if (j == 1) {
                         // 講師No.
-                        cellTop.setCellValue(user.getTeacherNo());
+                        cellTop.setCellValue(u.getTeacherNo());
                     } else if (j == 2) {
                         // 講師氏名
-                        cellTop.setCellValue(user.getUserName());
+                        cellTop.setCellValue(u.getUserName());
                     } else if (j == 3) {
                         // 退職日
-                        if (!user.getState()) {
-                            String retireYear = user.getRetireDate().split("-")[0];
-                            String retireMonth = String.valueOf(Integer.parseInt(user.getRetireDate().split("-")[1]));
+                        if (!u.getState()) {
+                            String retireYear = u.getRetireDate().split("-")[0];
+                            String retireMonth = String.valueOf(Integer.parseInt(u.getRetireDate().split("-")[1]));
                             String retireValue = retireYear + "年" + retireMonth + "月";
                             cellTop.setCellValue(retireValue);
                         }
                     }
                 }
-                if (!user.getState()) {
+                if (!u.getState()) {
                     for (int j = 1; j < 4; j++) {
                         Cell cellTop = rowTop.getCell(j);
                         CellStyle originalStyle = cellTop.getCellStyle();
@@ -2247,6 +2245,25 @@ public class HomeController {
             workbook.write(response.getOutputStream());
             workbook.close();
             response.getOutputStream().flush();
+
+            // ロックステータスの変更
+            if (lock.equals("true")) {
+                for (User u : userList) {
+                    Lock lockStatus = lockService.getByTarget(manager.getId(), u.getId(), Integer.parseInt(year), Integer.parseInt(month));
+                    if (lockStatus == null) {
+                        lockStatus = new Lock();
+                        lockStatus.setClassAreaId(manager.getId());
+                        lockStatus.setUserId(u.getId());
+                        lockStatus.setYear(Integer.parseInt(year));
+                        lockStatus.setMonth(Integer.parseInt(month));
+                        lockStatus.setStatus(true);
+                        lockService.add(lockStatus);
+                    } else if (lockStatus.getStatus() == false) {
+                        lockStatus.setStatus(true);
+                        lockService.update(lockStatus);
+                    }
+                }
+            }
 
         } catch (Exception e) {
             // エラー処理

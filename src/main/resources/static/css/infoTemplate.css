@@ -11,60 +11,46 @@
     padding-bottom: 7px;
 }
 
-.border {
-  position: absolute;
-  top: 60px;
-  left: 220px;
-  width: 300px;
-  
+.radius-table {
+    border-collapse: separate;
+    width: auto;
+    height: auto;
+    background-color: white;
+    border-color: rgb(230, 230, 230);
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 5px 5px 5px rgb(76, 76, 78);
+    border-radius: 10px;
+    border-spacing: 0;
+    border: none;
+    border-left: 1px solid #999;
+    border-top: 1px solid #999;
 }
 
-.radius-table{
-  border-collapse: separate;
-  width: auto;
-  height: auto;
-  background-color: white;
-  border-color: rgb(230, 230, 230);
-  font-size: 18px;
-  font-weight: bold;
-  box-shadow: 5px 5px 5px rgb(76, 76, 78);
-  border-radius: 10px;
-  border-spacing: 0;
-  border: none;
-  border-left: 1px solid #999;
-  border-top: 1px solid #999;
-  margin-top: 30px;
-}
-.radius-table tr>*{
-  padding: 5px 10px;
-  border: none;
-  border-right: 1px solid #999;
-  border-bottom: 1px solid #999;
-}
-.radius-table tr:first-child>*:first-child{
-  border-radius: 10px 0 0 0;
-}
-.radius-table tr:first-child>*:last-child{
-  border-radius: 0 10px 0 0;
-}
-.radius-table tr:last-child>*:first-child{
-  border-radius: 0 0 0 10px;
-}
-.radius-table tr:last-child>*:last-child{
-  border-radius: 0 0 10px 0;
+.radius-table tr>* {
+    padding: 5px 10px;
+    border: none;
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;
 }
 
-.classTable {
-  margin-top: 30px;
-  text-align: center;
+.radius-table tr:first-child>*:first-child {
+    border-radius: 10px 0 0 0;
 }
 
-.accountTable {
-  margin-top: 30px;
-  text-align: center;
+.radius-table tr:first-child>*:last-child {
+    border-radius: 0 10px 0 0;
 }
 
-.radius-table td {
-  height: 80px;
-  width: 300px;
+.radius-table tr:last-child>*:first-child {
+    border-radius: 0 0 0 10px;
+}
+
+.radius-table tr:last-child>*:last-child {
+    border-radius: 0 0 10px 0;
+}
+
+.mainTable {
+    text-align: center;
+    margin-top: 30px;
 }
