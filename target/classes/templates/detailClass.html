@@ -26,60 +26,13 @@
 			</div>
 
 			<div class="mainTable">
-			<table border="1" style="border-spacing: 0;" class="radius-table">
-				<tr th:each = "u : ${userList}" th:style="'background-color: '+(${u.state} ? 'white' : 'lightgray')">
-					<td><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><span th:text = "${u.userName}"></span></a></td>
-				</tr>
-			</table>
+				<table border="1" style="border-spacing: 0;" class="radius-table">
+					<tr th:each = "u : ${userList}" th:style="'background-color: '+(${u.state} ? 'white' : 'lightgray')">
+						<th><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><span th:text = "${u.userName}"></span></a></th>
+						<td>準備中</td>
+					</tr>
+				</table>
 		    </div>
-		</div>
-
-		<div class="detail-form-element" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 500px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
-			<div>
-				<a href="#" class="detail-form-button">閉じる</a>
-			</div>
-			<form th:action="@{/downloadExcelAll}" method="get">
-				<div>
-					<input type="number" name="year" min="1900" max="2100" th:value="${year}">年
-					<select name="month" required>
-						<th:block th:if="${month.equals('01')}"><option value="01" selected>1月</option></th:block>
-						<th:block th:if="${!month.equals('01')}"><option value="01">1月</option></th:block>
-						<th:block th:if="${month.equals('02')}"><option value="02" selected>2月</option></th:block>
-						<th:block th:if="${!month.equals('02')}"><option value="02">2月</option></th:block>
-						<th:block th:if="${month.equals('03')}"><option value="03" selected>3月</option></th:block>
-						<th:block th:if="${!month.equals('03')}"><option value="03">3月</option></th:block>
-						<th:block th:if="${month.equals('04')}"><option value="04" selected>4月</option></th:block>
-						<th:block th:if="${!month.equals('04')}"><option value="04">4月</option></th:block>
-						<th:block th:if="${month.equals('05')}"><option value="05" selected>5月</option></th:block>
-						<th:block th:if="${!month.equals('05')}"><option value="05">5月</option></th:block>
-						<th:block th:if="${month.equals('06')}"><option value="06" selected>6月</option></th:block>
-						<th:block th:if="${!month.equals('06')}"><option value="06">6月</option></th:block>
-						<th:block th:if="${month.equals('07')}"><option value="07" selected>7月</option></th:block>
-						<th:block th:if="${!month.equals('07')}"><option value="07">7月</option></th:block>
-						<th:block th:if="${month.equals('08')}"><option value="08" selected>8月</option></th:block>
-						<th:block th:if="${!month.equals('08')}"><option value="08">8月</option></th:block>
-						<th:block th:if="${month.equals('09')}"><option value="09" selected>9月</option></th:block>
-						<th:block th:if="${!month.equals('09')}"><option value="09">9月</option></th:block>
-						<th:block th:if="${month.equals('10')}"><option value="10" selected>10月</option></th:block>
-						<th:block th:if="${!month.equals('10')}"><option value="10">10月</option></th:block>
-						<th:block th:if="${month.equals('11')}"><option value="11" selected>11月</option></th:block>
-						<th:block th:if="${!month.equals('11')}"><option value="11">11月</option></th:block>
-						<th:block th:if="${month.equals('12')}"><option value="12" selected>12月</option></th:block>
-						<th:block th:if="${!month.equals('12')}"><option value="12">12月</option></th:block>
-					</select>
-					分
-				</div>
-				<div>
-					<input id="lock" type="checkbox" name="lock" value="true">
-					<label for="lock">シートをロックする</label>
-				</div>
-				<div style="display: none;">
-					<input type="text" name="manager" th:value="${manager.id}">
-				</div>
-				<div>
-					<input type="submit" value="ダウンロード">
-				</div>
-			</form>
 		</div>
 
 		<div class="side">

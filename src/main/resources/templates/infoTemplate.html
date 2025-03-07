@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/infoTemplate.css}" rel="stylesheet">
-		<link th:href="@{/css/common2.css}" rel="stylesheet">
+		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<script th:src="@{/js/confirm.js}" defer></script>
 		<script th:src="@{/js/display.js}" defer></script>
 	</head>
@@ -30,7 +30,7 @@
 				</div>
 			</div>
 
-			<div>
+			<div class="mainTable">
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr th:each = "t : ${templateList}">
 						<td>
@@ -43,12 +43,15 @@
 
 		<div>
 			<th:block th:if="${!#lists.isEmpty(templateList)}">
-			<div th:each="t : ${templateList}" th:class="${t.id + '-element'}" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 300px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
-				<a href="#" th:class="${t.id + '-off detail-listener-off'}">閉じる</a>
-				<table>
-					<tr>
-						<th>タイトル</th>
-						<td th:text="${t.title}"></td>
+			<div th:each="t : ${templateList}" th:class="${t.id + '-element detail-panel'}" style="display: none; width: 330px;">
+				<div class="panel-close">
+					<a href="#" th:class="${t.id + '-off detail-listener-off'}">
+						<img src="/img/square-x.svg">
+					</a>
+				</div>
+				<table class="panel-table">
+					<tr style="font-size: 19px;">
+						<th colspan="2"><div style="margin-bottom: 10px;"><span th:text="${t.title}"></span></div></th>
 					</tr>
 					<tr>
 						<th>勤務コマ</th>
@@ -125,16 +128,22 @@
 						</td>
 					</tr>
 				</table>
-				<a th:href = "@{/editTemplateForm(user=${user.id}, template=${t.id})}">
-					修正
-				</a>
-				<form th:action = "@{/deleteTemplate}" method = "post">
-					<div style = "display: none;">
-						<input type = "text" name = "deleteId" th:value = "${t.id}">
-						<input type = "text" name = "userId" th:value = "${t.userId}">
+
+				<div class="panel-submit">
+					<div class="panel-button">
+						<p>修正</p>
+						<a th:href = "@{/editTemplateForm(user=${user.id}, template=${t.id})}"></a>
 					</div>
-					<div><input type = "submit" value = "削除" onclick="return deleteConfirm()"></div>
-				</form>
+					<div class="panel-button">
+						<form th:action = "@{/deleteTemplate}" method = "post">
+							<div style = "display: none;">
+								<input type = "text" name = "deleteId" th:value = "${t.id}">
+								<input type = "text" name = "userId" th:value = "${t.userId}">
+							</div>
+							<div><input type = "submit" value = "削除" onclick="return deleteConfirm()"></div>
+						</form>
+					</div>
+				</div>
 			</div>
 			</th:block>
 		</div>

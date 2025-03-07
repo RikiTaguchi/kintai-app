@@ -23,7 +23,7 @@
 			<div class="form">
 				<form th:action = "@{/salaryForm}" method = "post" th:object = "${salaryUpdateForm}" class="form">
 					<div>
-						<label id="teacherName" for = "teacher">氏名</label>
+						<label id="teacherInfo" for = "teacher">氏名</label>
 						<input id = "teacher" type = "text" th:field = "${user.userName}" disabled>
 					</div>
 					<div>

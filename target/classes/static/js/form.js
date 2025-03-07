@@ -1,3 +1,8 @@
+// テンプレートの挿入を処理するプログラム
+/// 読み込み元
+//// addForm.html
+//// editForm.html
+
 // 入力フォームの情報を取得
 const classM = document.getElementById('classM');
 const classK = document.getElementById('classK');
@@ -17,6 +22,7 @@ const otherWork = document.getElementById('otherWork');
 const otherTimeStart = document.getElementById('otherTimeStart');
 const otherTimeEnd = document.getElementById('otherTimeEnd');
 const otherBreakTime = document.getElementById('otherBreakTime');
+const date = document.getElementById('date');
 const resetButton = document.getElementById('reset');
 
 // セレクトタグの取得
@@ -35,7 +41,9 @@ templateList.addEventListener('change', (event) => {
 
     // フォームの値を変更
     if (templateId !== "none") {
+        let dateSelected = date.value;
         resetButton.click();
+        date.value = dateSelected;
         timeStart.value = '';
         timeEnd.value = '';
         officeTimeStart.value = '';
@@ -60,6 +68,5 @@ templateList.addEventListener('change', (event) => {
         if (document.getElementById('otherTimeStart-'+templateId).textContent !== '     ') { otherTimeStart.value = document.getElementById('otherTimeStart-'+templateId).textContent; }
         if (document.getElementById('otherTimeEnd-'+templateId).textContent !== '     ') { otherTimeEnd.value = document.getElementById('otherTimeEnd-'+templateId).textContent; }
         otherBreakTime.value = document.getElementById('otherBreakTime-'+templateId).textContent;
-        templateList.selectedIndex = 0;
     }
 });

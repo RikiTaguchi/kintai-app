@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
-		<link th:href="@{/css/common2.css}" rel="stylesheet">
+		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/info.css}" rel="stylesheet">
 		<script th:src="@{/js/display.js}" defer></script>
 		<script th:src="@{/js/confirm.js}" defer></script>
@@ -81,10 +81,16 @@
 		</div>
 
 		<th:block th:if = "${!#lists.isEmpty(workList)}">
-		<div th:each = "w : ${workList}" th:class="${w.id + '-element'}" style="display: none; position: fixed; z-index: 1; background-color: aqua; width: 300px; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 5px 5px 5px rgb(76, 76, 78);">
-			<a href="#" th:class="${w.id + '-off detail-listener-off'}">閉じる</a>
-			<table>
-				<tr><th>勤務日</th><td><div><span th:text = "${w.date.substring(0, 5).replace('-','/')+w.date.substring(5,10).replace('-','/')+'('+w.dayOfWeek+')'}"></span></div></td></tr>
+		<div th:each = "w : ${workList}" th:class="${w.id + '-element detail-panel'}" style="display: none; width: 330px;">
+			<div class="panel-close">
+				<a href="#" th:class="${w.id + '-off detail-listener-off'}">
+					<img src="/img/square-x.svg">
+				</a>
+			</div>
+			<table class="panel-table">
+				<tr style="font-size: 19px;">
+					<th colspan="2"><div style="margin-bottom: 10px;"><span th:text = "${w.date.substring(0, 5).replace('-','/')+w.date.substring(5,10).replace('-','/')+'('+w.dayOfWeek+')'}"></span></div></th>
+				</tr>
 				<tr>
 					<th>勤務コマ</th>
 					<td>
@@ -200,29 +206,31 @@
 				</tr>
 			</table>
 			<th:block th:if="${!lockStatus}">
-				<div>
-					<a th:href = "@{/editForm(user=${user.id}, detail=${w.id}, year=${yearNow}, month=${monthNow})}">
-						修正
-					</a>
-				</div>
-				
-				<div>
-					<form th:action = "@{/deleteWork}" method = "post">
-						<div style = "display: none;">
-							<input type = "text" name = "deleteId" th:value = "${w.id}">
-							<input type = "text" name = "userId" th:value = "${w.userId}">
-						</div>
-						<div><input type = "submit" value = "削除" onclick="return deleteConfirm()"></div>
-					</form>
+				<div class="panel-submit">
+					<div class="panel-button">
+						<p>修正</p>
+						<a th:href = "@{/editForm(user=${user.id}, detail=${w.id}, year=${yearNow}, month=${monthNow})}"></a>
+					</div>
+					<div class="panel-button">
+						<form th:action = "@{/deleteWork}" method = "post">
+							<div style = "display: none;">
+								<input type = "text" name = "deleteId" th:value = "${w.id}">
+								<input type = "text" name = "userId" th:value = "${w.userId}">
+							</div>
+							<div><input type = "submit" value = "削除" onclick="return deleteConfirm()"></div>
+						</form>
+					</div>
 				</div>
 			</th:block>
 
 			<th:block th:if="${lockStatus}">
-				<div>
-					<p>修正</p>
-				</div>
-				<div>
-					<p>削除</p>
+				<div class="panel-submit">
+					<div class="panel-button">
+						<p>修正</p>
+					</div>
+					<div class="panel-button">
+						<p>削除</p>
+					</div>
 				</div>
 			</th:block>
 		</div>

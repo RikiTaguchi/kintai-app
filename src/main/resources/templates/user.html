@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>勤怠管理システム</title>
-		<link th:href="@{/css/common2.css}" rel="stylesheet">
+		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/user.css}" rel="stylesheet">
 	</head>
 	<body>
@@ -28,7 +28,7 @@
 				</div>
 			</div>
 
-            <div class="accountTable">
+            <div class="mainTable">
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>ログインID</th><td><div><span th:text = "${user.loginId}"></span></div></td></tr>
 					<tr><th>パスワード</th><td><div><span th:text = "${user.password}"></span></div></td></tr>
