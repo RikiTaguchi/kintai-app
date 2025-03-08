@@ -24,6 +24,42 @@ input {
     border-radius: 5px;
 }
 
+.inputBlock {
+    margin-left: 12px;
+}
+
+.inputBlock input {
+    width: 288px;
+}
+
+.template {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.templateStatement {
+    display: flex;
+    text-align: center;
+}
+
+.templateStatement p {
+    display: block;
+    font-size: 15px;
+    font-weight: bold;
+    color: rgb(64, 64, 64);
+}
+
+.template_select {
+    width: 160px;
+    height: 30px;
+    margin-left: 3px;
+    border-radius: 5px;
+    border-color: rgba(27, 27, 27, 0.577);
+    border-width: 2px;
+}
+
 #submitButton {
     background-color: rgb(17, 156, 156);
     width: 300px;
@@ -52,4 +88,35 @@ input {
 
 #deleteButton:hover {
     background-color: rgb(0, 139, 139);
+}
+
+/* レスポンシブ（タブレット） */
+@media screen and (max-width: 959px) {
+	
+}
+
+/* レスポンシブ（スマホ） */
+@media screen and (max-width: 480px) {
+    .template {
+        margin-top: 12px;
+    }
+
+    .templateStatement p {
+        margin-top: 0;
+        margin-bottom: 0;
+        font-size: 12px;
+    }
+
+    .template_select {
+        width: 100px;
+        height: 22px;
+    }
+
+    .formContents {
+        display: block;
+    }
+
+    .formContents hr {
+        display: none;
+    }
 }

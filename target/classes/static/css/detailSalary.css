@@ -1,43 +1,56 @@
-.radius-table {
-    border-collapse: separate;
-    width: auto;
-    height: auto;
-    background-color: white;
-    border-color: rgb(230, 230, 230);
-    font-size: 18px;
+.mainTable-header {
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+.mainTable-header p {
+    display: block;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 5px;
+    font-size: 15px;
+    color: gray;
+}
+
+.radius-table tr th {
+    width: 130px;
     font-weight: bold;
-    box-shadow: 5px 5px 5px rgb(76, 76, 78);
-    border-radius: 10px;
-    border-spacing: 0;
-    border: none;
-    border-left: 1px solid #999;
-    border-top: 1px solid #999;
+    border-top: none;
+    border-left: none;
 }
 
-.radius-table tr>* {
-    padding: 5px 10px;
-    border: none;
-    border-right: 1px solid #999;
-    border-bottom: 1px solid #999;
+.radius-table tr td {
+    width: 130px;
+    border-top: none;
+    border-left: none;
 }
 
-.radius-table tr:first-child>*:first-child {
-    border-radius: 10px 0 0 0;
+.radius-table tr th:first-child {
+    width: 200px;
 }
 
-.radius-table tr:first-child>*:last-child {
-    border-radius: 0 10px 0 0;
+.radius-table tr td:first-child {
+    width: 200px;
 }
 
-.radius-table tr:last-child>*:first-child {
-    border-radius: 0 0 0 10px;
+.radius-table tr:last-child td {
+    border-bottom: none;
 }
 
-.radius-table tr:last-child>*:last-child {
-    border-radius: 0 0 10px 0;
+.radius-table tr th:last-child {
+    border-right: none;
 }
 
-.mainTable {
-    text-align: center;
-    margin-top: 30px;
+.radius-table tr td:last-child {
+    border-right: none;
+}
+
+/* レスポンシブ（タブレット） */
+@media screen and (max-width: 959px) {
+	
+}
+
+/* レスポンシブ（スマホ） */
+@media screen and (max-width: 480px) {
+    
 }

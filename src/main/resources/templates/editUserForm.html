@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -16,17 +17,21 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>基本情報</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 			</div>
 
 			<form th:action = "@{/editUserForm}" method = "post" th:object = "${userUpdateForm}" class="form">
 				<div>
 					<label id = "teacherInfo" for = "userName">氏名</label>
-					<input id = "userName" type = "text" th:field = "*{userName}" required>
+					<div class="inputBlock">
+						<input id = "userName" type = "text" th:field = "*{userName}" required>
+					</div>
 				</div>
 				<div>
 					<label id = "teacherId" for = "teacherNo">講師No.</label>
-					<input id = "teacherNo" type = "text" th:field = "*{teacherNo}" required>
+					<div class="inputBlock">
+						<input id = "teacherNo" type = "text" th:field = "*{teacherNo}" required>
+					</div>
 				</div>
 				<div style="display: none;">
                     <input id="id" type="text" th:field="*{id}">

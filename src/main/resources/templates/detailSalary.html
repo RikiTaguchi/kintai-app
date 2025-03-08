@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/detailSalary.css}" rel="stylesheet">
@@ -17,11 +18,26 @@
 
 		<div class="main">
 			<div class="subHeader">
-				<p>給与推移</p>
-				<hr size="2" color="lightgray">
+				<p>給与情報</p>
+				<hr size="1" color="lightgray">
 		    </div>
 
+			<div class="mainTable" style="margin-bottom: 15px;">
+				<div class="mainTable-header">
+					<p th:text="${today}"></p>
+				</div>
+				<table border="1" style="border-spacing: 0;" class="radius-table">
+					<tr><th>コマ給</th><td th:text = "${'¥'+salaryFormatted[0]}"></td></tr>
+					<tr><th>事務給</th><td th:text = "${'¥'+salaryFormatted[1]}"></td></tr>
+					<tr><th>日時手当</th><td th:text = "${'¥'+salaryFormatted[2]}"></td></tr>
+					<tr><th style="border-bottom: none;">交通費</th><td th:text = "${'¥'+salaryFormatted[3]}"></td></tr>
+				</table>
+			</div>
+
 			<div class="mainTable">
+				<div class="mainTable-header">
+					<p>給与推移</p>
+				</div>
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
 					<th:block th:each = "s : ${salaryList}">

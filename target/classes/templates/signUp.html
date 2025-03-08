@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -16,7 +17,7 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>講師登録</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 			</div>
 						
 			<form th:action = "@{/signUp}" method = "post" class="form">
@@ -25,25 +26,33 @@
 						<div class="miniMenu">
 							<p class="miniTitle">基本情報</p>
 						</div>
-						<div style="margin-top: -20px;">
+						<div>
 							<label id = "teacherInfo" for = "userName">氏名</label>
-							<input id = "userName" type = "text" th:field = "*{userCreateForm.userName}" required>
+							<div class="inputBlock">
+								<input id = "userName" type = "text" th:field = "*{userCreateForm.userName}" required>
+							</div>
 						</div>
 						<div>
 							<label id = "teacherId" for = "teacherNo">講師No.</label>
-							<input id = "teacherNo" type = "text" th:field = "*{userCreateForm.teacherNo}" required>
+							<div class="inputBlock">
+								<input id = "teacherNo" type = "text" th:field = "*{userCreateForm.teacherNo}" required>
+							</div>
 						</div>
 						<div>
 							<label id = "login" for = "loginId">ログインID</label>
-							<input id = "loginId" type = "text" th:field = "*{userCreateForm.loginId}" required>
+							<div class="inputBlock">
+								<input id = "loginId" type = "text" th:field = "*{userCreateForm.loginId}" required>
+							</div>
 						</div>
 						<div>
 							<label id = "pass" for = "password">パスワード</label>
-							<input id = "password" type = "text" th:field = "*{userCreateForm.password}" required>
+							<div class="inputBlock">
+								<input id = "password" type = "text" th:field = "*{userCreateForm.password}" required>
+							</div>
 						</div>
-						<div style="margin-top: 25px; font-size: 12px;">
+						<div style="margin-top: 25px; margin-left: 12px; font-size: 12px;">
 							<p>※名字と名前を半角スペースで区切ってください</p>
-							<p>※ログイン情報はメモを取り保管してください。</p>
+							<p>※ログイン情報はメモを取り保管してください</p>
 						</div>
 					</div>
 					<div>
@@ -53,25 +62,35 @@
 						<div class="miniMenu">
 							<p class="miniTitle">給与情報</p>
 						</div>
-						<div style="margin-top: -20px;">
+						<div>
 							<label id = "start" for = "dateFrom">雇用開始</label>
-							<input id = "dateFrom" type = "date" th:field = "*{salaryCreateForm.dateFrom}" required>
+							<div class="inputBlock">
+								<input id = "dateFrom" type = "date" th:field = "*{salaryCreateForm.dateFrom}" required>
+							</div>
 						</div>
 						<div>
 							<label id = "salary" for = "classSalary">コマ給</label>
-							<input id = "classSalary" type = "number" th:field = "*{salaryCreateForm.classSalary}" required>
+							<div class="inputBlock">
+								<input id = "classSalary" type = "number" th:field = "*{salaryCreateForm.classSalary}" required>
+							</div>
 						</div>
 						<div>
 							<label id = "study" for = "officeSalary">事務給</label>
-							<input id = "officeSalary" type = "number" th:field = "*{salaryCreateForm.officeSalary}" required>
+							<div class="inputBlock">
+								<input id = "officeSalary" type = "number" th:field = "*{salaryCreateForm.officeSalary}" required>
+							</div>
 						</div>
 						<div>
 							<label id = "bonus" for = "supportSalary">日時手当</label>
-							<input id = "supportSalary" type = "number" th:field = "*{salaryCreateForm.supportSalary}" required>
+							<div class="inputBlock">
+								<input id = "supportSalary" type = "number" th:field = "*{salaryCreateForm.supportSalary}" required>
+							</div>
 						</div>
 						<div>
 							<label id = "transport" for = "carfare">交通費</label>
-							<input id = "carfare" type = "number" th:field = "*{salaryCreateForm.carfare}" required>
+							<div class="inputBlock">
+								<input id = "carfare" type = "number" th:field = "*{salaryCreateForm.carfare}" required>
+							</div>
 						</div>
 					</div>
 				</div>

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -18,68 +19,18 @@
 
 		<div class="main">
 			<div class="subHeader">
-				<p>テンプレート修正</p>
-				<hr size="2" color="lightgray">
+				<p>テンプレート</p>
+				<hr size="1" color="lightgray">
 		    </div>
 			
 			<form th:action = "@{/editTemplateForm}" method = "post" th:object = "${templateUpdateForm}" class="form">
-				<!-- <table border="1" style="border-spacing: 0;" class="radius-table">
-					<tr><th>タイトル</th><td><div><input id = "title" type = "text" th:field = "*{title}" required></div></td></tr>
-					<tr>
-						<th>勤務コマ</th>
-						<td>
-							<div>
-							<input id = "classM" type = "checkbox" th:field = "*{classM}" value = "true">
-							<label for = "classM">M　</label>
-							<input id = "classK" type = "checkbox" th:field = "*{classK}" value = "true">
-							<label for = "classK">K　</label>
-							<input id = "classS" type = "checkbox" th:field = "*{classS}" value = "true">
-							<label for = "classS">S　</label>
-							<input id = "classA" type = "checkbox" th:field = "*{classA}" value = "true">
-							<label for = "classA">A　</label>
-							<br>
-							<input id = "classB" type = "checkbox" th:field = "*{classB}" value = "true">
-							<label for = "classB">B　</label>
-							<input id = "classC" type = "checkbox" th:field = "*{classC}" value = "true">
-							<label for = "classC">C　</label>
-							<input id = "classD" type = "checkbox" th:field = "*{classD}" value = "true">
-							<label for = "classD">D　</label>
-							</div>
-						</td>
-					</tr>
-					<tr><th>ヘルプ勤務教室</th><td><div><input id = "helpArea" type = "text" th:field = "*{helpArea}"></div></td></tr>
-					<tr>
-						<th>授業業務</th>
-						<td>
-							<div><label for = "timeStart">開始 - </label><input id = "timeStart" type = "time" th:field = "*{timeStart}"></div>
-							<div><label for = "timeEnd">終了 - </label><input id = "timeEnd" type = "time" th:field = "*{timeEnd}"></div>
-						</td>
-					</tr>
-					<tr><th>休憩</th><td><div><input id = "breakTime" type = "number" th:field = "*{breakTime}" required> 分</div></td></tr>
-					<tr><th>交通費</th><td><div><input id = "carfare" type = "number" th:field = "*{carfare}" required> 円</div></td></tr>
-					<tr>
-						<th>事務</th>
-						<td>
-							<div><label for = "officeTimeStart">開始 - </label><input id = "officeTimeStart" type = "time" th:field = "*{officeTimeStart}"></div>
-							<div><label for = "officeTimeEnd">終了 - </label><input id = "officeTimeEnd" type = "time" th:field = "*{officeTimeEnd}"></div>
-						</td>
-					</tr>
-					<tr>
-						<th>研修/自習教室</th>
-						<td>
-							<div><label for = "otherWork">内容 - </label><input id = "otherWork" type = "text" th:field = "*{otherWork}"></div>
-							<div><label for = "otherTimeStart">開始 - </label><input id = "otherTimeStart" type = "time" th:field = "*{otherTimeStart}"></div>
-							<div><label for = "otherTimeEnd">終了 - </label><input id = "otherTimeEnd" type = "time" th:field = "*{otherTimeEnd}"></div>
-							<div><label for = "otherBreakTime">休憩 - </label><input id = "otherBreakTime" type = "number" th:field = "*{otherBreakTime}" required> 分</div>
-						</td>
-					</tr>
-				</table> -->
-
 				<div class="formContents">
 					<div>
 						<div>
 							<label for="title">タイトル</label>
-							<input id = "title" type = "text" th:field = "*{title}" required>
+							<div class="inputBlock">
+								<input id = "title" type = "text" th:field = "*{title}" required>
+							</div>
 						</div>
 						<div>
 							<label for="classN">勤務コマ</label>
@@ -109,11 +60,15 @@
 						</div>
 						<div>
 							<label for="breakTime">休憩</label>
-							<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							<div class="inputBlock">
+								<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							</div>
 						</div>
 						<div>
 							<label for="carfare">交通費</label>
-							<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							<div class="inputBlock">
+								<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							</div>
 						</div>
 					</div>
 					<div>
@@ -138,7 +93,9 @@
 						</div>
 						<div>
 							<label for="helpArea">ヘルプ勤務教室</label>
-							<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							<div class="inputBlock">
+								<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							</div>
 						</div>
 					</div>
 				</div>

@@ -793,8 +793,16 @@ public class HomeController {
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
+            String today = String.valueOf(calendar.get(Calendar.YEAR)) + "/" + String.valueOf(calendar.get(Calendar.MONTH) + 1) + "/" + String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " 現在";
+            Salary salaryNow = salaryService.getByDate(user.getId(), year+"-"+month+"-"+day);
+            String salaryFormatted[] = new String[4];
             List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
             Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
+            salaryFormatted[0] = String.format("%,d", salaryNow.getClassSalary());
+            salaryFormatted[1] = String.format("%,d", salaryNow.getOfficeSalary());
+            salaryFormatted[2] = String.format("%,d", salaryNow.getSupportSalary());
+            salaryFormatted[3] = String.format("%,d", salaryNow.getCarfare());
             for (Salary salary : salaryList) {
                 String salariesFormatted[] = new String[4];
                 salariesFormatted[0] = String.format("%,d", salary.getClassSalary());
@@ -807,8 +815,10 @@ public class HomeController {
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+            model.addAttribute("salaryFormatted", salaryFormatted);
             model.addAttribute("salaryList", salaryList);
             model.addAttribute("salaryMapFormatted", salaryMapFormatted);
+            model.addAttribute("today", today);
             return "detailSalary";
         } catch (Exception e) {
             e.printStackTrace();
@@ -1195,6 +1205,7 @@ public class HomeController {
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            String today = String.valueOf(calendar.get(Calendar.YEAR)) + "/" + String.valueOf(calendar.get(Calendar.MONTH) + 1) + "/" + String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " 現在";
             User user = userService.getByUserId(UUID.fromString(userId));
             String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
             Salary salary = salaryService.getByDate(UUID.fromString(userId), year+"-"+month+"-"+day);
@@ -1230,6 +1241,7 @@ public class HomeController {
             model.addAttribute("salaryList", salaryList);
             model.addAttribute("salaryMapFormatted", salaryMapFormatted);
             model.addAttribute("term", term);
+            model.addAttribute("today", today);
             return "infoUser";
         } catch (Exception e) {
             e.printStackTrace();

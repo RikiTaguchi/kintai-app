@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -20,7 +21,7 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>シフト修正</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 		    </div>
 
 			<div class="template">
@@ -28,8 +29,8 @@
 					<p>テンプレート挿入：</p>
 				</div>
 				<!-- 表示部分 -->
-				<select id="template_list" name="temp">
-					<option class="template_options_sub" selected value="none">テンプレートから選択</option>
+				<select id="template_list" class="template_select" name="temp">
+					<option class="template_options_sub" selected value="none">選択する</option>
 					<option class="template_options" th:each="t : ${templateList}" th:value="${t.id}"></option>
 				</select>
 	
@@ -62,7 +63,9 @@
 					<div>
 						<div>
 							<label for="dateInfo">勤務日</label>
-							<input id = "dateInfo" type = "date" th:value = "*{date}" disabled>
+							<div class="inputBlock">
+								<input id = "dateInfo" type = "date" th:value = "*{date}" disabled>
+							</div>
 						</div>
 						<div>
 							<label for="classN">勤務コマ</label>
@@ -92,11 +95,15 @@
 						</div>
 						<div>
 							<label for="breakTime">休憩</label>
-							<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							<div class="inputBlock">
+								<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							</div>
 						</div>
 						<div>
 							<label for="carfare">交通費</label>
-							<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							<div class="inputBlock">
+								<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							</div>
 						</div>
 					</div>
 					<div>
@@ -121,7 +128,9 @@
 						</div>
 						<div>
 							<label for="helpArea">ヘルプ勤務教室</label>
-							<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							<div class="inputBlock">
+								<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							</div>
 						</div>
 					</div>
 				</div>

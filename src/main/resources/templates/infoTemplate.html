@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/infoTemplate.css}" rel="stylesheet">
 		<link th:href="@{/css/common.css}" rel="stylesheet">
@@ -43,7 +44,7 @@
 
 		<div>
 			<th:block th:if="${!#lists.isEmpty(templateList)}">
-			<div th:each="t : ${templateList}" th:class="${t.id + '-element detail-panel'}" style="display: none; width: 330px;">
+			<div th:each="t : ${templateList}" th:class="${t.id + '-element detail-panel'}" style="display: none; width: 300px;">
 				<div class="panel-close">
 					<a href="#" th:class="${t.id + '-off detail-listener-off'}">
 						<img src="/img/square-x.svg">
@@ -69,7 +70,7 @@
 						</td>
 					</tr>
 					<tr>
-						<th>ヘルプ勤務教室</th>
+						<th>ヘルプ勤務</th>
 						<td>
 							<th:block th:if = "${!t.helpArea.equals('')}"><span th:text = "${t.helpArea}"></span></th:block>
 							<th:block th:if = "${t.helpArea.equals('')}"><span th:text = "'-'"></span></th:block>

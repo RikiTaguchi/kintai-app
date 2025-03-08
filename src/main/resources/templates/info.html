@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/info.css}" rel="stylesheet">
 		<script th:src="@{/js/display.js}" defer></script>
 		<script th:src="@{/js/confirm.js}" defer></script>
-		<!-- <script th:src="@{/js/hamburgerMenu.js}"></script> -->
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	</head>
 
@@ -23,7 +23,7 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>シフト管理</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 		    </div>
 
 			<div class="subMenu">
@@ -38,7 +38,8 @@
 			</div>
 
 			<div class="date">
-				<span th:text = "${yearNow+'年'+monthNow+'月分　'+monthBefore+'月26日〜'+monthNow+'月25日'}"></span>
+				<span class="date-main" th:text = "${yearNow+'年'+monthNow+'月'}"></span>
+				<span class="date-sub" th:text = "${'('+monthBefore+'/26 - '+monthNow+'/25)'}"></span>
 			</div>
 			<div class= "beforeMonth">
 				<p>前月</p>
@@ -81,7 +82,7 @@
 		</div>
 
 		<th:block th:if = "${!#lists.isEmpty(workList)}">
-		<div th:each = "w : ${workList}" th:class="${w.id + '-element detail-panel'}" style="display: none; width: 330px;">
+		<div th:each = "w : ${workList}" th:class="${w.id + '-element detail-panel'}" style="display: none; width: 300px;">
 			<div class="panel-close">
 				<a href="#" th:class="${w.id + '-off detail-listener-off'}">
 					<img src="/img/square-x.svg">
@@ -116,7 +117,7 @@
 					</td>
 				</tr>
 				<tr>
-					<th>ヘルプ勤務教室</th>
+					<th>ヘルプ勤務</th>
 					<td>
 						<div>
 							<th:block th:if = "${!w.helpArea.equals('')}"><span th:text = "${w.helpArea}"></span></th:block>
@@ -225,10 +226,10 @@
 
 			<th:block th:if="${lockStatus}">
 				<div class="panel-submit">
-					<div class="panel-button">
+					<div class="panel-button" style="background-color: lightgray; color: gray;">
 						<p>修正</p>
 					</div>
-					<div class="panel-button">
+					<div class="panel-button" style="background-color: lightgray; color: gray;">
 						<p>削除</p>
 					</div>
 				</div>
@@ -266,57 +267,5 @@
 				<a th:href = "@{/login}"></a>
 			</div>
 		</div>
-
-        <!-- <div class="hamburgerMenu">
-            <div class="header__inner">
-            <button id="js-hamburger" type="button" class="hamburger" aria-controls="navigation" aria-expanded="false" aria-label="メニューを開く">
-                <span class="hamburger__line"></span>
-                <span class="hamburger__text"></span>
-            </button>
-            <div class="header__nav-area js-nav-area" id="navigation">
-                <nav id="js-global-navigation" class="global-navigation">
-                <ul class="global-navigation__list">
-                <li>
-                    <a href="#" class="global-navigation__link">
-                    メニュー
-                    </a>
-                </li>
-            <li>
-            <button type="button" class="global-navigation__link -accordion js-sp-accordion-trigger" aria-expanded = 'false' aria-controls="accordion1">
-              親メニュー
-            </button>
-               <div id="accordion1" class="accordion js-accordion">
-                 <ul class="accordion__list">
-                   <li>
-                     <a href="#" class="accordion__link">
-                       子メニュー
-                     </a>
-                   </li>
-                    <li>
-                     <a href="#" class="accordion__link">
-                       子メニュー
-                     </a>
-                   </li>
-                    <li>
-                     <a href="#" class="accordion__link">
-                       子メニュー
-                     </a>
-                   </li>
-                 </ul>
-               </div>
-          </li>
-          <li>
-                 <a href="#" class="global-navigation__link">
-                メニュー
-                </a>
-          </li> 
-          </ul>
-           <div id="js-focus-trap" tabindex="0"></div>
-            </nav>
-           </div>
-           </div>
-		 </div>
-	   </div> -->
-
 	</body>
 </html>
