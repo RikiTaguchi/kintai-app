@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -18,8 +19,8 @@
 
 		<div class="main">
 			<div class="subHeader">
-				<p>テンプレート登録</p>
-				<hr size="2" color="lightgray">
+				<p>テンプレート</p>
+				<hr size="1" color="lightgray">
 		    </div>
 
 			<form th:action = "@{/templateForm}" method = "post" th:object = "${templateCreateForm}" class="form">
@@ -27,7 +28,9 @@
 					<div>
 						<div>
 							<label for="title">タイトル</label>
-							<input id = "title" type = "text" th:field = "*{title}" required>
+							<div class="inputBlock">
+								<input id = "title" type = "text" th:field = "*{title}" required>
+							</div>
 						</div>
 						<div>
 							<label for="classN">勤務コマ</label>
@@ -57,11 +60,15 @@
 						</div>
 						<div>
 							<label for="breakTime">休憩</label>
-							<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							<div class="inputBlock">
+								<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							</div>
 						</div>
 						<div>
 							<label for="carfare">交通費</label>
-							<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							<div class="inputBlock">
+								<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							</div>
 						</div>
 					</div>
 					<div>
@@ -86,7 +93,9 @@
 						</div>
 						<div>
 							<label for="helpArea">ヘルプ勤務教室</label>
-							<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							<div class="inputBlock">
+								<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							</div>
 						</div>
 					</div>
 				</div>

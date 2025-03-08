@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/detail.css}" rel="stylesheet">
@@ -18,11 +19,12 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>給与管理</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 			</div>
 
 			<div class="date">
-				<span th:text = "${yearNow+'年'+monthNow+'月分　'+monthBefore+'月26日〜'+monthNow+'月25日'}"></span>
+				<span class="date-main" th:text = "${yearNow+'年'+monthNow+'月'}"></span>
+				<span class="date-sub" th:text = "${'('+monthBefore+'/26 - '+monthNow+'/25)'}"></span>
 			</div>
 
 			<div class= "beforeMonth">
@@ -63,20 +65,20 @@
 				</table>
 
 				<div style="display: flex;">
-					<div class="subMenu" style="margin-left: 20px;">
-						<div class="subMenuContents">
+					<div class="subMenu" style="margin-top: 0; margin-left: 20px;">
+						<div class="subMenuContents" style="width: 113px; height: 30px;">
 							<p>シフト登録</p>
 							<a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
 						</div>
 					</div>
 					<div style="margin-left: 10px; margin-right: 20px;">
 						<th:block th:if="${lockStatus == 'false'}">
-							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}">
+							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}" style="text-decoration: none;">
 								<img id="lockOff" th:src="@{/img/lock-open.svg}" style="width: 35px; height: 35px;">
 							</a>
 						</th:block>
 						<th:block th:if="${lockStatus == 'true'}">
-							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}">
+							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}" style="text-decoration: none;">
 								<img id="lockOn" th:src="@{/img/lock.svg}" style="width: 35px; height: 35px;">
 							</a>
 						</th:block>
@@ -192,7 +194,7 @@
 
 		<div>
 			<th:block th:if = "${!#lists.isEmpty(workList)}">
-			<div th:each = "w : ${workList}" th:class="${w.id + '-element detail-panel'}" style="display: none; width: 330px;">
+			<div th:each = "w : ${workList}" th:class="${w.id + '-element detail-panel'}" style="display: none; width: 360px;">
 				<div class="panel-close">
 					<a href="#" th:class="${w.id + '-off detail-listener-off'}">
 						<img src="/img/square-x.svg">
@@ -223,7 +225,7 @@
 						</td>
 					</tr>
 					<tr>
-						<th>ヘルプ勤務教室</th>
+						<th>ヘルプ勤務</th>
 						<td>
 							<th:block th:if = "${!w.helpArea.equals('')}"><span th:text = "${w.helpArea}"></span></th:block>
 							<th:block th:if = "${w.helpArea.equals('')}"><span th:text = "'-'"></span></th:block>

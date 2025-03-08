@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -16,17 +17,21 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>退職手続</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 			</div>
 			
 			<form th:action = "@{/retireForm}" method = "post" th:object = "${retireCreateForm}" class="form">
 				<div>
 					<label id="teacherInfo" for = "teacher">氏名</label>
-					<input id = "teacher" type = "text" th:value = "${user.userName}" disabled>
+					<div class="inputBlock">
+						<input id = "teacher" type = "text" th:value = "${user.userName}" disabled>
+					</div>
 				</div>
 				<div>
 					<label id = "retire" for = "retireDate">退職日</label>
-					<input id = "retireDate" type = "date" th:field = "*{retireDate}" required>
+					<div class="inputBlock">
+						<input id = "retireDate" type = "date" th:field = "*{retireDate}" required>
+					</div>
 				</div>
 				<div style = "display: none;">
 					<input id="id"  type="text" th:field="*{id}">

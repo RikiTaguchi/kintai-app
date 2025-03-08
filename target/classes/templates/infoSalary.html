@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
         <link th:href="@{/css/common.css}" rel="stylesheet">
         <link th:href="@{/css/infoSalary.css}" rel="stylesheet">
@@ -20,18 +21,19 @@
 		<div class="main">
             <div class="subHeader">
                 <p>給与情報</p>
-                <hr size="2" color="lightgray">
+                <hr size="1" color="lightgray">
             </div>
 
             <div class="subMenu">
                 <div class="subMenuContents">
-                    <p>給与推移</p>
+                    <p>詳細</p>
                     <a th:href="@{/detailSalary(user=${user.id})}"></a>
                 </div>
             </div>
     
             <div class="date">
-                <span th:text = "${yearNow+'年'+monthNow+'月分　'+monthBefore+'月26日〜'+monthNow+'月25日'}"></span>
+                <span class="date-main" th:text = "${yearNow+'年'+monthNow+'月'}"></span>
+                <span class="date-sub" th:text = "${'('+monthBefore+'/26 - '+monthNow+'/25)'}"></span>
             </div>
     
             <div class= "beforeMonth">
@@ -45,8 +47,8 @@
             
             <div style="margin-top: 10px;">
                 所得税
-                <input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">引く</label>
-                <input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">引かない</label>
+                <input id="tax-on" type="radio" name="tax" value="on"><label for="tax-on">On</label>
+                <input id="tax-off" type="radio" name="tax" value="off"><label for="tax-off">Off</label>
                 <div style="display: none;">
                     <a id="tax-button" th:href="@{/infoSalary(user=${user.id}, year=${yearNow}, month=${monthNow}, tax=${tax})}"></a>
                 </div>
@@ -56,35 +58,32 @@
                 <table border="1" style="border-spacing: 0; margin-top: 10px;" class="radius-table">
                     <tr><th>コマ給</th><td>¥<span th:text = "${sumSalaryFormatted[17]}"></span></td></tr>
                     <tr><th>コマ数</th><td><span th:text = "${sumSalaryFormatted[0]}"></span>コマ</td></tr>
-                    <tr><th>①コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
-                    <tr><th>②日時手当</th><td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td></tr>
-                    <tr><th>③事務給</th><td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td></tr>
-                    <tr><th><a href="#" class="detail-salary-button">④研修費・時間外</a></th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
-                    <tr><th>⑤その他</th><td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td></tr>
+                    <tr><th>コマ給×コマ数</th><td>¥<span th:text = "${sumSalaryFormatted[1]}"></span></td></tr>
+                    <tr><th>日時手当</th><td>¥<span th:text = "${sumSalaryFormatted[9]}"></span></td></tr>
+                    <tr><th>事務</th><td>¥<span th:text = "${sumSalaryFormatted[6]}"></span></td></tr>
+                    <tr><th><a href="#" class="detail-salary-button">研修/時間外</a></th><td>¥<span th:text = "${sumSalaryFormatted[18]}"></span></td></tr>
+                    <tr><th>その他</th><td>¥<span th:text = "${sumSalaryFormatted[10]}"></span></td></tr>
                     <tr><th>所得税</th><td>¥<span th:text = "${incomeTaxFormatted}"></span></td></tr>
-                    <tr><th>交通費計</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
+                    <tr><th>交通費</th><td>¥<span th:text = "${sumSalaryFormatted[11]}"></span></td></tr>
                 </table>
-            </div>
-
-            <div class="mainTable">
-                <table border="1" style="border-spacing: 0; margin-top: 10px;" class="radius-table">
+                <table border="1" style="border-spacing: 0; margin-top: 20px;" class="radius-table">
                     <tr><th>差引支給額</th><td>¥<span th:text = "${sumSalaryFormatted[16]}"></span></td></tr>
                 </table>
             </div>
 		</div>
 
-        <div class="detail-salary-element detail-panel" style="display: none; width: 330px;">
+        <div class="detail-salary-element detail-panel" style="display: none; width: 300px;">
             <div class="panel-close">
                 <a href="#" class="detail-salary-button">
                     <img src="/img/square-x.svg">
                 </a>
             </div>
             <table class="panel-table">
-                <tr style="font-size: 19px;"><th colspan="2"><div style="margin-bottom: 10px;">④研修費・時間外 内訳</div></th></tr>
-                <tr><th>研修・自習室(円/分)</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
-                <tr><th>時間外勤務(円/分)</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
-                <tr><th>超過勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
-                <tr><th>深夜勤務割増(円/分)</th><td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td></tr>
+                <tr style="font-size: 19px;"><th colspan="2"><div style="margin-bottom: 10px;">研修/時間外 内訳</div></th></tr>
+                <tr><th>研修・自習室</th><td><span th:text = "${sumSalaryFormatted[8]+'円/'+sumSalaryFormatted[7]+'分'}"></span></td></tr>
+                <tr><th>時間外勤務</th><td><span th:text = "${sumSalaryFormatted[4]+'円/'+sumSalaryFormatted[3]+'分'}"></span></td></tr>
+                <tr><th>超過勤務割増</th><td><span th:text = "${sumSalaryFormatted[13]+'円/'+sumSalaryFormatted[12]+'分'}"></span></td></tr>
+                <tr><th>深夜勤務割増</th><td><span th:text = "${sumSalaryFormatted[15]+'円/'+sumSalaryFormatted[14]+'分'}"></span></td></tr>
             </table>
         </div>
 

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/infoUser.css}" rel="stylesheet">
@@ -16,62 +17,72 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>講師詳細</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 		    </div>
 
-			<div class="mainTable">
-				<div class="miniMenu">
-					<p class="miniTitle">基本情報</p>
-					<div class="miniMenuContents">
-						<p>更新</p>
-						<a th:href="@{/editUserForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
-					</div>
-					<div class="miniMenuContents">
-						<th:block th:if="${user.state}">
-							<p>退職手続</p>
-							<a th:href = "@{/retireForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
-						</th:block>
-						<th:block th:if="${!user.state}">
-							<p>退職取消</p>
-							<a th:href = "@{/resetRetire(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return retireConfirm()"></a>
-						</th:block>
-					</div>
-					<div class="miniMenuContents">
-						<p>削除</p>
-						<a th:href="@{/deleteUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return deleteConfirm()"></a>
-					</div>
+			<div class="miniMenu">
+				<p class="miniTitle">基本情報</p>
+				<div class="miniMenuContents">
+					<p>更新</p>
+					<a th:href="@{/editUserForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
 				</div>
-
+				<div class="miniMenuContents">
+					<th:block th:if="${user.state}">
+						<p>退職手続</p>
+						<a th:href = "@{/retireForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
+					</th:block>
+					<th:block th:if="${!user.state}">
+						<p>退職取消</p>
+						<a th:href = "@{/resetRetire(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return retireConfirm()"></a>
+					</th:block>
+				</div>
+				<div class="miniMenuContents">
+					<p>削除</p>
+					<a th:href="@{/deleteUser(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}" onclick="return deleteConfirm()"></a>
+				</div>
+			</div>
+			<div class="mainTable" style="margin-bottom: 35px;">
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>氏名</th><td th:text = "${user.userName}"></td></tr>
 					<tr><th>講師No.</th><td th:text = "${user.teacherNo}"></td></tr>
 					<tr>
 						<th>勤続年数</th>
-						<th:block th:if="${user.state}"><td th:text = "${term}"></td></th:block>
-						<th:block th:if="${!user.state}"><td th:text="${term+'（退職日：'+user.retireDate.substring(0,5).replace('-','年')+user.retireDate.substring(5,8).replace('-','月')+'）'}"></td></th:block>
+						<th:block th:if="${user.state}">
+							<td th:text = "${term}"></td>
+						</th:block>
+						<th:block th:if="${!user.state}">
+							<td>
+								<span th:text="${term}"></span>
+								<span th:text="${'('+user.retireDate.substring(0,5).replace('-','年')+user.retireDate.substring(5,8).replace('-','月')+' 退職)'}" style="font-size: 15px; color: gray;"></span>
+							</td>
+						</th:block>
 					</tr>
 				</table>
+			</div>
 
-				<div class="miniMenu">
-					<p class="miniTitle">給与情報</p>
-					<div class="miniMenuContents">
-						<p>更新</p>
-						<a th:href = "@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
-					</div>
+			<div class="miniMenu">
+				<p class="miniTitle">給与情報</p>
+				<div class="miniMenuContents">
+					<p>更新</p>
+					<a th:href = "@{/updateForm(manager=${manager.id}, user=${user.id}, year=${year}, month=${month})}"></a>
 				</div>
-
+			</div>
+			<div class="mainTable" style="margin-bottom: 15px;">
+				<div class="mainTable-header">
+					<p th:text="${today}"></p>
+				</div>
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>コマ給</th><td th:text = "${'¥'+salaryFormatted[0]}"></td></tr>
 					<tr><th>事務給</th><td th:text = "${'¥'+salaryFormatted[1]}"></td></tr>
 					<tr><th>日時手当</th><td th:text = "${'¥'+salaryFormatted[2]}"></td></tr>
 					<tr><th>交通費</th><td th:text = "${'¥'+salaryFormatted[3]}"></td></tr>
 				</table>
-
-				<div class="miniMenu">
-					<p class="miniTitle">給与推移</p>
+			</div>
+			<div class="mainTable" style="margin-bottom: 60px;">
+				<div class="mainTable-header">
+					<p>給与推移</p>
 				</div>
-				
-				<table border="1" style="border-spacing: 0;" class="radius-table">
+				<table border="1" style="border-spacing: 0;" class="radius-table-sub">
 					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
 					<th:block th:each = "s : ${salaryList}">
 						<tr>

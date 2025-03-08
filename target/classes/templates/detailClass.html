@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/detailClass.css}" rel="stylesheet">
@@ -15,7 +16,7 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>講師管理</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 			</div>
 
 			<div class="subMenu">
@@ -27,9 +28,8 @@
 
 			<div class="mainTable">
 				<table border="1" style="border-spacing: 0;" class="radius-table">
-					<tr th:each = "u : ${userList}" th:style="'background-color: '+(${u.state} ? 'white' : 'lightgray')">
+					<tr th:each = "u : ${userList}" th:style="'background-color: '+(${u.state} ? 'rgb(249, 249, 249)' : 'rgb(220, 220, 220)')">
 						<th><a th:href= "@{/infoUser(manager=${manager.id}, user=${u.id})}"><span th:text = "${u.userName}"></span></a></th>
-						<td>準備中</td>
 					</tr>
 				</table>
 		    </div>

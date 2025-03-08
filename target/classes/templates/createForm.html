@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -16,7 +17,7 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>シフト登録</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 			</div>
 			
 			<form th:action = "@{/createForm}" method = "post" th:object = "${workCreateForm}" class="form">
@@ -24,11 +25,15 @@
 					<div>
 						<div>
 							<label for="teacherInfo">氏名</label>
-							<input id="teacherInfo" type="text" th:value="${user.userName}" disabled>
+							<div class="inputBlock">
+								<input id="teacherInfo" type="text" th:value="${user.userName}" disabled>
+							</div>
 						</div>
 						<div>
 							<label for="date">勤務日</label>
-							<input id = "date" type = "date" th:field = "*{date}" required>
+							<div class="inputBlock">
+								<input id = "date" type = "date" th:field = "*{date}" required>
+							</div>
 						</div>
 						<div>
 							<label for="classN">勤務コマ</label>
@@ -58,11 +63,15 @@
 						</div>
 						<div>
 							<label for="breakTime">休憩</label>
-							<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							<div class="inputBlock">
+								<input id = "breakTime" type = "number" th:field = "*{breakTime}" required>
+							</div>
 						</div>
 						<div>
 							<label for="carfare">交通費</label>
-							<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							<div class="inputBlock">
+								<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							</div>
 						</div>
 					</div>
 					<div>
@@ -87,7 +96,9 @@
 						</div>
 						<div>
 							<label for="helpArea">ヘルプ勤務教室</label>
-							<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							<div class="inputBlock">
+								<input id = "helpArea" type = "text" th:field = "*{helpArea}">
+							</div>
 						</div>
 					</div>
 				</div>

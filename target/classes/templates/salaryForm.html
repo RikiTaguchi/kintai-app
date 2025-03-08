@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -17,34 +18,46 @@
 		<div class="main">
 			<div class="subHeader">
 				<p>給与情報</p>
-				<hr size="2" color="lightgray">
+				<hr size="1" color="lightgray">
 			</div>
 			
 			<div class="form">
 				<form th:action = "@{/salaryForm}" method = "post" th:object = "${salaryUpdateForm}" class="form">
 					<div>
 						<label id="teacherInfo" for = "teacher">氏名</label>
-						<input id = "teacher" type = "text" th:field = "${user.userName}" disabled>
+						<div class="inputBlock">
+							<input id = "teacher" type = "text" th:field = "${user.userName}" disabled>
+						</div>
 					</div>
 					<div>
 						<label id = "start" for = "dateFrom">対象期間</label>
-						<input id = "dateFrom" type = "date" th:field = "*{dateFrom}" required>
+						<div class="inputBlock">
+							<input id = "dateFrom" type = "date" th:field = "*{dateFrom}" required>
+						</div>
 					</div>
 					<div>
 						<label id = "salary" for = "classSalary">コマ給</label>
-						<input id = "classSalary" type = "number" th:field = "*{classSalary}" required>
+						<div class="inputBlock">
+							<input id = "classSalary" type = "number" th:field = "*{classSalary}" required>
+						</div>
 					</div>
 					<div>
 						<label id = "study" for = "officeSalary">事務給</label>
-						<input id = "officeSalary" type = "number" th:field = "*{officeSalary}" required>
+						<div class="inputBlock">
+							<input id = "officeSalary" type = "number" th:field = "*{officeSalary}" required>
+						</div>
 					</div>
 					<div>
 						<label id = "bonus" for = "supportSalary">日時手当</label>
-						<input id = "supportSalary" type = "number" th:field = "*{supportSalary}" required>
+						<div class="inputBlock">
+							<input id = "supportSalary" type = "number" th:field = "*{supportSalary}" required>
+						</div>
 					</div>
 					<div>
 						<label id = "transport" for = "carfare">交通費</label>
-						<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+						<div class="inputBlock">
+							<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+						</div>
 					</div>
 
 					<div style = "display: none;">

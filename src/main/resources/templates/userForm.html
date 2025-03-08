@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
@@ -18,18 +19,22 @@
 
 		<div class="main">
 			<div class="subHeader">
-				<p>アカウント情報修正</p>
-				<hr size="2" color="lightgray">
+				<p>アカウント</p>
+				<hr size="1" color="lightgray">
 		    </div>
 			
 			<form th:action = "@{/userForm}" method = "post" th:object = "${userUpdateForm}" class="form">
                 <div>
 					<label for = "loginId">ログインID</label>
-					<input id = "loginId" type = "text" th:field = "*{loginId}" required>
+					<div class="inputBlock">
+						<input id = "loginId" type = "text" th:field = "*{loginId}" required>
+					</div>
 				</div>
 				<div>
 					<label for = "password">パスワード</label>
-					<input id = "password" type = "text" th:field = "*{password}" required>
+					<div class="inputBlock">
+						<input id = "password" type = "text" th:field = "*{password}" required>
+					</div>
 				</div>
 
 				<div style = "display: none;">

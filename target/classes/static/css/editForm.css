@@ -1,32 +1,3 @@
-.template {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -15px;
-}
-
-.templateStatement {
-    display: flex;
-    text-align: center;
-}
-
-.templateStatement p {
-    display: block;
-    font-size: 15px;
-    font-weight: bold;
-    color: rgb(64, 64, 64);
-}
-
-select {
-    width: 160px;
-    height: 30px;
-    margin-left: 3px;
-    border-radius: 5px;
-    border-color: rgba(27, 27, 27, 0.577);
-    border-width: 2px;
-}
-
 .checkbox {
     width: 15px;
     height: 15px;
@@ -51,9 +22,9 @@ select {
 }
 
 .subBlock {
-    margin-left: 20px;
+    margin-left: 12px;
 }
 
 .subBlock input {
-    width: 280px;
+    width: 288px;
 }
