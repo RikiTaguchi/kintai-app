@@ -7,11 +7,15 @@
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/updateForm.css}" rel="stylesheet">
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 
 		<div class="main">
@@ -21,40 +25,44 @@
 			</div>
 			
 			<form th:action = "@{/updateForm}" method = "post" th:object = "${salaryUpdateForm}" class="form">
-				<div>
-					<label id="teacherInfo" for = "teacher">氏名</label>
-					<div class="inputBlock">
-						<input id = "teacher" type = "text" th:field = "${user.userName}" disabled>
-					</div>
-				</div>
-				<div>
-					<label id = "start" for = "dateFrom">対象期間</label>
-					<div class="inputBlock">
-						<input id = "dateFrom" type = "date" th:field = "*{dateFrom}" required>
-					</div>
-				</div>
-				<div>
-					<label id = "salary" for = "classSalary">コマ給</label>
-					<div class="inputBlock">
-						<input id = "classSalary" type = "number" th:field = "*{classSalary}" required>
-					</div>
-				</div>
-				<div>
-					<label id = "study" for = "officeSalary">事務給</label>
-					<div class="inputBlock">
-						<input id = "officeSalary" type = "number" th:field = "*{officeSalary}" required>
-					</div>
-				</div>
-				<div>
-					<label id = "bonus" for = "supportSalary">日時手当</label>
-					<div class="inputBlock">
-						<input id = "supportSalary" type = "number" th:field = "*{supportSalary}" required>
-					</div>
-				</div>
-				<div>
-					<label id = "transport" for = "carfare">交通費</label>
-					<div class="inputBlock">
-						<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+				<div class="formContents">
+					<div>
+						<div>
+							<label id="teacherInfo" for = "teacher">氏名</label>
+							<div class="inputBlock">
+								<input id = "teacher" type = "text" th:field = "${user.userName}" disabled>
+							</div>
+						</div>
+						<div>
+							<label id = "start" for = "dateFrom">対象期間</label>
+							<div class="inputBlock">
+								<input id = "dateFrom" type = "date" th:field = "*{dateFrom}" required>
+							</div>
+						</div>
+						<div>
+							<label id = "salary" for = "classSalary">コマ給</label>
+							<div class="inputBlock">
+								<input id = "classSalary" type = "number" th:field = "*{classSalary}" required>
+							</div>
+						</div>
+						<div>
+							<label id = "study" for = "officeSalary">事務給</label>
+							<div class="inputBlock">
+								<input id = "officeSalary" type = "number" th:field = "*{officeSalary}" required>
+							</div>
+						</div>
+						<div>
+							<label id = "bonus" for = "supportSalary">日時手当</label>
+							<div class="inputBlock">
+								<input id = "supportSalary" type = "number" th:field = "*{supportSalary}" required>
+							</div>
+						</div>
+						<div>
+							<label id = "transport" for = "carfare">交通費</label>
+							<div class="inputBlock">
+								<input id = "carfare" type = "number" th:field = "*{carfare}" required>
+							</div>
+						</div>
 					</div>
 				</div>
 

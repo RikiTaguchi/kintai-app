@@ -6,13 +6,16 @@
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/index.css}" rel="stylesheet">
-		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/index(user=${user.id})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/index(user=${user.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
@@ -25,7 +28,7 @@
 		    </div>
 
 			<div>
-				<p>内容未定</p>
+				<p>準備中</p>
 			</div>
 		</div>
 		

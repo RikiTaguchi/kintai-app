@@ -7,11 +7,15 @@
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/userForm.css}" rel="stylesheet">
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/index(user=${user.id})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/index(user=${user.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
@@ -24,16 +28,20 @@
 		    </div>
 			
 			<form th:action = "@{/userForm}" method = "post" th:object = "${userUpdateForm}" class="form">
-                <div>
-					<label for = "loginId">ログインID</label>
-					<div class="inputBlock">
-						<input id = "loginId" type = "text" th:field = "*{loginId}" required>
-					</div>
-				</div>
-				<div>
-					<label for = "password">パスワード</label>
-					<div class="inputBlock">
-						<input id = "password" type = "text" th:field = "*{password}" required>
+				<div class="formContents">
+					<div>
+						<div>
+							<label for = "loginId">ログインID</label>
+							<div class="inputBlock">
+								<input id = "loginId" type = "text" th:field = "*{loginId}" required>
+							</div>
+						</div>
+						<div>
+							<label for = "password">パスワード</label>
+							<div class="inputBlock">
+								<input id = "password" type = "text" th:field = "*{password}" required>
+							</div>
+						</div>
 					</div>
 				</div>
 

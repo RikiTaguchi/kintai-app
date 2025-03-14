@@ -14,3 +14,23 @@
     border-bottom: none;
     border-radius: 0 0 5.5px 5.5px;
 }
+
+/* レスポンシブ（タブレット） */
+@media screen and (max-width: 959px) {
+	
+}
+
+/* レスポンシブ（スマホ） */
+@media screen and (max-width: 480px) {
+    .radius-table {
+        width: 100%;
+    }
+    
+    .radius-table tr {
+        width: 100%;
+    }
+
+    .radius-table tr th {
+        width: 100%;
+    }
+}

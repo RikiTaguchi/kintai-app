@@ -8,30 +8,29 @@
 	</head>
 	<body>
 		<div>
-			<h1 class="createAccount">新しく管理者を登録</h1>
+			<h1 class="createAccount">勤怠管理システム</h1>
 			<div class="main">
-			<form th:action = "@{/signUpManager}" method = "post" th:object = "${managerCreateForm}">
-				<div>
-					<label for = "loginId">ログインID</label>
-					<input id = "loginId" type = "text" th:field = "*{loginId}" required>
-				</div>
-				<div>
-					<label for = "password">パスワード</label>
-					<input id = "password" type = "text" th:field = "*{password}" required>
-				</div>
-				<div>
-					<label for = "classArea">所属教室</label>
-					<input id = "classArea" type = "text" th:field = "*{classArea}" required>教室
-				</div>
-				<div>
-					<input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
-				</div>
-			</form>
+				<p class="main-title">アカウント作成</p>
+				<form th:action = "@{/signUpManager}" method = "post" th:object = "${managerCreateForm}">
+					<div>
+						<label for = "loginId">ログインID</label>
+						<input id = "loginId" type = "text" th:field = "*{loginId}" required>
+					</div>
+					<div>
+						<label for = "password">パスワード</label>
+						<input id = "password" type = "text" th:field = "*{password}" required>
+					</div>
+					<div>
+						<label for = "classArea">所属教室</label>
+						<input id = "classArea" type = "text" th:field = "*{classArea}" required>
+					</div>
+					<div>
+						<input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
+					</div>
+				</form>
+				<br>
+				<a th:href="@{/loginManager}">ログイン画面へ</a>
 			</div>
-		</div>
-		<br>
-		<div class="goLogin">
-			<a th:href="@{/loginManager}">ログイン画面へ</a>
 		</div>
 		<p class="tradeMark">&trade;明光義塾 勤怠管理システム</p>
 	</body>

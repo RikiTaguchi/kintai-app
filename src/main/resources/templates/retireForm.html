@@ -7,11 +7,15 @@
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/retireForm.css}" rel="stylesheet">
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/index(user=${user.id}, year=${year}, month=${month})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 		
 		<div class="main">
@@ -21,16 +25,20 @@
 			</div>
 			
 			<form th:action = "@{/retireForm}" method = "post" th:object = "${retireCreateForm}" class="form">
-				<div>
-					<label id="teacherInfo" for = "teacher">氏名</label>
-					<div class="inputBlock">
-						<input id = "teacher" type = "text" th:value = "${user.userName}" disabled>
-					</div>
-				</div>
-				<div>
-					<label id = "retire" for = "retireDate">退職日</label>
-					<div class="inputBlock">
-						<input id = "retireDate" type = "date" th:field = "*{retireDate}" required>
+				<div class="formContents">
+					<div>
+						<div>
+							<label id="teacherInfo" for = "teacher">氏名</label>
+							<div class="inputBlock">
+								<input id = "teacher" type = "text" th:value = "${user.userName}" disabled>
+							</div>
+						</div>
+						<div>
+							<label id = "retire" for = "retireDate">退職日</label>
+							<div class="inputBlock">
+								<input id = "retireDate" type = "date" th:field = "*{retireDate}" required>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div style = "display: none;">

@@ -9,11 +9,15 @@
 		<script th:src="@{/js/display.js}" defer></script>
 		<script th:src="@{/js/change.js}" defer></script>
 		<script th:src="@{/js/confirm.js}" defer></script>
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 
 		<div class="main">
@@ -42,7 +46,7 @@
 
 			<div class="mainTable">
 			<div style="display: flex; align-items: center;">
-				<table border="1" style="border-spacing: 0;" class="table1">
+				<table border="1" style="border-spacing: 0;" class="table table1">
 					<tr>
 						<th>教室名</th>
 						<td id="tableClassName"><span th:text = "${manager.classArea}"></span>　　教室</td>
@@ -88,7 +92,7 @@
 			</div>
 			<br>
 			<div style = "display: flex;">
-				<table border="1" style="border-spacing: 0;" class="table2">
+				<table border="1" style="border-spacing: 0;" class="table table2">
 					<tr>
 						<th class="table5">勤務コマ数</th>
 						<th class="table5">勤務日数</th>
@@ -115,14 +119,14 @@
 				<div>
 					<p>　</p>
 				</div>
-				<table border="1" style="border-spacing: 0;" class="table3">
+				<table border="1" style="border-spacing: 0;" class="table table3">
 					<tr><th class="table6" rowspan = "2">交通費</th><td>①</td><td>②</td></tr>
 					<tr><td><span th:text = "${sumSalaryFormatted[17]}"></span></td><td></td></tr>
 				</table>
 			</div>
 			<br>
 			<div>
-				<table border="1" style="border-spacing: 0;" class="table7">
+				<table border="1" style="border-spacing: 0;" class="table table7">
 					<tr>
 						<th rowspan = "2" colspan = "2">勤務日</th>
 						<th rowspan = "2">勤務コマ</th>
@@ -194,7 +198,7 @@
 
 		<div>
 			<th:block th:if = "${!#lists.isEmpty(workList)}">
-			<div th:each = "w : ${workList}" th:class="${w.id + '-element detail-panel'}" style="display: none; width: 360px;">
+			<div th:each = "w : ${workList}" th:class="${w.id + '-element detail-panel'}" style="display: none; width: 300px;">
 				<div class="panel-close">
 					<a href="#" th:class="${w.id + '-off detail-listener-off'}">
 						<img src="/img/square-x.svg">
@@ -333,7 +337,7 @@
 			</th:block>
 		</div>
 
-        <div class="detail-form-element detail-panel" style="display: none; width: 500px;">
+        <div class="detail-form-element detail-panel" style="display: none; width: 300px;">
 			<div class="panel-close">
 				<a href="#" class="detail-form-button">
 					<img src="/img/square-x.svg">

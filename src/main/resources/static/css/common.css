@@ -3,6 +3,7 @@
 
 body {
     background-color: rgba(240, 240, 240, 0.772);
+    font-family: "MS ゴシック";
 }
 
 .header {
@@ -12,6 +13,7 @@ body {
     left: 0;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding-left: 25px;
     width: 100%;
     height: 55px;
@@ -22,9 +24,24 @@ body {
 }
 
 h1 {
-    font-size: 23px;
+    position: relative;
+    font-size: 20px;
     font-family: "MS ゴシック";
     color:rgb(76, 76, 78);
+    display: flex;
+    align-items: center;
+}
+
+h1::before {
+    content: "";
+    background-image: url(../img/meiko-logo.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: block;
+    width: 150px;
+    height: 28.5px;
+    margin-right: 10px;
 }
 
 .header a {
@@ -35,14 +52,19 @@ h1 {
     width: 100%;
 }
 
+.menu-button {
+    display: none;
+    border: none;
+    background-color: transparent;
+}
+
 .headerClass {
     position: fixed;
     z-index: 3;
-    top: 13px;
-    left: 325px;
-    width: 180px;
-    color: darkcyan;
-    font-size: 20px;
+    top: 16px;
+    left: 350px;
+    color: rgb(0, 129, 204);
+    font-size: 16px;
     font-weight: bold;
 }
 
@@ -62,7 +84,7 @@ h1 {
     width: 220px;
     border-bottom: solid;
     border-width: 2.5px;
-    border-color: darkcyan;
+    border-color: rgb(0, 129, 204);
     margin-bottom: 0;
     padding-bottom: 3.5px;
 }
@@ -89,7 +111,7 @@ h1 {
     margin-left: 10px;
     margin-right: 10px;
     border-radius: 5px;
-    background-color: rgb(17, 156, 156);
+    background-color: rgb(0, 149, 224);
     color: white;
     font-weight:bold;
     font-size:13px;
@@ -110,7 +132,7 @@ h1 {
 }
 
 .subMenuContents:hover {
-    background-color:rgb(0, 139, 139);
+    background-color:rgb(0, 109, 184);
     border-radius: 5px;
 }
 
@@ -124,9 +146,10 @@ h1 {
     display: block;
     margin-top: 0;
     margin-bottom: 0;
+    margin-right: 10px;
     font-size: 20px;
     font-weight: bold;
-    color: rgb(0, 139, 139);
+    color: rgb(0, 129, 204);
 }
 
 .miniMenuContents {
@@ -135,9 +158,10 @@ h1 {
     flex-direction: column;
     height: 25px;
     width: 100px;
-    margin-left: 25px;
+    margin-left: 10px;
+    margin-right: 10px;
     border-radius: 5px;
-    background-color: rgb(17, 156, 156);
+    background-color: rgb(0, 149, 224);
     color: white;
     font-weight:bold;
     font-size:13px;
@@ -158,7 +182,7 @@ h1 {
 }
 
 .miniMenuContents:hover {
-    background-color:rgb(0, 139, 139);
+    background-color:rgb(0, 109, 184);
     border-radius: 5px;
 }
 
@@ -183,7 +207,7 @@ h1 {
     height: 30px;
     width: 50px;
     border-radius: 5px;
-    background-color: rgb(17, 156, 156);
+    background-color: rgb(0, 149, 224);
     color: white;
     font-weight:bold;
     font-size:13px;
@@ -204,7 +228,7 @@ h1 {
 }
 
 .beforeMonth:hover {
-    background-color:rgb(0, 139, 139);
+    background-color:rgb(0, 109, 184);
     border-radius: 5px;
 }
 
@@ -215,7 +239,7 @@ h1 {
     height: 30px;
     width: 50px;
     border-radius: 5px;
-    background-color: rgb(17, 156, 156);
+    background-color: rgb(0, 149, 224);
     color: white;
     font-weight:bold;
     font-size:13px;
@@ -236,7 +260,7 @@ h1 {
 }
 
 .afterMonth:hover {
-    background-color:rgb(0, 139, 139);
+    background-color:rgb(0, 109, 184);
     border-radius: 5px;
 }
 
@@ -295,7 +319,7 @@ h1 {
     flex-direction: column;
     align-items: center;
     border-radius: 5px;
-    background-color: rgb(17, 156, 156);
+    background-color: rgb(0, 149, 224);
     color: white;
     font-weight:bold;
     font-size:13px;
@@ -333,7 +357,7 @@ h1 {
 }
 
 .panel-button:hover {
-    background-color:rgb(0, 139, 139);
+    background-color:rgb(0, 109, 184);
     border-radius: 5px;
 }
 
@@ -352,10 +376,11 @@ h1 {
 }
 
 .side {
-    position:absolute;
+    display: block;
     position: fixed;
     background-color: white;
     left: 0;
+    right: auto;
     top: 48px;
     width: 200px;
     height: 100%;
@@ -451,7 +476,7 @@ h1 {
     margin-top: 20px;
     border-bottom: solid;
     border-color:rgb(230, 230, 230);
-    color: darkcyan;
+    color: rgb(0, 129, 204);
     font-size: 25px;
     font-weight: bold;
 }
@@ -462,7 +487,7 @@ h1 {
     margin-top: 20px;
     border-bottom: solid;
     border-color:rgb(230, 230, 230);
-    color: darkcyan;
+    color: rgb(0, 129, 204);
     font-size: 25px;
     font-weight: bold;
 }
@@ -666,13 +691,24 @@ h1 {
     }
 
     h1 {
-        font-size: 15px;
+        font-size: 12px;
+    }
+
+    h1::before {
+        width: 70px;
+        height: 13px;
+        margin-right: 5px;
+    }
+
+    .menu-button {
+        display: block;
+        margin-right: 15px;
     }
 
     .headerClass {
-        top: 9px;
-        left: 205px;
-        font-size: 12px;
+        top: 10px;
+        left: 185px;
+        font-size: 10px;
     }
 
     .main {
@@ -707,6 +743,22 @@ h1 {
         margin-left: 5px;
         margin-right: 5px;
         font-size: 8px;
+    }
+
+    .miniMenu {
+        margin-top: 7px;
+    }
+    
+    .miniTitle {
+        font-size: 15px;
+    }
+    
+    .miniMenuContents {
+        height: 20px;
+        width: 75px;
+        margin-left: 5px;
+        margin-right: 5px;
+        font-size:8px;
     }
 
     .date {
@@ -761,8 +813,12 @@ h1 {
     }
 
     .side {
+        display: none;
         top: 25px;
+        left: auto;
+        right: 0;
         width: 160px;
+        box-shadow: -1px -1px 5px rgb(76, 76, 78);
     }
 
     #goHome {
@@ -788,11 +844,18 @@ h1 {
     }
 
     #logout p {
-        left: 51px;
+        left: 49px;
     }
     
     #logout p::before {
         top: -1px;
+    }
+
+    #className {
+        margin-top:18px;
+        height: 30px;
+        width: 150px;
+        font-size:18px;
     }
     
     #teacherName {
@@ -800,6 +863,21 @@ h1 {
         height: 30px;
         width: 150px;
         font-size:18px;
+    }
+
+    #newAccount {
+        margin-top:15px;
+        height: 30px;
+        width: 150px;
+        font-size:15px;
+    }
+
+    #newAccount p {
+        left: 54px;
+    }
+    
+    #newAccount p::before {
+        top: -1px;
     }
     
     #detailSalary {
@@ -810,10 +888,25 @@ h1 {
     }
 
     #detailSalary p {
-        left: 56px;
+        left: 55px;
     }
     
     #detailSalary p::before {
+        top: -1px;
+    }
+
+    #classInformation {
+        margin-top:15px;
+        height: 30px;
+        width: 150px;
+        font-size:15px;
+    }
+
+    #classInformation p {
+        left: 49px;
+    }
+    
+    #classInformation p::before {
         top: -1px;
     }
     
@@ -825,7 +918,7 @@ h1 {
     }
 
     #workInfo p {
-        left: 49px;
+        left: 47px;
     }
     
     #workInfo p::before {
@@ -840,7 +933,7 @@ h1 {
     }
 
     #teacherInformation p {
-        left: 51px;
+        left: 49px;
     }
     
     #teacherInformation p::before {
