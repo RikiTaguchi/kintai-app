@@ -39,160 +39,155 @@
 				<p>来月</p>
 				<a id="next-button" th:href = "@{/detail(manager=${manager.id}, user=${user.id}, year=${yearNext}, month=${monthNext})}"></a>
 			</div>
+
             <div class="salaryForm">
 				<p>講師給フォーム</p>
 				<a href="#" class="detail-form-button"></a>
 			</div>
 
+			<div class="addForm">
+				<p>シフト登録</p>
+				<a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
+			</div>
+
+			<div class="lockForm">
+				<th:block th:if="${lockStatus == 'false'}">
+					<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}" style="text-decoration: none;">
+						<img id="lockOff" th:src="@{/img/lock-open.svg}">
+					</a>
+				</th:block>
+				<th:block th:if="${lockStatus == 'true'}">
+					<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}" style="text-decoration: none;">
+						<img id="lockOn" th:src="@{/img/lock.svg}">
+					</a>
+				</th:block>
+			</div>
+
 			<div class="mainTable">
-			<div style="display: flex; align-items: center;">
-				<table border="1" style="border-spacing: 0;" class="table table1">
-					<tr>
-						<th>教室名</th>
-						<td id="tableClassName"><span th:text = "${manager.classArea}"></span>　　教室</td>
-						<th>講師氏名</th>
-						<td id="tableTeacherName">
-							<select class="change-select">
-								<th:block th:each="u : ${userList}">
-									<th:block th:if="${user.id.equals(u.id)}">
-										<option th:text="${u.userName}" th:class="${'option-'+u.id}" selected></option>
-										<a th:class="${'button-'+u.id}" th:href="@{/detail(manager=${manager.id}, user=${u.id}, year=${yearNow}, month=${monthNow})}" style="display: none;"></a>
-									</th:block>
-									<th:block th:if="${!user.id.equals(u.id)}">
-										<option th:text="${u.userName}" th:class="${'option-'+u.id}"></option>
-										<a th:class="${'button-'+u.id}" th:href="@{/detail(manager=${manager.id}, user=${u.id}, year=${yearNow}, month=${monthNow})}" style="display: none;"></a>
-									</th:block>
-								</th:block>
-							</select>
-						</td>
-					</tr>
-				</table>
-
-				<div style="display: flex;">
-					<div class="subMenu" style="margin-top: 0; margin-left: 20px;">
-						<div class="subMenuContents" style="width: 113px; height: 30px;">
-							<p>シフト登録</p>
-							<a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
-						</div>
-					</div>
-					<div style="margin-left: 10px; margin-right: 20px;">
-						<th:block th:if="${lockStatus == 'false'}">
-							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}" style="text-decoration: none;">
-								<img id="lockOff" th:src="@{/img/lock-open.svg}" style="width: 35px; height: 35px;">
-							</a>
-						</th:block>
-						<th:block th:if="${lockStatus == 'true'}">
-							<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}" style="text-decoration: none;">
-								<img id="lockOn" th:src="@{/img/lock.svg}" style="width: 35px; height: 35px;">
-							</a>
-						</th:block>
-					</div>
-				</div>
-
-			</div>
-			<br>
-			<div style = "display: flex;">
-				<table border="1" style="border-spacing: 0;" class="table table2">
-					<tr>
-						<th class="table5">勤務コマ数</th>
-						<th class="table5">勤務日数</th>
-						<th class="table5">事務時間(分)</th>
-						<th class="table5">日時手当</th>
-						<th class="table5">交通費</th>
-						<th class="table5">研修時間(分)</th>
-						<th class="table5">時間外(分)</th>
-						<th class="table5">超過(分)</th>
-						<th class="table5">深夜(分)</th>
-					</tr>
-					<tr>
-						<td class="table4"><th:block th:if="${sumSalary[0] != 0}"><span th:text = "${sumSalaryFormatted[0]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[2] != 0}"><span th:text = "${sumSalaryFormatted[2]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[5] != 0}"><span th:text = "${sumSalaryFormatted[5]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[9] != 0}"><span th:text = "${sumSalaryFormatted[9]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[11] != 0}"><span th:text = "${sumSalaryFormatted[11]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[7] != 0}"><span th:text = "${sumSalaryFormatted[7]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[3] != 0}"><span th:text = "${sumSalaryFormatted[3]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[12] != 0}"><span th:text = "${sumSalaryFormatted[12]}"></span></th:block></td>
-						<td class="table4"><th:block th:if="${sumSalary[14] != 0}"><span th:text = "${sumSalaryFormatted[14]}"></span></th:block></td>
-					</tr>
-				</table>
 				<div>
-					<p>　</p>
+					<table border="1" style="border-spacing: 0;" class="table table1">
+						<tr>
+							<th>教室名</th>
+							<td id="tableClassName"><span th:text = "${manager.classArea}"></span>　　教室</td>
+							<th>講師氏名</th>
+							<td id="tableTeacherName">
+								<select class="change-select">
+									<th:block th:each="u : ${userList}">
+										<th:block th:if="${user.id.equals(u.id)}">
+											<option th:text="${u.userName}" th:class="${'option-'+u.id}" selected></option>
+											<a th:class="${'button-'+u.id}" th:href="@{/detail(manager=${manager.id}, user=${u.id}, year=${yearNow}, month=${monthNow})}" style="display: none;"></a>
+										</th:block>
+										<th:block th:if="${!user.id.equals(u.id)}">
+											<option th:text="${u.userName}" th:class="${'option-'+u.id}"></option>
+											<a th:class="${'button-'+u.id}" th:href="@{/detail(manager=${manager.id}, user=${u.id}, year=${yearNow}, month=${monthNow})}" style="display: none;"></a>
+										</th:block>
+									</th:block>
+								</select>
+							</td>
+						</tr>
+					</table>
 				</div>
-				<table border="1" style="border-spacing: 0;" class="table table3">
-					<tr><th class="table6" rowspan = "2">交通費</th><td>①</td><td>②</td></tr>
-					<tr><td><span th:text = "${sumSalaryFormatted[17]}"></span></td><td></td></tr>
-				</table>
-			</div>
-			<br>
-			<div>
-				<table border="1" style="border-spacing: 0;" class="table table7">
-					<tr>
-						<th rowspan = "2" colspan = "2">勤務日</th>
-						<th rowspan = "2">勤務コマ</th>
-						<th rowspan = "2">コマ数</th>
-						<th rowspan = "2">ヘルプ<br>勤務教室</th>
-						<th colspan = "2">授業業務</th>
-						<th rowspan = "2">休憩</th>
-						<th colspan = "3">事務業務</th>
-						<th rowspan = "2">日時手当</th>
-						<th rowspan = "2">交通費</th>
-						<th colspan = "5">研修(実施会場)/自習教室</th>
-						<th rowspan = "2">時間外</th>
-						<th rowspan = "2">超過</th>
-						<th rowspan = "2">深夜</th>
-					</tr>
-					<tr>
-						<th>開始</th>
-						<th>終了</th>
-						<th>開始</th>
-						<th>終了</th>
-						<th>時間</th>
-						<th>内容</th>
-						<th>開始</th>
-						<th>終了</th>
-						<th>休憩</th>
-						<th>時間</th>
-					</tr>
-					<th:block th:if = "${!#lists.isEmpty(workList)}">
-					<tr th:each = "w : ${workList}">
-						<td class="table8 table9"><a href = "#" th:class="${w.id + '-on detail-listener-on'}"><span th:text = "${w.date.substring(5,10).replace('-','月')+'日'}"></span></a></td>
-						<td class="table8" th:text = "${w.dayOfWeek}"></td>
-						<td class="table8 table9">
-							<th:block th:if = "${w.classM}"><span th:text = "'M'"></span></th:block>
-							<th:block th:if = "${w.classK}"><span th:text = "'K'"></span></th:block>
-							<th:block th:if = "${w.classS}"><span th:text = "'S'"></span></th:block>
-							<th:block th:if = "${w.classA}"><span th:text = "'A'"></span></th:block>
-							<th:block th:if = "${w.classB}"><span th:text = "'B'"></span></th:block>
-							<th:block th:if = "${w.classC}"><span th:text = "'C'"></span></th:block>
-							<th:block th:if = "${w.classD}"><span th:text = "'D'"></span></th:block>
-						</td>
-						<td class="table8"><th:block th:if = "${w.classCount != 0}"><span th:text = "${w.classCount}"></span></th:block></td>
-						<td class="table8" th:text = "${w.helpArea}"></td>
-						<th:block th:if="${w.timeStart != '     '}"><td class="table8 table10" th:text = "${w.timeStart}"></td></th:block>
-						<th:block th:if="${w.timeStart == '     '}"><td class="table8"></td></th:block>
-						<th:block th:if="${w.timeEnd != '     '}"><td class="table8 table10" th:text = "${w.timeEnd}"></td></th:block>
-						<th:block th:if="${w.timeEnd == '     '}"><td class="table8"></td></th:block>
-						<th:block th:if="${w.timeStart != '     ' && w.timeEnd != '     ' && w.breakTime != 0}"><td class="table8 table10"><span th:text = "${w.breakTime/60}"></span>:<span th:text="${w.breakTime%60 < 10 ? '0' + w.breakTime%60 : w.breakTime%60}"></span></td></th:block>
-						<th:block th:if="${w.timeStart != '     ' && w.timeEnd != '     ' && w.breakTime == 0}"><td class="table8 table10"></td></th:block>
-						<th:block th:if="${w.timeStart == '     ' || w.timeEnd == '     '}"><td class="table8"></td></th:block>
-						<td class="table8 table9" th:text = "${w.officeTimeStart}"></td>
-						<td class="table8 table9" th:text = "${w.officeTimeEnd}"></td>
-						<td class="table8"><th:block th:if = "${w.officeTime != 0}"><span th:text = "${w.officeTime/60}"></span>:<span th:text="${w.officeTime%60 < 10 ? '0' + w.officeTime%60 : w.officeTime%60}"></span></th:block></td>
-						<td class="table8"><th:block th:if = "${w.supportSalary == 'true'}"><span th:text = "${supportSalaryMap.get(w.id)}"></span></th:block></td>
-						<td class="table8 table10"><th:block th:if = "${w.carfare != 0}"><span th:text = "${carfareMap.get(w.id)}"></span></th:block></td>
-						<td class="table8 table9" th:text = "${w.otherWork}"></td>
-						<td class="table8 table9" th:text = "${w.otherTimeStart}"></td>
-						<td class="table8 table9" th:text = "${w.otherTimeEnd}"></td>
-						<td class="table8 table9"><th:block th:if = "${w.otherBreakTime != 0}"><span th:text = "${w.otherBreakTime/60}"></span>:<span th:text="${w.otherBreakTime%60 < 10 ? '0' + w.otherBreakTime%60 : w.otherBreakTime%60}"></span></th:block></td>
-						<td class="table8"><th:block th:if = "${w.otherTime != 0}"><span th:text = "${w.otherTime/60}"></span>:<span th:text="${w.otherTime%60 < 10 ? '0' + w.otherTime%60 : w.otherTime%60}"></span></th:block></td>
-						<td class="table8"><th:block th:if = "${w.outOfTime != 0}"><span th:text = "${w.outOfTime/60}"></span>:<span th:text="${w.outOfTime%60 < 10 ? '0' + w.outOfTime%60 : w.outOfTime%60}"></span></th:block></td>
-						<td class="table8"><th:block th:if = "${w.overTime != 0}"><span th:text = "${w.overTime/60}"></span>:<span th:text="${w.overTime%60 < 10 ? '0' + w.overTime%60 : w.overTime%60}"></span></th:block></td>
-						<td class="table8"><th:block th:if = "${w.nightTime != 0}"><span th:text = "${w.nightTime/60}"></span>:<span th:text="${w.nightTime%60 < 10 ? '0' + w.nightTime%60 : w.nightTime%60}"></span></th:block></td>
-					</tr>
-					</th:block>
-				</table>
-			</div>
+
+				<div style="margin-top: 15px; display: flex;">
+					<table border="1" style="border-spacing: 0;" class="table table2">
+						<tr>
+							<th class="table5">勤務コマ数</th>
+							<th class="table5">勤務日数</th>
+							<th class="table5">事務時間(分)</th>
+							<th class="table5">日時手当</th>
+							<th class="table5">交通費</th>
+							<th class="table5">研修時間(分)</th>
+							<th class="table5">時間外(分)</th>
+							<th class="table5">超過(分)</th>
+							<th class="table5">深夜(分)</th>
+						</tr>
+						<tr>
+							<td class="table4"><th:block th:if="${sumSalary[0] != 0}"><span th:text = "${sumSalaryFormatted[0]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[2] != 0}"><span th:text = "${sumSalaryFormatted[2]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[5] != 0}"><span th:text = "${sumSalaryFormatted[5]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[9] != 0}"><span th:text = "${sumSalaryFormatted[9]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[11] != 0}"><span th:text = "${sumSalaryFormatted[11]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[7] != 0}"><span th:text = "${sumSalaryFormatted[7]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[3] != 0}"><span th:text = "${sumSalaryFormatted[3]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[12] != 0}"><span th:text = "${sumSalaryFormatted[12]}"></span></th:block></td>
+							<td class="table4"><th:block th:if="${sumSalary[14] != 0}"><span th:text = "${sumSalaryFormatted[14]}"></span></th:block></td>
+						</tr>
+					</table>
+
+					<table border="1" style="border-spacing: 0;" class="table table3">
+						<tr><th class="table6" rowspan = "2">交通費</th><td>①</td><td>②</td></tr>
+						<tr><td><span th:text = "${sumSalaryFormatted[17]}"></span></td><td></td></tr>
+					</table>
+				</div>
+
+				<div style="margin-top: 15px;">
+					<table border="1" style="border-spacing: 0;" class="table table7">
+						<tr>
+							<th rowspan = "2" colspan = "2">勤務日</th>
+							<th rowspan = "2">勤務コマ</th>
+							<th rowspan = "2">コマ数</th>
+							<th rowspan = "2">ヘルプ<br>勤務教室</th>
+							<th colspan = "2">授業業務</th>
+							<th rowspan = "2">休憩</th>
+							<th colspan = "3">事務業務</th>
+							<th rowspan = "2">日時手当</th>
+							<th rowspan = "2">交通費</th>
+							<th colspan = "5">研修(実施会場)/自習教室</th>
+							<th rowspan = "2">時間外</th>
+							<th rowspan = "2">超過</th>
+							<th rowspan = "2">深夜</th>
+						</tr>
+						<tr>
+							<th>開始</th>
+							<th>終了</th>
+							<th>開始</th>
+							<th>終了</th>
+							<th>時間</th>
+							<th>内容</th>
+							<th>開始</th>
+							<th>終了</th>
+							<th>休憩</th>
+							<th>時間</th>
+						</tr>
+						<th:block th:if = "${!#lists.isEmpty(workList)}">
+						<tr th:each = "w : ${workList}">
+							<td class="table8 table9"><a href = "#" th:class="${w.id + '-on detail-listener-on'}"><span th:text = "${w.date.substring(5,10).replace('-','月')+'日'}"></span></a></td>
+							<td class="table8" th:text = "${w.dayOfWeek}"></td>
+							<td class="table8 table9">
+								<th:block th:if = "${w.classM}"><span th:text = "'M'"></span></th:block>
+								<th:block th:if = "${w.classK}"><span th:text = "'K'"></span></th:block>
+								<th:block th:if = "${w.classS}"><span th:text = "'S'"></span></th:block>
+								<th:block th:if = "${w.classA}"><span th:text = "'A'"></span></th:block>
+								<th:block th:if = "${w.classB}"><span th:text = "'B'"></span></th:block>
+								<th:block th:if = "${w.classC}"><span th:text = "'C'"></span></th:block>
+								<th:block th:if = "${w.classD}"><span th:text = "'D'"></span></th:block>
+							</td>
+							<td class="table8"><th:block th:if = "${w.classCount != 0}"><span th:text = "${w.classCount}"></span></th:block></td>
+							<td class="table8" th:text = "${w.helpArea}"></td>
+							<th:block th:if="${w.timeStart != '     '}"><td class="table8 table10" th:text = "${w.timeStart}"></td></th:block>
+							<th:block th:if="${w.timeStart == '     '}"><td class="table8"></td></th:block>
+							<th:block th:if="${w.timeEnd != '     '}"><td class="table8 table10" th:text = "${w.timeEnd}"></td></th:block>
+							<th:block th:if="${w.timeEnd == '     '}"><td class="table8"></td></th:block>
+							<th:block th:if="${w.timeStart != '     ' && w.timeEnd != '     ' && w.breakTime != 0}"><td class="table8 table10"><span th:text = "${w.breakTime/60}"></span>:<span th:text="${w.breakTime%60 < 10 ? '0' + w.breakTime%60 : w.breakTime%60}"></span></td></th:block>
+							<th:block th:if="${w.timeStart != '     ' && w.timeEnd != '     ' && w.breakTime == 0}"><td class="table8 table10"></td></th:block>
+							<th:block th:if="${w.timeStart == '     ' || w.timeEnd == '     '}"><td class="table8"></td></th:block>
+							<td class="table8 table9" th:text = "${w.officeTimeStart}"></td>
+							<td class="table8 table9" th:text = "${w.officeTimeEnd}"></td>
+							<td class="table8"><th:block th:if = "${w.officeTime != 0}"><span th:text = "${w.officeTime/60}"></span>:<span th:text="${w.officeTime%60 < 10 ? '0' + w.officeTime%60 : w.officeTime%60}"></span></th:block></td>
+							<td class="table8"><th:block th:if = "${w.supportSalary == 'true'}"><span th:text = "${supportSalaryMap.get(w.id)}"></span></th:block></td>
+							<td class="table8 table10"><th:block th:if = "${w.carfare != 0}"><span th:text = "${carfareMap.get(w.id)}"></span></th:block></td>
+							<td class="table8 table9" th:text = "${w.otherWork}"></td>
+							<td class="table8 table9" th:text = "${w.otherTimeStart}"></td>
+							<td class="table8 table9" th:text = "${w.otherTimeEnd}"></td>
+							<td class="table8 table9"><th:block th:if = "${w.otherBreakTime != 0}"><span th:text = "${w.otherBreakTime/60}"></span>:<span th:text="${w.otherBreakTime%60 < 10 ? '0' + w.otherBreakTime%60 : w.otherBreakTime%60}"></span></th:block></td>
+							<td class="table8"><th:block th:if = "${w.otherTime != 0}"><span th:text = "${w.otherTime/60}"></span>:<span th:text="${w.otherTime%60 < 10 ? '0' + w.otherTime%60 : w.otherTime%60}"></span></th:block></td>
+							<td class="table8"><th:block th:if = "${w.outOfTime != 0}"><span th:text = "${w.outOfTime/60}"></span>:<span th:text="${w.outOfTime%60 < 10 ? '0' + w.outOfTime%60 : w.outOfTime%60}"></span></th:block></td>
+							<td class="table8"><th:block th:if = "${w.overTime != 0}"><span th:text = "${w.overTime/60}"></span>:<span th:text="${w.overTime%60 < 10 ? '0' + w.overTime%60 : w.overTime%60}"></span></th:block></td>
+							<td class="table8"><th:block th:if = "${w.nightTime != 0}"><span th:text = "${w.nightTime/60}"></span>:<span th:text="${w.nightTime%60 < 10 ? '0' + w.nightTime%60 : w.nightTime%60}"></span></th:block></td>
+						</tr>
+						</th:block>
+					</table>
+				</div>
 			</div>
 		</div>
 
