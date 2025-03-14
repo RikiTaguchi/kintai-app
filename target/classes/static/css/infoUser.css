@@ -78,3 +78,61 @@
 .radius-table-sub tr td:last-child {
     border-right: none;
 }
+
+/* レスポンシブ（タブレット） */
+@media screen and (max-width: 959px) {
+	
+}
+
+/* レスポンシブ（スマホ） */
+@media screen and (max-width: 480px) {
+    .radius-table {
+        width: 100%;
+    }
+    
+    .radius-table tr {
+        width: 100%;
+    }
+
+	.radius-table tr th {
+        width: 40%;
+    }
+
+    .radius-table tr td {
+        width: 40%;
+    }
+    
+    .radius-table tr td:first-child {
+        width: 60%;
+    }
+    
+    .radius-table tr th:first-child {
+        width: 60%;
+    }
+
+    .radius-table-sub {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .radius-table-sub tr {
+        width: 100%;
+        height: 35px;
+    }
+
+	.radius-table-sub tr th {
+        width: 18%;
+    }
+
+    .radius-table-sub tr td {
+        width: 18%;
+    }
+    
+    .radius-table-sub tr td:first-child {
+        width: 28%;
+    }
+    
+    .radius-table-sub tr th:first-child {
+        width: 28%;
+    }
+}

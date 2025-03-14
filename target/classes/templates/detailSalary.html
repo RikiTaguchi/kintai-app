@@ -6,11 +6,15 @@
 		<title>明光義塾 勤怠管理システム</title>
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/detailSalary.css}" rel="stylesheet">
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/index(user=${user.id})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/index(user=${user.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 		<div class="headerClass">
 			<span th:text = "${manager.classArea}"></span>教室<br>
@@ -38,7 +42,7 @@
 				<div class="mainTable-header">
 					<p>給与推移</p>
 				</div>
-				<table border="1" style="border-spacing: 0;" class="radius-table">
+				<table border="1" style="border-spacing: 0;" class="radius-table-sub">
 					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
 					<th:block th:each = "s : ${salaryList}">
 						<tr>

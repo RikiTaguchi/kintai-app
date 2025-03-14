@@ -7,11 +7,15 @@
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/form.css}" rel="stylesheet">
 		<link th:href="@{/css/editManagerForm.css}" rel="stylesheet">
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 
 		<div class="main">
@@ -21,22 +25,26 @@
 			</div>
 			
 			<form th:action = "@{/editManagerForm}" method = "post" th:object = "${managerUpdateForm}" class="form">
-				<div>
-                    <label for="classArea">教室名</label>
-					<div class="inputBlock">
-                    	<input id="classArea" type="text" th:field="*{classArea}" required>
-					</div>
-                </div>
-                <div>
-					<label for = "loginId">ログインID</label>
-					<div class="inputBlock">
-						<input id = "loginId" type = "text" th:field = "*{loginId}" required>
-					</div>
-				</div>
-				<div>
-					<label for = "password">パスワード</label>
-					<div class="inputBlock">
-						<input id = "password" type = "text" th:field = "*{password}" required>
+				<div class="formContents">
+					<div>
+						<div>
+							<label for="classArea">教室名</label>
+							<div class="inputBlock">
+								<input id="classArea" type="text" th:field="*{classArea}" required>
+							</div>
+						</div>
+						<div>
+							<label for = "loginId">ログインID</label>
+							<div class="inputBlock">
+								<input id = "loginId" type = "text" th:field = "*{loginId}" required>
+							</div>
+						</div>
+						<div>
+							<label for = "password">パスワード</label>
+							<div class="inputBlock">
+								<input id = "password" type = "text" th:field = "*{password}" required>
+							</div>
+						</div>
 					</div>
 				</div>
 

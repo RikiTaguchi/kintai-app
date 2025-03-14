@@ -7,11 +7,15 @@
 		<link th:href="@{/css/common.css}" rel="stylesheet">
 		<link th:href="@{/css/infoUser.css}" rel="stylesheet">
 		<script th:src="@{/js/confirm.js}" defer></script>
+		<script th:src="@{/js/hamburgerMenu.js}" defer></script>
 	</head>
 	<body>
 		<div class="header">
-            <h1>明光義塾 勤怠管理システム</h1>
-		    <a th:href="@{/indexManager(manager=${manager.id})}"></a>
+            <h1>
+				勤怠管理システム
+				<a th:href="@{/indexManager(manager=${manager.id})}"></a>
+			</h1>
+			<img class="menu-button" src="/img/menu.svg">
         </div>
 
 		<div class="main">

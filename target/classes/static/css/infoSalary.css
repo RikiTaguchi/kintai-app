@@ -19,3 +19,27 @@
 .radius-table tr:last-child th {
     border-bottom: none;
 }
+
+/* レスポンシブ（タブレット） */
+@media screen and (max-width: 959px) {
+	
+}
+
+/* レスポンシブ（スマホ） */
+@media screen and (max-width: 480px) {
+    .radius-table {
+        width: 100%;
+    }
+    
+    .radius-table tr {
+        width: 100%;
+    }
+
+	.radius-table tr th {
+        width: 50%;
+    }
+
+    .radius-table tr td {
+        width: 50%;
+    }
+}

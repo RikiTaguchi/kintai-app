@@ -28,3 +28,29 @@
 .subBlock input {
     width: 288px;
 }
+
+/* レスポンシブ（タブレット） */
+@media screen and (max-width: 959px) {
+	
+}
+
+/* レスポンシブ（スマホ） */
+@media screen and (max-width: 480px) {
+    .subBlock {
+        margin-left: 2%;
+    }
+
+    .subBlock input {
+        width: 98%;
+    }
+
+    .checkbox {
+        margin-left: 2%;
+        width: 5%;
+        height: auto;
+    }
+
+    .checklabel {
+        width: 5%;
+    }
+}

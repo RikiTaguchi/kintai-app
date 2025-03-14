@@ -8,8 +8,9 @@
 	</head>
 	<body>
 		<div>
-			<h1 class="loginTeacher">明光義塾 勤怠管理システム</h1>
+			<h1 class="loginTeacher">勤怠管理システム</h1>
 			<div class="main">
+				<p class="main-title">講師ログイン</p>
 				<form th:action = "@{/login}" method = "post" th:object = "${userLoginForm}">
 					<div>
 						<label for = "loginId">ログインID</label>

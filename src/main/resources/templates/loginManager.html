@@ -8,8 +8,9 @@
 	</head>
 	<body>
 		<div>
-			<h1 class="loginManager">明光義塾 勤怠管理システム</h1>
+			<h1 class="loginManager">勤怠管理システム</h1>
 		    <div class="main">
+				<p class="main-title">管理者ログイン</p>
 			    <form th:action = "@{/loginManager}" method = "post" th:object = "${managerLoginForm}">
 				    <div>
 					<label for = "loginId">ログインID</label>
@@ -23,8 +24,8 @@
 					<input id="loginButton" type = "submit" value = "ログイン" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
 				    </div>
 			    </form>
-		    <br>
-			<a th:href="@{/signUpManager}">新しくアカウントを作成</a>
+		    	<br>
+				<a th:href="@{/signUpManager}">アカウント作成</a>
 			</div>
 			<p class="tradeMark">&trade;明光義塾 勤怠管理システム</p>
         </div>

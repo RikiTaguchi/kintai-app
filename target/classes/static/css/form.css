@@ -61,7 +61,7 @@ input {
 }
 
 #submitButton {
-    background-color: rgb(17, 156, 156);
+    background-color: rgb(0, 149, 224);
     width: 300px;
     height:35px;
     margin-top: 30px;
@@ -72,11 +72,11 @@ input {
 }
 
 #submitButton:hover {
-    background-color: rgb(0, 139, 139);
+    background-color: rgb(0, 109, 184);
 }
 
 #deleteButton {
-    background-color: rgb(17, 156, 156);
+    background-color: rgb(0, 149, 224);
     width: 300px;
     height:35px;
     margin-top: 20px;
@@ -87,7 +87,7 @@ input {
 }
 
 #deleteButton:hover {
-    background-color: rgb(0, 139, 139);
+    background-color: rgb(0, 109, 184);
 }
 
 /* レスポンシブ（タブレット） */
@@ -114,9 +114,18 @@ input {
 
     .formContents {
         display: block;
+        width: 100%;
     }
 
     .formContents hr {
         display: none;
+    }
+
+    .inputBlock {
+        margin-left: 2%;
+    }
+
+    .inputBlock input {
+        width: 98%;
     }
 }
