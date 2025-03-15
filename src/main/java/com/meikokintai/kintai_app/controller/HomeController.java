@@ -634,7 +634,7 @@ public class HomeController {
             if (host.equals(domainLocal)) {
                 return "redirect:infoTemplate";
             } else {
-                String redirectUrl = String.format("redirect:https://%s/infoTesmplate", domainAWS);
+                String redirectUrl = String.format("redirect:https://%s/infoTemplate", domainAWS);
                 return redirectUrl;
             }
         } catch (Exception e) {
