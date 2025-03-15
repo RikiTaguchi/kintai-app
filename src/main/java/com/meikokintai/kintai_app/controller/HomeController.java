@@ -36,6 +36,7 @@ import com.meikokintai.kintai_app.model.Salary;
 import com.meikokintai.kintai_app.model.User;
 import com.meikokintai.kintai_app.model.Work;
 import com.meikokintai.kintai_app.model.WorkTemplate;
+import com.meikokintai.kintai_app.repository.IncomeTaxRepository;
 import com.meikokintai.kintai_app.model.Lock;
 import com.meikokintai.kintai_app.service.IncomeTaxService;
 import com.meikokintai.kintai_app.service.ManagerService;
@@ -52,7 +53,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class HomeController {
-    
+
     // サービスの宣言
     private final WorkService workService;
     private final UserService userService;
@@ -67,7 +68,7 @@ public class HomeController {
     private final String domainAWS = "meikokintai.com"; // 本番環境
     
     // ホームコントローラー
-    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService, IncomeTaxService incomeTaxService, LockService lockService) {
+    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService, IncomeTaxService incomeTaxService, LockService lockService, IncomeTaxRepository incomeTaxRepository) {
         this.workService = workService;
         this.userService = userService;
         this.managerService = managerService;
@@ -1078,11 +1079,18 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             return "indexManager";
@@ -1104,11 +1112,18 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(UUID.fromString(managerId));
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             return "detailClass";
@@ -1130,6 +1145,12 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
@@ -1138,6 +1159,7 @@ public class HomeController {
             user.setClassAreaId(manager.getId());
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("userCreateForm", user);
@@ -1202,6 +1224,12 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
@@ -1233,6 +1261,7 @@ public class HomeController {
             salaryFormatted[3] = String.format("%,d", salary.getCarfare());
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("user", user);
@@ -1261,12 +1290,19 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             User user = userService.getByUserId(UUID.fromString(userId));
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("user", user);
@@ -1318,6 +1354,12 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
@@ -1325,6 +1367,7 @@ public class HomeController {
             user.setState(false);
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("user", user);
@@ -1443,6 +1486,12 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
@@ -1453,6 +1502,7 @@ public class HomeController {
             salary.setDateFrom("");
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("user", user);
@@ -1504,6 +1554,12 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
@@ -1511,6 +1567,7 @@ public class HomeController {
             Salary salary = salaryService.getBySalaryId(UUID.fromString(salaryId));
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("user", user);
@@ -1588,6 +1645,12 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
@@ -1597,110 +1660,116 @@ public class HomeController {
             String monthBefore = DateSet.getDateBefore(yearNow, monthNow)[1];
             String yearNext = DateSet.getDateNext(yearNow, monthNow)[0];
             String monthNext = DateSet.getDateNext(yearNow, monthNow)[1];
-            User user = userService.getByUserId(UUID.fromString(userId));
-            Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
-            Map<UUID, String> supportSalaryMap = new HashMap<>();
-            Map<UUID, String> carfareMap = new HashMap<>();
-            int sumSalaryPre[] = new int[17];
-            int sumSalary[] = new int[17];
-            String sumSalaryFormatted[] = new String[20];
-            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
-            double setDouble[] = new double[16];
-            double resultDouble[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-            int incomeTaxValue = 0;
-            String incomeTaxFormatted;
-            List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
-            Lock lock = lockService.getByTarget(manager.getId(), user.getId(), Integer.parseInt(yearNow), Integer.parseInt(monthNow));
-            String lockStatus;
-            if (lock == null || lock.getStatus() == false) {
-                lockStatus = "false";
-            } else {
-                lockStatus = "true";
-            }
-            try {
-                sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary(), salary.getSupportSalary());
-                for (Work work : workList) {
-                    setDouble = workService.calcSumSalary(work, salaryService.getByDate(UUID.fromString(userId), work.getDate()));
-                    supportSalaryMap.put(work.getId(), formatter.format(salaryService.getByDate(UUID.fromString(userId), work.getDate()).getSupportSalary()));
-                    carfareMap.put(work.getId(), formatter.format(work.getCarfare()));
-                    for (int i = 0; i < 16; i++) {
-                        resultDouble[i]+= setDouble[i]; 
-                    }
-                }
-                for (int i = 0; i < 16; i++) {
-                    sumSalaryPre[i] = (int)Math.ceil(resultDouble[i]);
-                    if (i != 0 && i != 2 && i != 3 && i != 5 && i != 7 && i != 10 && i != 12 && i != 14) {
-                        sumSalaryPre[16] += sumSalaryPre[i];
-                    }
-                }
-                sumSalary[16] += sumSalaryPre[15] - sumSalary[15] + sumSalaryPre[13] - sumSalary[13] + sumSalaryPre[9] - sumSalary[9] + sumSalaryPre[8] - sumSalary[8] + sumSalaryPre[6] - sumSalary[6] + sumSalaryPre[4] - sumSalary[4];
-                sumSalary[15] = sumSalaryPre[15];
-                sumSalary[13] = sumSalaryPre[13];
-                sumSalary[9] = sumSalaryPre[9];
-                sumSalary[8] = sumSalaryPre[8];
-                sumSalary[6] = sumSalaryPre[6];
-                sumSalary[4] = sumSalaryPre[4];
-                sumSalary[10] = sumSalaryPre[16] - sumSalary[16];
-                sumSalary[16] += sumSalary[10];
-            } catch (Exception e) {
-                for (int i = 0; i < 17; i++) {
-                    sumSalary[i] = 0;
-                    sumSalaryPre[i]= 0; 
-                }
-            }
-            for (Work work : workList) {
-                if (!work.getTimeStart().equals("     ") && Integer.valueOf(work.getTimeStart().split(":")[0]) < 10) {
-                    work.setTimeStart(Integer.toString(Integer.valueOf(work.getTimeStart().split(":")[0])) + ":" + work.getTimeStart().split(":")[1]);
-                }
-                if (!work.getTimeEnd().equals("     ") && Integer.valueOf(work.getTimeEnd().split(":")[0]) < 10) {
-                    work.setTimeEnd(Integer.toString(Integer.valueOf(work.getTimeEnd().split(":")[0])) + ":" + work.getTimeEnd().split(":")[1]);
-                }
-                if (!work.getOfficeTimeStart().equals("     ") && Integer.valueOf(work.getOfficeTimeStart().split(":")[0]) < 10) {
-                    work.setOfficeTimeStart(Integer.toString(Integer.valueOf(work.getOfficeTimeStart().split(":")[0])) + ":" + work.getOfficeTimeStart().split(":")[1]);
-                }
-                if (!work.getOfficeTimeEnd().equals("     ") && Integer.valueOf(work.getOfficeTimeEnd().split(":")[0]) < 10) {
-                    work.setOfficeTimeEnd(Integer.toString(Integer.valueOf(work.getOfficeTimeEnd().split(":")[0])) + ":" + work.getOfficeTimeEnd().split(":")[1]);
-                }
-                if (!work.getOtherTimeStart().equals("     ") && Integer.valueOf(work.getOtherTimeStart().split(":")[0]) < 10) {
-                    work.setOtherTimeStart(Integer.toString(Integer.valueOf(work.getOtherTimeStart().split(":")[0])) + ":" + work.getOtherTimeStart().split(":")[1]);
-                }
-                if (!work.getOtherTimeEnd().equals("     ") && Integer.valueOf(work.getOtherTimeEnd().split(":")[0]) < 10) {
-                    work.setOtherTimeEnd(Integer.toString(Integer.valueOf(work.getOtherTimeEnd().split(":")[0])) + ":" + work.getOtherTimeEnd().split(":")[1]);
-                }
-            }
-            incomeTaxFormatted = formatter.format(incomeTaxValue);
-            for (int i = 0; i < sumSalaryFormatted.length; i++) {
-                if (i == 1 || i == 4 || i == 6 || i == 8 || i == 9 || i == 10 || i == 11 || i == 13 || i == 15 || i == 16) {
-                    sumSalaryFormatted[i] = formatter.format(sumSalary[i]);
-                } else if (i == 17) {
-                    sumSalaryFormatted[i] = formatter.format(salary.getCarfare());
-                } else if (i == 18) {
-                    sumSalaryFormatted[i] = formatter.format(salary.getClassSalary());
-                } else if (i == 19) {
-                    sumSalaryFormatted[i] = formatter.format(sumSalary[4] + sumSalary[8] + sumSalary[13] + sumSalary[15]);
+            User user;
+            if (!firstId.equals("none")) {
+                user = userService.getByUserId(UUID.fromString(userId));
+                Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
+                Map<UUID, String> supportSalaryMap = new HashMap<>();
+                Map<UUID, String> carfareMap = new HashMap<>();
+                int sumSalaryPre[] = new int[17];
+                int sumSalary[] = new int[17];
+                String sumSalaryFormatted[] = new String[20];
+                NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+                double setDouble[] = new double[16];
+                double resultDouble[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+                int incomeTaxValue = 0;
+                String incomeTaxFormatted;
+                List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
+                Lock lock = lockService.getByTarget(manager.getId(), user.getId(), Integer.parseInt(yearNow), Integer.parseInt(monthNow));
+                String lockStatus;
+                if (lock == null || lock.getStatus() == false) {
+                    lockStatus = "false";
                 } else {
-                    sumSalaryFormatted[i] = Integer.toString(sumSalary[i]);
+                    lockStatus = "true";
                 }
+                try {
+                    sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary(), salary.getSupportSalary());
+                    for (Work work : workList) {
+                        setDouble = workService.calcSumSalary(work, salaryService.getByDate(UUID.fromString(userId), work.getDate()));
+                        supportSalaryMap.put(work.getId(), formatter.format(salaryService.getByDate(UUID.fromString(userId), work.getDate()).getSupportSalary()));
+                        carfareMap.put(work.getId(), formatter.format(work.getCarfare()));
+                        for (int i = 0; i < 16; i++) {
+                            resultDouble[i]+= setDouble[i]; 
+                        }
+                    }
+                    for (int i = 0; i < 16; i++) {
+                        sumSalaryPre[i] = (int)Math.ceil(resultDouble[i]);
+                        if (i != 0 && i != 2 && i != 3 && i != 5 && i != 7 && i != 10 && i != 12 && i != 14) {
+                            sumSalaryPre[16] += sumSalaryPre[i];
+                        }
+                    }
+                    sumSalary[16] += sumSalaryPre[15] - sumSalary[15] + sumSalaryPre[13] - sumSalary[13] + sumSalaryPre[9] - sumSalary[9] + sumSalaryPre[8] - sumSalary[8] + sumSalaryPre[6] - sumSalary[6] + sumSalaryPre[4] - sumSalary[4];
+                    sumSalary[15] = sumSalaryPre[15];
+                    sumSalary[13] = sumSalaryPre[13];
+                    sumSalary[9] = sumSalaryPre[9];
+                    sumSalary[8] = sumSalaryPre[8];
+                    sumSalary[6] = sumSalaryPre[6];
+                    sumSalary[4] = sumSalaryPre[4];
+                    sumSalary[10] = sumSalaryPre[16] - sumSalary[16];
+                    sumSalary[16] += sumSalary[10];
+                } catch (Exception e) {
+                    for (int i = 0; i < 17; i++) {
+                        sumSalary[i] = 0;
+                        sumSalaryPre[i]= 0; 
+                    }
+                }
+                for (Work work : workList) {
+                    if (!work.getTimeStart().equals("     ") && Integer.valueOf(work.getTimeStart().split(":")[0]) < 10) {
+                        work.setTimeStart(Integer.toString(Integer.valueOf(work.getTimeStart().split(":")[0])) + ":" + work.getTimeStart().split(":")[1]);
+                    }
+                    if (!work.getTimeEnd().equals("     ") && Integer.valueOf(work.getTimeEnd().split(":")[0]) < 10) {
+                        work.setTimeEnd(Integer.toString(Integer.valueOf(work.getTimeEnd().split(":")[0])) + ":" + work.getTimeEnd().split(":")[1]);
+                    }
+                    if (!work.getOfficeTimeStart().equals("     ") && Integer.valueOf(work.getOfficeTimeStart().split(":")[0]) < 10) {
+                        work.setOfficeTimeStart(Integer.toString(Integer.valueOf(work.getOfficeTimeStart().split(":")[0])) + ":" + work.getOfficeTimeStart().split(":")[1]);
+                    }
+                    if (!work.getOfficeTimeEnd().equals("     ") && Integer.valueOf(work.getOfficeTimeEnd().split(":")[0]) < 10) {
+                        work.setOfficeTimeEnd(Integer.toString(Integer.valueOf(work.getOfficeTimeEnd().split(":")[0])) + ":" + work.getOfficeTimeEnd().split(":")[1]);
+                    }
+                    if (!work.getOtherTimeStart().equals("     ") && Integer.valueOf(work.getOtherTimeStart().split(":")[0]) < 10) {
+                        work.setOtherTimeStart(Integer.toString(Integer.valueOf(work.getOtherTimeStart().split(":")[0])) + ":" + work.getOtherTimeStart().split(":")[1]);
+                    }
+                    if (!work.getOtherTimeEnd().equals("     ") && Integer.valueOf(work.getOtherTimeEnd().split(":")[0]) < 10) {
+                        work.setOtherTimeEnd(Integer.toString(Integer.valueOf(work.getOtherTimeEnd().split(":")[0])) + ":" + work.getOtherTimeEnd().split(":")[1]);
+                    }
+                }
+                incomeTaxFormatted = formatter.format(incomeTaxValue);
+                for (int i = 0; i < sumSalaryFormatted.length; i++) {
+                    if (i == 1 || i == 4 || i == 6 || i == 8 || i == 9 || i == 10 || i == 11 || i == 13 || i == 15 || i == 16) {
+                        sumSalaryFormatted[i] = formatter.format(sumSalary[i]);
+                    } else if (i == 17) {
+                        sumSalaryFormatted[i] = formatter.format(salary.getCarfare());
+                    } else if (i == 18) {
+                        sumSalaryFormatted[i] = formatter.format(salary.getClassSalary());
+                    } else if (i == 19) {
+                        sumSalaryFormatted[i] = formatter.format(sumSalary[4] + sumSalary[8] + sumSalary[13] + sumSalary[15]);
+                    } else {
+                        sumSalaryFormatted[i] = Integer.toString(sumSalary[i]);
+                    }
+                }
+                model.addAttribute("user", user);
+                model.addAttribute("salary", salary);
+                model.addAttribute("workList", workList);
+                model.addAttribute("sumSalary", sumSalary);
+                model.addAttribute("sumSalaryFormatted", sumSalaryFormatted);
+                model.addAttribute("supportSalaryMap", supportSalaryMap);
+                model.addAttribute("carfareMap", carfareMap);
+                model.addAttribute("yearNow", yearNow);
+                model.addAttribute("monthNow", monthNow);
+                model.addAttribute("yearBefore", yearBefore);
+                model.addAttribute("monthBefore", monthBefore);
+                model.addAttribute("yearNext", yearNext);
+                model.addAttribute("monthNext", monthNext);
+                model.addAttribute("incomeTaxFormatted", incomeTaxFormatted);
+                model.addAttribute("lockStatus", lockStatus);
+            } else {
+                user = null;
             }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
-            model.addAttribute("user", user);
-            model.addAttribute("salary", salary);
-            model.addAttribute("workList", workList);
-            model.addAttribute("sumSalary", sumSalary);
-            model.addAttribute("sumSalaryFormatted", sumSalaryFormatted);
-            model.addAttribute("supportSalaryMap", supportSalaryMap);
-            model.addAttribute("carfareMap", carfareMap);
-            model.addAttribute("yearNow", yearNow);
-            model.addAttribute("monthNow", monthNow);
-            model.addAttribute("yearBefore", yearBefore);
-            model.addAttribute("monthBefore", monthBefore);
-            model.addAttribute("yearNext", yearNext);
-            model.addAttribute("monthNext", monthNext);
-            model.addAttribute("incomeTaxFormatted", incomeTaxFormatted);
-            model.addAttribute("lockStatus", lockStatus);
             return "detail";
         } catch (Exception e) {
             e.printStackTrace();
@@ -1721,6 +1790,12 @@ public class HomeController {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
@@ -1732,6 +1807,7 @@ public class HomeController {
             work.setCarfare(salary.getCarfare());
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("user", user);
@@ -1804,12 +1880,19 @@ public class HomeController {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Work work = workService.findWorkById(UUID.fromString(editId));
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("user", user);
@@ -2289,11 +2372,18 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             return "infoManager";
@@ -2315,11 +2405,18 @@ public class HomeController {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
+            String firstId;
+            if (userList.isEmpty()) {
+                firstId = "none";
+            } else {
+                firstId = userList.get(0).getId().toString();
+            }
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
+            model.addAttribute("firstId", firstId);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
             model.addAttribute("managerUpdateForm", manager);

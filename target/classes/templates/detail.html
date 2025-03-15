@@ -26,6 +26,7 @@
 				<hr size="1" color="lightgray">
 			</div>
 
+			<th:block th:if="${!firstId.equals('none')}">
 			<div class="date">
 				<span class="date-main" th:text = "${yearNow+'年'+monthNow+'月'}"></span>
 				<span class="date-sub" th:text = "${'('+monthBefore+'/26 - '+monthNow+'/25)'}"></span>
@@ -49,7 +50,7 @@
 				<p>シフト登録</p>
 				<a th:href = "@{/createForm(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}"></a>
 			</div>
-
+			
 			<div class="lockForm">
 				<th:block th:if="${lockStatus == 'false'}">
 					<a th:href="@{/changeStatus(manager=${manager.id}, user=${user.id}, year=${yearNow}, month=${monthNow})}" style="text-decoration: none;">
@@ -189,6 +190,7 @@
 					</table>
 				</div>
 			</div>
+			</th:block>
 		</div>
 
 		<div>
@@ -332,6 +334,7 @@
 			</th:block>
 		</div>
 
+		<th:block th:if="${!firstId.equals('none')}">
         <div class="detail-form-element detail-panel" style="display: none; width: 300px;">
 			<div class="panel-close">
 				<a href="#" class="detail-form-button">
@@ -387,6 +390,7 @@
 				</div>
 			</form>
 		</div>
+		</th:block>
 
 		<div class="side">
 			<div class="sideContents" id="className">
@@ -405,7 +409,7 @@
 
 			<div class="sideContents" id="detailSalary">
 				<p>給与管理</p>
-				<a th:href="@{/detail(manager=${manager.id}, user=${userList.get(0).id}, year=${year}, month=${month})}"></a>
+				<a th:href="@{/detail(manager=${manager.id}, user=${firstId}, year=${year}, month=${month})}"></a>
 			</div>
 	
 			<div class="sideContents" id="classInformation">
