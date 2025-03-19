@@ -3,12 +3,15 @@
     margin-left: 400px;
     margin-top:-30px;
     height: 30px;
-    width: 113px;
+    width: 130px;
     border-radius: 5px;
     background-color: rgb(0, 149, 224);
     color: white;
     font-weight:bold;
     font-size:13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .salaryForm a {
@@ -20,9 +23,7 @@
 }
 
 .salaryForm p {
-    position: absolute;
-    top:-7px;
-    left:12px;
+    margin: 0;
 }
 
 .salaryForm:hover {
@@ -32,15 +33,18 @@
 
 .addForm {
     position: relative;
-    margin-left: 524px;
+    margin-left: 540px;
     margin-top:-30px;
     height: 30px;
-    width: 113px;
+    width: 130px;
     border-radius: 5px;
     background-color: rgb(0, 149, 224);
     color: white;
     font-weight:bold;
     font-size:13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .addForm a {
@@ -52,9 +56,7 @@
 }
 
 .addForm p {
-    position: absolute;
-    top:-7px;
-    left:22px;
+    margin: 0;
 }
 
 .addForm:hover {
@@ -64,7 +66,7 @@
 
 .lockForm {
     position: relative;
-    margin-left: 642px;
+    margin-left: 680px;
     margin-top:-31px;
 }
 

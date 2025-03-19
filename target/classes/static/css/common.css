@@ -211,6 +211,9 @@ h1::before {
     color: white;
     font-weight:bold;
     font-size:13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .beforeMonth a {
@@ -222,9 +225,7 @@ h1::before {
 }
 
 .beforeMonth p {
-    position: absolute;
-    top:-7px;
-    left:12px;
+    margin: 0;
 }
 
 .beforeMonth:hover {
@@ -243,6 +244,9 @@ h1::before {
     color: white;
     font-weight:bold;
     font-size:13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .afterMonth a {
@@ -254,9 +258,7 @@ h1::before {
 }
 
 .afterMonth p {
-    position: absolute;
-    top:-7px;
-    left:12px;
+    margin: 0;
 }
 
 .afterMonth:hover {
