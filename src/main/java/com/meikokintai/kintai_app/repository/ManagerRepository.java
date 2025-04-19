@@ -19,7 +19,7 @@ public interface ManagerRepository extends JpaRepository<Manager, UUID>{
     Manager getByLoginId(@Param("loginid") String loginid);
 
     @Modifying
-    @Query(nativeQuery = true, value = "UPDATE managers SET loginid = :loginid, password = :password, classarea = :classarea WHERE id = :id")
-    void update(@Param("id") UUID id, @Param("loginid") String loginid, @Param("password") String password, @Param("classarea") String classarea);
+    @Query(nativeQuery = true, value = "UPDATE managers SET loginid = :loginid, password = :password, classarea = :classarea, classcode = :classcode WHERE id = :id")
+    void update(@Param("id") UUID id, @Param("loginid") String loginid, @Param("password") String password, @Param("classarea") String classarea, @Param("classcode") int classcode);
 
 }

@@ -27,11 +27,12 @@ public class ManagerService {
         return this.managerRepository.getByManagerId(managerId);
     }
     
-    public void add(String loginId, String password, String classArea) {
+    public void add(String loginId, String password, String classArea, int classCode) {
         Manager manager = new Manager();
         manager.setLoginId(loginId);
         manager.setPassword(password);
         manager.setClassArea(classArea);
+        manager.setClassCode(classCode);
         managerRepository.save(manager);
     }
     
@@ -41,7 +42,7 @@ public class ManagerService {
 
     @Transactional
     public void update(Manager manager) {
-        managerRepository.update(manager.getId(), manager.getLoginId(), manager.getPassword(), manager.getClassArea());
+        managerRepository.update(manager.getId(), manager.getLoginId(), manager.getPassword(), manager.getClassArea(), manager.getClassCode());
     }
 
     public void deleteById(Manager manager) {

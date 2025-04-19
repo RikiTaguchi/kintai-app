@@ -956,7 +956,7 @@ public class HomeController {
     String signUpManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerCreateForm") Manager manager) {
         try {
             if (managerService.getByLoginId(manager.getLoginId()) == null) {
-                managerService.add(manager.getLoginId(), manager.getPassword(), manager.getClassArea());
+                managerService.add(manager.getLoginId(), manager.getPassword(), manager.getClassArea(), manager.getClassCode());
                 Cookie cookieLoginId = new Cookie("managerLoginId", manager.getLoginId());
                 cookieLoginId.setMaxAge(30 * 24 * 60 * 60);
                 cookieLoginId.setHttpOnly(true);
@@ -2055,7 +2055,7 @@ public class HomeController {
             String numberList[] = {"①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱"};
 
             // レスポンスヘッダーの設定
-            String fileName = URLEncoder.encode("講師給フォーム("+year.substring(2, 4)+manager.getClassArea()+")"+year+"."+String.valueOf(Integer.parseInt(month)), StandardCharsets.UTF_8.toString());
+            String fileName = URLEncoder.encode("講師給フォーム("+String.valueOf(manager.getClassCode())+manager.getClassArea()+")"+year+"."+String.valueOf(Integer.parseInt(month)), StandardCharsets.UTF_8.toString());
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + ".xlsx\"");
             

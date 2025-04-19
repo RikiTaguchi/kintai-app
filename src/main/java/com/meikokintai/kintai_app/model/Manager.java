@@ -29,5 +29,8 @@ public class Manager {
     
     @Column(name = "classarea")
     private String classArea;
+
+    @Column(name = "classcode")
+    private int classCode;
     
 }

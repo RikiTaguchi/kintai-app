@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS managers (
 	id UUID,
 	loginId varchar(256),
 	password varchar(256),
-	classArea varchar(256)
+	classArea varchar(256),
+    classCode int
 );
 
 CREATE TABLE IF NOT EXISTS salaries (
