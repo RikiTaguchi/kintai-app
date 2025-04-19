@@ -20,16 +20,20 @@
 				<p class="main-title">アカウント作成</p>
 				<form th:action = "@{/signUpManager}" method = "post" th:object = "${managerCreateForm}">
 					<div>
+						<label for = "classArea">所属教室</label>
+						<input id = "classArea" type = "text" th:field = "*{classArea}" required>
+					</div>
+					<div>
+						<label for = "classCode">教室No.</label>
+						<input id = "classCode" type = "number" th:field = "*{classCode}" required>
+					</div>
+					<div>
 						<label for = "loginId">ログインID</label>
 						<input id = "loginId" type = "text" th:field = "*{loginId}" required>
 					</div>
 					<div>
 						<label for = "password">パスワード</label>
 						<input id = "password" type = "text" th:field = "*{password}" required>
-					</div>
-					<div>
-						<label for = "classArea">所属教室</label>
-						<input id = "classArea" type = "text" th:field = "*{classArea}" required>
 					</div>
 					<div>
 						<input id = "createButton" type = "submit" value = "登録" style="border:none; border-radius: 5px; color:white; cursor: pointer;">
