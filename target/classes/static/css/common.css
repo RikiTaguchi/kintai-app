@@ -71,7 +71,7 @@ h1::before {
 .main {
     position: absolute;
     left:230px;
-    top:45px;
+    top:55px;
 }
 
 .subHeader {
@@ -679,6 +679,29 @@ h1::before {
     border-radius: 5px;
 }
 
+.banner {
+    display: none;
+    position: fixed;
+    width: 90%;
+    height: 35px;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: lightgray;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 3px 3px 5px 1px gray;
+    padding: 10px;
+    align-items: center;
+    z-index: 9999;
+}
+
+.banner p {
+    margin: 0;
+    font-size: 18px;
+    color: black;
+}
+
 /* レスポンシブ（タブレット） */
 @media screen and (max-width: 959px) {
 	
@@ -716,7 +739,7 @@ h1::before {
     .main {
         left: 5%;
         right: 5%;
-        top: 25px;
+        top: 35px;
         width: 90%;
     }
 
@@ -940,5 +963,14 @@ h1::before {
     
     #teacherInformation p::before {
         top: -1px;
+    }
+
+    .banner {
+        top: 0;
+        height: 15px;
+    }
+
+    .banner p {
+        font-size: 12px;
     }
 }

@@ -4,16 +4,21 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
-		<link th:href="@{/css/login.css}" rel="stylesheet">
+		<link th:href="@{/css/login.css?v=1.0.0}" rel="stylesheet">
 		<link rel="apple-touch-icon" sizes="180x180" th:href="@{/img/icons/apple-touch-icon.png}">
-		<link rel="manifest" th:href="@{/manifest.json}">
+		<link rel="manifest" th:href="@{/manifest.js?v=1.0.0on}">
 		<link rel="icon" th:href="@{/img/icons/favicon.ico}" type="image/x-icon">
 		<link rel="icon" type="image/png" sizes="16x16" th:href="@{/img/icons/favicon-16x16.png}">
 		<link rel="icon" type="image/png" sizes="32x32" th:href="@{/img/icons/favicon-32x32.png}">
 		<link rel="icon" type="image/png" sizes="48x48" th:href="@{/img/icons/favicon-48x48.png}">
 		<meta name="theme-color" content="#ffffff">
+		<script th:src="@{/js/banner.js?v=1.0.0}" defer></script>
 	</head>
 	<body>
+		<div th:if="${bannerMessage}" class="banner">
+			<p th:text="${bannerMessage}"></p>
+		</div>
+		
 		<div>
 			<h1 class="loginTeacher">勤怠管理システム</h1>
 			<div class="main">
