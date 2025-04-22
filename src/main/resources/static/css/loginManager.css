@@ -94,6 +94,29 @@ input #loginButton {
     opacity: 0.8;
 }
 
+.banner {
+    display: none;
+    position: fixed;
+    width: 90%;
+    height: 35px;
+    top: -55px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: lightgray;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 3px 3px 5px 1px gray;
+    padding: 10px;
+    align-items: center;
+    z-index: 9999;
+}
+
+.banner p {
+    margin: 0;
+    font-size: 18px;
+    color: black;
+}
+
 /* レスポンシブ（タブレット） */
 @media screen and (max-width: 959px) {
 	
@@ -120,5 +143,14 @@ input #loginButton {
 
     #loginButton {
         width: 85%;
+    }
+
+    .banner {
+        top: -35px;
+        height: 15px;
+    }
+
+    .banner p {
+        font-size: 12px;
     }
 }

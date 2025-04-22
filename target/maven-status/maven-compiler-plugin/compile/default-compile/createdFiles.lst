@@ -23,4 +23,5 @@ com/meikokintai/kintai_app/repository/UserRepository.class
 com/meikokintai/kintai_app/repository/WorkRepository.class
 com/meikokintai/kintai_app/service/WorkTemplateService.class
 com/meikokintai/kintai_app/util/TimeSet.class
+com/meikokintai/kintai_app/util/BannerSet.class
 com/meikokintai/kintai_app/service/IncomeTaxService.class

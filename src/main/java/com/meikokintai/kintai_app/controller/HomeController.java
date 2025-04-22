@@ -9,17 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
@@ -29,7 +26,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.meikokintai.kintai_app.model.IncomeTax;
 import com.meikokintai.kintai_app.model.Manager;
 import com.meikokintai.kintai_app.model.Salary;
@@ -45,8 +41,8 @@ import com.meikokintai.kintai_app.service.UserService;
 import com.meikokintai.kintai_app.service.WorkService;
 import com.meikokintai.kintai_app.service.WorkTemplateService;
 import com.meikokintai.kintai_app.service.LockService;
+import com.meikokintai.kintai_app.util.BannerSet;
 import com.meikokintai.kintai_app.util.DateSet;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -86,7 +82,7 @@ public class HomeController {
 
     // ログイン（get）
     @GetMapping("/login")
-    String loginGet(HttpServletRequest request, Model model) {
+    String loginGet(HttpServletRequest request, Model model, @RequestParam(value = "banner", required = false) Integer bannerCode, RedirectAttributes redirectAttributes) {
         try {
             User user = new User();
             Cookie[] cookies = request.getCookies();
@@ -99,11 +95,15 @@ public class HomeController {
                     }
                 }
             }
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("userLoginForm", user);
             return "login";
         } catch (Exception e) {
             System.out.println("Error happened in login.html");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -119,7 +119,17 @@ public class HomeController {
     String loginPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userLoginForm") User loginUser, RedirectAttributes redirectAttributes) {
         try {
             User trueUser = userService.getByLoginId(loginUser.getLoginId());
-            if (trueUser == null || !trueUser.getPassword().equals(loginUser.getPassword())) {
+            if (trueUser == null) {
+                redirectAttributes.addAttribute("banner", 3);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:login";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/login", domainAWS);
+                    return redirectUrl;
+                }
+            } else if (!trueUser.getPassword().equals(loginUser.getPassword())) {
+                redirectAttributes.addAttribute("banner", 4);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:login";
@@ -141,6 +151,7 @@ public class HomeController {
                 UUID userId = trueUser.getId();                        
                 redirectAttributes.addAttribute("user", userId);
                 String host = request.getHeader("Host");
+                redirectAttributes.addAttribute("banner", 1);
                 if (host.equals(domainLocal)) {
                     return "redirect:index";
                 } else {
@@ -151,6 +162,7 @@ public class HomeController {
         } catch (Exception e) {
             System.out.println("Error happened in login(post)");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -163,13 +175,16 @@ public class HomeController {
     
     // ホーム
     @GetMapping("/index")
-    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+    String index(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -179,6 +194,7 @@ public class HomeController {
         } catch (Exception e) {
             System.out.println("Error happened in index.html");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -191,7 +207,7 @@ public class HomeController {
 
     // シフト管理
     @GetMapping("/info")
-    String info(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
+    String info(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Date dateFrom = DateSet.getDatePeriod(yearNow, monthNow)[0];
             Date dateTo = DateSet.getDatePeriod(yearNow, monthNow)[1];
@@ -219,6 +235,9 @@ public class HomeController {
                 supportSalaryMap.put(work.getId(), formatter.format(salaryService.getByDate(UUID.fromString(userId), work.getDate()).getSupportSalary()));
                 carfareMap.put(work.getId(), formatter.format(work.getCarfare()));
             }
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -239,6 +258,7 @@ public class HomeController {
             return "info";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -251,7 +271,7 @@ public class HomeController {
     
     // シフト管理 > シフト登録（get）
     @GetMapping("/addForm")
-    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
+    String addFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -265,6 +285,9 @@ public class HomeController {
             List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
             work.setUserId(user.getId());
             work.setCarfare(salary.getCarfare());
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -279,6 +302,7 @@ public class HomeController {
             return "addForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -307,6 +331,7 @@ public class HomeController {
                 if (lock == null || !lock.getStatus()) {
                     form = workService.calcTimeAndSalary(form);
                     workService.add(form);
+                    redirectAttributes.addAttribute("banner", 5);
                     String host = request.getHeader("Host");
                     if (host.equals(domainLocal)) {
                         return "redirect:info";
@@ -315,6 +340,7 @@ public class HomeController {
                         return redirectUrl;
                     }
                 } else {
+                    redirectAttributes.addAttribute("banner", 8);
                     String host = request.getHeader("Host");
                     if (host.equals(domainLocal)) {
                         return "redirect:addForm";
@@ -324,6 +350,7 @@ public class HomeController {
                     }
                 }
             } catch (Exception e) {
+                redirectAttributes.addAttribute("banner", 11);
                 redirectAttributes.addAttribute("year", yearNow);
                 redirectAttributes.addAttribute("month", monthNow);
                 String host = request.getHeader("Host");
@@ -336,6 +363,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -348,7 +376,7 @@ public class HomeController {
     
     // シフト管理 > シフト修正（get）
     @GetMapping("/editForm")
-    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
+    String editFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("detail") String detailId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -377,6 +405,9 @@ public class HomeController {
                     work.setOtherTimeEnd("");
                 }
                 List<WorkTemplate> templateList = workTemplateService.findByUserId(UUID.fromString(userId));
+                if (bannerCode != null) {
+                    model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+                }
                 model.addAttribute("user", user);
                 model.addAttribute("manager", manager);
                 model.addAttribute("year", year);
@@ -388,6 +419,7 @@ public class HomeController {
                 redirectAttributes.addAttribute("user", userId);
                 return "editForm";
             } else {
+                redirectAttributes.addAttribute("banner", 9);
                 redirectAttributes.addAttribute("user", user.getId());
                 redirectAttributes.addAttribute("year", year);
                 redirectAttributes.addAttribute("month", month);
@@ -401,6 +433,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -429,6 +462,9 @@ public class HomeController {
                 if (lock == null || !lock.getStatus()) {
                     form = workService.calcTimeAndSalary(form);
                     workService.update(form);
+                    redirectAttributes.addAttribute("banner", 6);
+                } else {
+                    redirectAttributes.addAttribute("banner", 9);
                 }
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
@@ -438,6 +474,8 @@ public class HomeController {
                     return redirectUrl;
                 }
             } catch (Exception e) {
+                redirectAttributes.addAttribute("banner", 11);
+                redirectAttributes.addAttribute("detail", form.getId());
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:editForm";
@@ -448,6 +486,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -472,6 +511,7 @@ public class HomeController {
             redirectAttributes.addAttribute("month", month);
             if (lock == null || !lock.getStatus()) {
                 workService.deleteById(UUID.fromString(deleteId));
+                redirectAttributes.addAttribute("banner", 7);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:info";
@@ -480,6 +520,7 @@ public class HomeController {
                     return redirectUrl;
                 }
             } else {
+                redirectAttributes.addAttribute("banner", 10);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:info";
@@ -490,6 +531,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -502,7 +544,7 @@ public class HomeController {
 
     // シフト管理 > テンプレート
     @GetMapping("/infoTemplate")
-    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+    String infoTemplate(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -515,6 +557,9 @@ public class HomeController {
             for (WorkTemplate template : templateList) {
                 carfareMap.put(template.getId(), formatter.format(template.getCarfare()));
             }
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -525,6 +570,7 @@ public class HomeController {
             return "infoTemplate";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -537,7 +583,7 @@ public class HomeController {
 
     // シフト管理 > テンプレート > 登録（get）
     @GetMapping("/templateForm")
-    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+    String templateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -550,6 +596,9 @@ public class HomeController {
             WorkTemplate template = new WorkTemplate();
             template.setUserId(user.getId());
             template.setCarfare(salary.getCarfare());
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -559,6 +608,7 @@ public class HomeController {
             return "templateForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -574,6 +624,7 @@ public class HomeController {
     String templateFormPost(HttpServletRequest request, @ModelAttribute("templateCreateForm") WorkTemplate form, RedirectAttributes redirectAttributes) {
         try {
             workTemplateService.add(form);
+            redirectAttributes.addAttribute("banner", 5);
             redirectAttributes.addAttribute("user", form.getUserId());
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -584,6 +635,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -596,7 +648,7 @@ public class HomeController {
     
     // シフト管理 > テンプレート > 修正（get）
     @GetMapping("/editTemplateForm")
-    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId) {
+    String editTemplateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("template") String templateId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -604,6 +656,9 @@ public class HomeController {
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             WorkTemplate template = workTemplateService.findTemplateById(UUID.fromString(templateId));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -614,6 +669,7 @@ public class HomeController {
             return "editTemplateForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -629,6 +685,7 @@ public class HomeController {
     String editTemplateFormPost(HttpServletRequest request, @ModelAttribute("templateUpdateForm") WorkTemplate form, RedirectAttributes redirectAttributes) {
         try {
             workTemplateService.update(form);
+            redirectAttributes.addAttribute("banner", 6);
             redirectAttributes.addAttribute("user", form.getUserId());
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -639,6 +696,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -654,6 +712,7 @@ public class HomeController {
     String deleteTemplate(HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("deleteId") String deleteId, @RequestParam("userId") String userId) {
         try {
             workTemplateService.deleteById(UUID.fromString(deleteId));
+            redirectAttributes.addAttribute("banner", 7);
             redirectAttributes.addAttribute("user", userId);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
@@ -664,6 +723,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -676,7 +736,7 @@ public class HomeController {
 
     // 給与情報
     @GetMapping("/infoSalary")
-    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam("tax") String tax) {
+    String infoSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam("tax") String tax, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             // 基本情報の取得
             User user = userService.getByUserId(UUID.fromString(userId));
@@ -704,6 +764,7 @@ public class HomeController {
             int incomeTaxValue = 0;
             String incomeTaxFormatted;
             List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
+            
             try {
                 sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary(), salary.getSupportSalary());
                 for (Work work : workList) {
@@ -756,6 +817,10 @@ public class HomeController {
                     sumSalaryFormatted[i] = Integer.toString(sumSalary[i]);
                 }
             }
+
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -775,6 +840,7 @@ public class HomeController {
             return "infoSalary";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -787,7 +853,7 @@ public class HomeController {
 
     // 給与情報 > 給与推移
     @GetMapping("/detailSalary")
-    String detailSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+    String detailSalary(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -812,6 +878,9 @@ public class HomeController {
                 salariesFormatted[3] = String.format("%,d", salary.getCarfare());
                 salaryMapFormatted.put(salary.getId(), salariesFormatted);
             }
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -823,6 +892,7 @@ public class HomeController {
             return "detailSalary";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -835,13 +905,16 @@ public class HomeController {
     
     // アカウント
     @GetMapping("/user")
-    String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+    String user(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
@@ -850,6 +923,7 @@ public class HomeController {
             return "user";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -862,13 +936,16 @@ public class HomeController {
     
     // アカウント > アカウント情報修正（get）
     @GetMapping("/userForm")
-    String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId) {
+    String userFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("userUpdateForm", user);
@@ -878,6 +955,7 @@ public class HomeController {
             return "userForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -905,6 +983,7 @@ public class HomeController {
             response.addCookie(cookiePassword);
             redirectAttributes.addAttribute("user", form.getId());
             String host = request.getHeader("Host");
+            redirectAttributes.addAttribute("banner", 6);
             if (host.equals(domainLocal)) {
                 return "redirect:user";
             } else {
@@ -913,6 +992,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:login";
@@ -934,13 +1014,17 @@ public class HomeController {
 
     // アカウント作成（get）
     @GetMapping("/signUpManager")
-    String signUpManagerGet(HttpServletRequest request, Model model) {
+    String signUpManagerGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("managerCreateForm", new Manager());
             return "signUpManager";
         } catch (Exception e) {
             System.out.println("Error happened in signUpManager.html");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -953,7 +1037,7 @@ public class HomeController {
 
     // アカウント作成（post）
     @PostMapping("/signUpManager")
-    String signUpManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerCreateForm") Manager manager) {
+    String signUpManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerCreateForm") Manager manager, RedirectAttributes redirectAttributes) {
         try {
             if (managerService.getByLoginId(manager.getLoginId()) == null) {
                 managerService.add(manager.getLoginId(), manager.getPassword(), manager.getClassArea(), manager.getClassCode());
@@ -967,6 +1051,7 @@ public class HomeController {
                 cookiePassword.setHttpOnly(true);
                 cookiePassword.setPath("/");
                 response.addCookie(cookiePassword);
+                redirectAttributes.addAttribute("banner", 5);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:loginManager";
@@ -975,6 +1060,7 @@ public class HomeController {
                     return redirectUrl;
                 }
             } else {
+                redirectAttributes.addAttribute("banner", 12);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:signUpManager";
@@ -986,6 +1072,7 @@ public class HomeController {
         } catch (Exception e) {
             System.out.println("Error happened in signUpManager(post)");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -998,7 +1085,7 @@ public class HomeController {
 
     // ログイン（get）
     @GetMapping("/loginManager")
-    String loginManagerGet(HttpServletRequest request, Model model) {
+    String loginManagerGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = new Manager();
             Cookie[] cookies = request.getCookies();
@@ -1011,11 +1098,15 @@ public class HomeController {
                     }
                 }
             }
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("managerLoginForm", manager);
             return "loginManager";
         } catch (Exception e) {
             System.out.println("Error happened in loginManager.html");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1031,7 +1122,17 @@ public class HomeController {
     String loginManagerPost(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("managerLoginForm") Manager loginManager, RedirectAttributes redirectAttributes) {
         try {
             Manager trueManager = managerService.getByLoginId(loginManager.getLoginId());
-            if (trueManager == null || !trueManager.getPassword().equals(loginManager.getPassword())) {
+            if (trueManager == null) {
+                redirectAttributes.addAttribute("banner", 3);
+                String host = request.getHeader("Host");
+                if (host.equals(domainLocal)) {
+                    return "redirect:loginManager";
+                } else {
+                    String redirectUrl = String.format("redirect:https://%s/loginManager", domainAWS);
+                    return redirectUrl;
+                }
+            } else if (!trueManager.getPassword().equals(loginManager.getPassword())) {
+                redirectAttributes.addAttribute("banner", 4);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:loginManager";
@@ -1052,6 +1153,7 @@ public class HomeController {
                 response.addCookie(cookiePassword);
                 UUID managerId = trueManager.getId();
                 redirectAttributes.addAttribute("manager", managerId);
+                redirectAttributes.addAttribute("banner", 1);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:indexManager";
@@ -1063,6 +1165,7 @@ public class HomeController {
         } catch (Exception e) {
             System.out.println("Error happened in loginManager(post)");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1075,7 +1178,7 @@ public class HomeController {
     
     // ホーム
     @GetMapping("/indexManager")
-    String indexManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+    String indexManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1088,6 +1191,9 @@ public class HomeController {
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1096,6 +1202,7 @@ public class HomeController {
             return "indexManager";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1108,7 +1215,7 @@ public class HomeController {
 
     // 講師管理
     @GetMapping("/detailClass")
-    String detailClass(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+    String detailClass(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(UUID.fromString(managerId));
@@ -1121,6 +1228,9 @@ public class HomeController {
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1129,6 +1239,7 @@ public class HomeController {
             return "detailClass";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1141,7 +1252,7 @@ public class HomeController {
 
     // 講師管理 > 新規登録（get）
     @GetMapping("/signUp")
-    String signUpGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+    String signUpGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1157,6 +1268,9 @@ public class HomeController {
             User user = new User();
             Salary salary = new Salary();
             user.setClassAreaId(manager.getId());
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1167,6 +1281,7 @@ public class HomeController {
             return "signUp";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1189,6 +1304,7 @@ public class HomeController {
                 salary.setUserId(setUser.getId());
                 salaryService.add(salary);
                 redirectAttributes.addAttribute("manager", user.getClassAreaId());
+                redirectAttributes.addAttribute("banner", 5);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:detailClass";
@@ -1198,6 +1314,7 @@ public class HomeController {
                 }
             } else {
                 redirectAttributes.addAttribute("manager", user.getClassAreaId());
+                redirectAttributes.addAttribute("banner", 12);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:signUp";
@@ -1208,6 +1325,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1220,7 +1338,7 @@ public class HomeController {
     
     // 講師管理 > 基本情報
     @GetMapping("/infoUser")
-    String infoUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
+    String infoUser(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1259,6 +1377,9 @@ public class HomeController {
             salaryFormatted[1] = String.format("%,d", salary.getOfficeSalary());
             salaryFormatted[2] = String.format("%,d", salary.getSupportSalary());
             salaryFormatted[3] = String.format("%,d", salary.getCarfare());
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1274,6 +1395,7 @@ public class HomeController {
             return "infoUser";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1286,7 +1408,7 @@ public class HomeController {
     
     // 講師管理 > 基本情報 > アカウント情報修正（get）
     @GetMapping("editUserForm")
-    String editUserFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
+    String editUserFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1300,6 +1422,9 @@ public class HomeController {
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             User user = userService.getByUserId(UUID.fromString(userId));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1310,6 +1435,7 @@ public class HomeController {
             return "editUserForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1328,6 +1454,7 @@ public class HomeController {
             userService.update(user);
             redirectAttributes.addAttribute("user", user.getId());
             redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("banner", 6);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoUser";
@@ -1338,6 +1465,7 @@ public class HomeController {
         } catch (Exception e) {
             System.out.println("Error happened in editUserForm(post)");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1350,7 +1478,7 @@ public class HomeController {
 
     // 講師管理 > 基本情報 > 退職手続（get）
     @GetMapping("/retireForm")
-    String retireFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
+    String retireFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1365,6 +1493,9 @@ public class HomeController {
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             User user = userService.getByUserId(UUID.fromString(userId));
             user.setState(false);
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1375,6 +1506,7 @@ public class HomeController {
             return "retireForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1393,6 +1525,7 @@ public class HomeController {
             userService.update(user);
             redirectAttributes.addAttribute("manager", manager.getId());
             redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("banner", 6);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoUser";
@@ -1403,6 +1536,7 @@ public class HomeController {
         } catch (Exception e) {
             System.out.println("Error happened in retireForm(post)");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1424,6 +1558,7 @@ public class HomeController {
             userService.update(user);
             redirectAttributes.addAttribute("manager", manager.getId());
             redirectAttributes.addAttribute("user", user.getId());
+            redirectAttributes.addAttribute("banner", 6);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoUser";
@@ -1433,6 +1568,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1461,6 +1597,7 @@ public class HomeController {
             }
             userService.deleteById(UUID.fromString(userId));
             redirectAttributes.addAttribute("manager", managerId);
+            redirectAttributes.addAttribute("banner", 7);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:detailClass";
@@ -1470,6 +1607,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1482,7 +1620,7 @@ public class HomeController {
 
     // 講師管理 > 基本情報 > 給与更新（get）
     @GetMapping("/updateForm")
-    String updateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId) {
+    String updateFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1500,6 +1638,9 @@ public class HomeController {
             String monthBefore = DateSet.getDateBefore(year, month)[1];
             Salary salary = salaryService.getByDate(UUID.fromString(userId), yearBefore+"-"+monthBefore+"-26");
             salary.setDateFrom("");
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1510,6 +1651,7 @@ public class HomeController {
             return "updateForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1529,6 +1671,7 @@ public class HomeController {
             salaryService.add(form);
             redirectAttributes.addAttribute("user", user.getId());
             redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("banner", 5);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoUser";
@@ -1538,6 +1681,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1550,7 +1694,7 @@ public class HomeController {
     
     // 講師管理 > 基本情報 > 給与修正（get）
     @GetMapping("/salaryForm")
-    String salaryFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("salary") String salaryId) {
+    String salaryFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("salary") String salaryId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1565,6 +1709,9 @@ public class HomeController {
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             User user = userService.getByUserId(UUID.fromString(userId));
             Salary salary = salaryService.getBySalaryId(UUID.fromString(salaryId));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1575,6 +1722,7 @@ public class HomeController {
             return "salaryForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1594,6 +1742,7 @@ public class HomeController {
             salaryService.update(form);
             redirectAttributes.addAttribute("user", user.getId());
             redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("banner", 6);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoUser";
@@ -1603,6 +1752,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1620,6 +1770,7 @@ public class HomeController {
             salaryService.delete(salaryService.getBySalaryId(UUID.fromString(deleteId)));
             redirectAttributes.addAttribute("user", userId);
             redirectAttributes.addAttribute("manager", managerId);
+            redirectAttributes.addAttribute("banner", 7);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoUser";
@@ -1629,6 +1780,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1641,7 +1793,7 @@ public class HomeController {
     
     // 給与管理
     @GetMapping("/detail")
-    String detail(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
+    String detail(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -1765,6 +1917,9 @@ public class HomeController {
             } else {
                 user = null;
             }
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1773,6 +1928,7 @@ public class HomeController {
             return "detail";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1785,7 +1941,7 @@ public class HomeController {
 
     // 給与管理 > シフト登録（get）
     @GetMapping("/createForm")
-    String createFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
+    String createFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -1805,6 +1961,9 @@ public class HomeController {
             Work work = new Work();
             work.setUserId(user.getId());
             work.setCarfare(salary.getCarfare());
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1817,6 +1976,7 @@ public class HomeController {
             return "createForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1845,6 +2005,7 @@ public class HomeController {
             try {
                 form = workService.calcTimeAndSalary(form);
                 workService.add(form);
+                redirectAttributes.addAttribute("banner", 5);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:detail";
@@ -1853,6 +2014,7 @@ public class HomeController {
                     return redirectUrl;
                 }
             } catch (Exception e) {
+                redirectAttributes.addAttribute("banner", 11);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:createForm";
@@ -1863,6 +2025,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1875,7 +2038,7 @@ public class HomeController {
     
     // 給与管理 > シフト修正（get）
     @GetMapping("/setForm")
-    String setFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow) {
+    String setFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam("user") String userId, @RequestParam("edit") String editId, @RequestParam("year") String yearNow, @RequestParam("month") String monthNow, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             User user = userService.getByUserId(UUID.fromString(userId));
             Manager manager = managerService.getByManagerId(user.getClassAreaId());
@@ -1890,6 +2053,9 @@ public class HomeController {
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             Work work = workService.findWorkById(UUID.fromString(editId));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -1902,6 +2068,7 @@ public class HomeController {
             return "setForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1930,6 +2097,7 @@ public class HomeController {
             try {
                 form = workService.calcTimeAndSalary(form);
                 workService.update(form);
+                redirectAttributes.addAttribute("banner", 6);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:detail";
@@ -1939,6 +2107,7 @@ public class HomeController {
                 }
             } catch (Exception e) {
                 redirectAttributes.addAttribute("edit", form.getId());
+                redirectAttributes.addAttribute("banner", 11);
                 String host = request.getHeader("Host");
                 if (host.equals(domainLocal)) {
                     return "redirect:setForm";
@@ -1949,6 +2118,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -1971,6 +2141,7 @@ public class HomeController {
             redirectAttributes.addAttribute("user", userId);
             redirectAttributes.addAttribute("year", year);
             redirectAttributes.addAttribute("month", month);
+            redirectAttributes.addAttribute("banner", 7);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:detail";
@@ -1980,6 +2151,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -2019,6 +2191,7 @@ public class HomeController {
             redirectAttributes.addAttribute("user", userId);
             redirectAttributes.addAttribute("year", year);
             redirectAttributes.addAttribute("month", month);
+            redirectAttributes.addAttribute("banner", 6);
 
             // リダイレクト
             String host = request.getHeader("Host");
@@ -2030,6 +2203,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -2038,7 +2212,6 @@ public class HomeController {
                 return redirectUrl;
             }
         }
-
     }
     
     // 給与管理 > Excelファイルのエクスポート
@@ -2368,7 +2541,7 @@ public class HomeController {
 
     // アカウント
     @GetMapping("/infoManager")
-    String infoManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId) {
+    String infoManager(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("manager") String managerId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -2381,6 +2554,9 @@ public class HomeController {
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -2389,6 +2565,7 @@ public class HomeController {
             return "infoManager";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -2401,7 +2578,7 @@ public class HomeController {
     
     // アカウント > アカウント情報修正（get）
     @GetMapping("/editManagerForm")
-    String editManagerFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("edit") String managerId) {
+    String editManagerFormGet(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, @RequestParam("edit") String managerId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -2414,6 +2591,9 @@ public class HomeController {
             Calendar calendar = Calendar.getInstance();
             String year = DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
             String month = DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+            if (bannerCode != null) {
+                model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
+            }
             model.addAttribute("manager", manager);
             model.addAttribute("userList", userList);
             model.addAttribute("firstId", firstId);
@@ -2423,6 +2603,7 @@ public class HomeController {
             return "editManagerForm";
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -2449,6 +2630,7 @@ public class HomeController {
             cookiePassword.setPath("/");
             response.addCookie(cookiePassword);
             redirectAttributes.addAttribute("manager", manager.getId());
+            redirectAttributes.addAttribute("banner", 6);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:infoManager";
@@ -2458,6 +2640,7 @@ public class HomeController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -2470,7 +2653,7 @@ public class HomeController {
 
     // アカウント > アカウント削除
     @GetMapping("/deleteManager")
-    String deleteManager(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @RequestParam("delete") String managerId) {
+    String deleteManager(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes, @RequestParam("delete") String managerId, @RequestParam(value = "banner", required = false) Integer bannerCode) {
         try {
             Manager manager = managerService.getByManagerId(UUID.fromString(managerId));
             List<User> userList = userService.findByClassAreaId(manager.getId());
@@ -2498,6 +2681,7 @@ public class HomeController {
             cookiePassword.setPath("/");
             response.addCookie(cookiePassword);
             managerService.deleteById(manager);
+            redirectAttributes.addAttribute("banner", 7);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
@@ -2508,6 +2692,7 @@ public class HomeController {
         } catch (Exception e) {
             System.out.println("Error happened in deleteManager(get)");
             e.printStackTrace();
+            redirectAttributes.addAttribute("banner", 0);
             String host = request.getHeader("Host");
             if (host.equals(domainLocal)) {
                 return "redirect:loginManager";
