@@ -15,4 +15,7 @@ if (banner) {
     setTimeout(() => {
         banner.style.display = 'none';
     }, '3000');
+    const url = new URL(window.location.href);
+    url.searchParams.delete('banner');
+    window.history.replaceState({}, '', url);
 }
