@@ -20,8 +20,8 @@ public interface SalaryRepository extends JpaRepository<Salary, UUID>{
     Salary getBySalaryId(@Param("salaryid") UUID salaryid);
     
     @Modifying
-    @Query(nativeQuery = true, value = "UPDATE salaries SET userid = :userid, datefrom = :datefrom, classsalary = :classsalary, officesalary = :officesalary, supportsalary = :supportsalary, carfare = :carfare WHERE id = :id")
-    void update(@Param("id") UUID id, @Param("userid") UUID userid, @Param("datefrom") String datefrom, @Param("classsalary") int classsalary, @Param("officesalary") int officesalary, @Param("supportsalary") int supportsalary, @Param("carfare") int carfare);
+    @Query(nativeQuery = true, value = "UPDATE salaries SET userid = :userid, datefrom = :datefrom, classsalary = :classsalary, officesalary = :officesalary, carfare = :carfare WHERE id = :id")
+    void update(@Param("id") UUID id, @Param("userid") UUID userid, @Param("datefrom") String datefrom, @Param("classsalary") int classsalary, @Param("officesalary") int officesalary, @Param("carfare") int carfare);
     
     @Query(nativeQuery = true, value = "SELECT * FROM salaries WHERE userid = :userid ORDER BY datefrom ASC LIMIT 1")
     Salary getFirstSalary(@Param("userid") UUID userid);

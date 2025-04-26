@@ -75,7 +75,6 @@
   - dateFrom(string)
   - classSalary(int)
   - officeSalary(int)
-  - supportSalary(int)
   - carfare(int)
 - workTemplates: テンプレート情報を管理
   - id(UUID)

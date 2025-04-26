@@ -33,9 +33,6 @@ public class Salary {
     @Column(name = "officesalary")
     private int officeSalary;
     
-    @Column(name = "supportsalary")
-    private int supportSalary;
-    
     @Column(name = "carfare")
     private int carfare;
     

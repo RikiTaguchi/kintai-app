@@ -4,8 +4,8 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>明光義塾 勤怠管理システム</title>
-		<link th:href="@{/css/common.css?v=1.0.0}" rel="stylesheet">
-		<link th:href="@{/css/infoUser.css?v=1.0.0}" rel="stylesheet">
+		<link th:href="@{/css/common.css?v=1.0.1}" rel="stylesheet">
+		<link th:href="@{/css/infoUser.css?v=1.0.1}" rel="stylesheet">
 		<link rel="apple-touch-icon" sizes="180x180" th:href="@{/img/icons/apple-touch-icon.png}">
 		<link rel="manifest" th:href="@{/manifest.json?v=1.0.0}">
 		<link rel="icon" th:href="@{/img/icons/favicon.ico}" type="image/x-icon">
@@ -90,8 +90,7 @@
 				<table border="1" style="border-spacing: 0;" class="radius-table">
 					<tr><th>コマ給</th><td th:text = "${'¥'+salaryFormatted[0]}"></td></tr>
 					<tr><th>事務給</th><td th:text = "${'¥'+salaryFormatted[1]}"></td></tr>
-					<tr><th>日時手当</th><td th:text = "${'¥'+salaryFormatted[2]}"></td></tr>
-					<tr><th>交通費</th><td th:text = "${'¥'+salaryFormatted[3]}"></td></tr>
+					<tr><th>交通費</th><td th:text = "${'¥'+salaryFormatted[2]}"></td></tr>
 				</table>
 			</div>
 			<div class="mainTable" style="margin-bottom: 60px;">
@@ -99,14 +98,13 @@
 					<p>給与推移</p>
 				</div>
 				<table border="1" style="border-spacing: 0;" class="radius-table-sub">
-					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>日時手当</th><th>交通費</th></tr>
+					<tr><th>期間</th><th>コマ給</th><th>事務給</th><th>交通費</th></tr>
 					<th:block th:each = "s : ${salaryList}">
 						<tr>
 							<td><a th:href = "@{/salaryForm(manager=${manager.id}, user=${user.id}, salary=${s.id}, year=${year}, month=${month})}"><span th:text = "${s.dateFrom.substring(0, 5).replace('-','/')+s.dateFrom.substring(5,10).replace('-','/')+'〜'}"></span></a></td>
 							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[0]}"></td>
 							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[1]}"></td>
 							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[2]}"></td>
-							<td th:text = "${'¥'+salaryMapFormatted.get(s.id)[3]}"></td>
 						</tr>
 					</th:block>
 				</table>

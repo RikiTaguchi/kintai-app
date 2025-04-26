@@ -383,13 +383,11 @@ h1::before {
     background-color: white;
     left: 0;
     right: auto;
-    top: 48px;
+    top: 55px;
     width: 200px;
     height: 100%;
     border: solid;
     border-left: none;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
     border-color: rgb(230, 230, 230);
     box-shadow: 1px 1px 5px rgb(76, 76, 78)
 }
@@ -839,7 +837,7 @@ h1::before {
 
     .side {
         display: none;
-        top: 25px;
+        top: 35px;
         left: auto;
         right: 0;
         width: 160px;

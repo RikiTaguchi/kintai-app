@@ -121,18 +121,18 @@
     }
 
 	.radius-table-sub tr th {
-        width: 18%;
+        width: 22%;
     }
 
     .radius-table-sub tr td {
-        width: 18%;
+        width: 22%;
     }
     
     .radius-table-sub tr td:first-child {
-        width: 28%;
+        width: 34%;
     }
     
     .radius-table-sub tr th:first-child {
-        width: 28%;
+        width: 34%;
     }
 }

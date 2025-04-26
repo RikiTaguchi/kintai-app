@@ -35,10 +35,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID>{
    
     @Query(nativeQuery = true, value = "SELECT SUM(othertime) FROM works WHERE userid = :userid and date BETWEEN :datefrom AND :dateto")
     int sumOtherTime(@Param("userid") UUID userid, @Param("datefrom") String datefrom, @Param("dateto") String dateto);
-   
-    @Query(nativeQuery = true, value = "SELECT COUNT(supportsalary) FROM works WHERE userid = :userid and date BETWEEN :datefrom AND :dateto and supportsalary = 'true'")
-    int sumSupportSalary(@Param("userid") UUID userid, @Param("datefrom") String datefrom, @Param("dateto") String dateto);
-   
+
     @Query(nativeQuery = true, value = "SELECT SUM(carfare) FROM works WHERE userid = :userid and date BETWEEN :datefrom AND :dateto")
     int sumCarfare(@Param("userid") UUID userid, @Param("datefrom") String datefrom, @Param("dateto") String dateto);
     

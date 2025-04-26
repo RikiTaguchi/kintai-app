@@ -35,7 +35,7 @@ public class SalaryService {
     
     @Transactional
     public void update(Salary salary) {
-        salaryRepository.update(salary.getId(), salary.getUserId(), salary.getDateFrom(), salary.getClassSalary(), salary.getOfficeSalary(), salary.getSupportSalary(), salary.getCarfare());
+        salaryRepository.update(salary.getId(), salary.getUserId(), salary.getDateFrom(), salary.getClassSalary(), salary.getOfficeSalary(), salary.getCarfare());
     }
 
     @Transactional

@@ -43,6 +43,7 @@ import com.meikokintai.kintai_app.service.WorkTemplateService;
 import com.meikokintai.kintai_app.service.LockService;
 import com.meikokintai.kintai_app.util.BannerSet;
 import com.meikokintai.kintai_app.util.DateSet;
+import com.meikokintai.kintai_app.util.SupportSalarySet;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,12 +60,15 @@ public class HomeController {
     private final IncomeTaxService incomeTaxService;
     private final LockService lockService;
 
+    // 日時手当取得用
+    private final SupportSalarySet supportSalarySet;
+
     // ドメイン名
     private final String domainLocal = "localhost:8080"; // ローカル環境
     private final String domainAWS = "meikokintai.com"; // 本番環境
     
     // ホームコントローラー
-    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService, IncomeTaxService incomeTaxService, LockService lockService, IncomeTaxRepository incomeTaxRepository) {
+    public HomeController(WorkService workService, UserService userService, ManagerService managerService, SalaryService salaryService, WorkTemplateService workTemplateService, IncomeTaxService incomeTaxService, LockService lockService, IncomeTaxRepository incomeTaxRepository, SupportSalarySet supportSalarySet) {
         this.workService = workService;
         this.userService = userService;
         this.managerService = managerService;
@@ -72,6 +76,7 @@ public class HomeController {
         this.workTemplateService = workTemplateService;
         this.incomeTaxService = incomeTaxService;
         this.lockService = lockService;
+        this.supportSalarySet = supportSalarySet;
     }
     
     // 講師アカウントでの処理
@@ -232,7 +237,7 @@ public class HomeController {
                 lockStatus = true;
             }
             for (Work work : workList) {
-                supportSalaryMap.put(work.getId(), formatter.format(salaryService.getByDate(UUID.fromString(userId), work.getDate()).getSupportSalary()));
+                supportSalaryMap.put(work.getId(), formatter.format(supportSalarySet.getSupportSalary(work)));
                 carfareMap.put(work.getId(), formatter.format(work.getCarfare()));
             }
             if (bannerCode != null) {
@@ -766,7 +771,7 @@ public class HomeController {
             List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
             
             try {
-                sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary(), salary.getSupportSalary());
+                sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary());
                 for (Work work : workList) {
                     setDouble = workService.calcSumSalary(work, salaryService.getByDate(UUID.fromString(userId), work.getDate()));
                     salaryMap.put(work.getId(), salaryService.getByDate(UUID.fromString(userId), work.getDate()));
@@ -863,19 +868,17 @@ public class HomeController {
             String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
             String today = String.valueOf(calendar.get(Calendar.YEAR)) + "/" + String.valueOf(calendar.get(Calendar.MONTH) + 1) + "/" + String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " 現在";
             Salary salaryNow = salaryService.getByDate(user.getId(), year+"-"+month+"-"+day);
-            String salaryFormatted[] = new String[4];
+            String salaryFormatted[] = new String[3];
             List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
             Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
             salaryFormatted[0] = String.format("%,d", salaryNow.getClassSalary());
             salaryFormatted[1] = String.format("%,d", salaryNow.getOfficeSalary());
-            salaryFormatted[2] = String.format("%,d", salaryNow.getSupportSalary());
-            salaryFormatted[3] = String.format("%,d", salaryNow.getCarfare());
+            salaryFormatted[2] = String.format("%,d", salaryNow.getCarfare());
             for (Salary salary : salaryList) {
-                String salariesFormatted[] = new String[4];
+                String salariesFormatted[] = new String[3];
                 salariesFormatted[0] = String.format("%,d", salary.getClassSalary());
                 salariesFormatted[1] = String.format("%,d", salary.getOfficeSalary());
-                salariesFormatted[2] = String.format("%,d", salary.getSupportSalary());
-                salariesFormatted[3] = String.format("%,d", salary.getCarfare());
+                salariesFormatted[2] = String.format("%,d", salary.getCarfare());
                 salaryMapFormatted.put(salary.getId(), salariesFormatted);
             }
             if (bannerCode != null) {
@@ -1355,7 +1358,7 @@ public class HomeController {
             User user = userService.getByUserId(UUID.fromString(userId));
             String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
             Salary salary = salaryService.getByDate(UUID.fromString(userId), year+"-"+month+"-"+day);
-            String salaryFormatted[] = new String[4];
+            String salaryFormatted[] = new String[3];
             List<Salary> salaryList = salaryService.findByUserId(UUID.fromString(userId));
             Map<UUID, String[]> salaryMapFormatted = new HashMap<>();
             String dateStart = salaryService.getFirstSalary(user.getId()).getDateFrom();
@@ -1369,14 +1372,12 @@ public class HomeController {
                 String salariesFormatted[] = new String[4];
                 salariesFormatted[0] = String.format("%,d", s.getClassSalary());
                 salariesFormatted[1] = String.format("%,d", s.getOfficeSalary());
-                salariesFormatted[2] = String.format("%,d", s.getSupportSalary());
-                salariesFormatted[3] = String.format("%,d", s.getCarfare());
+                salariesFormatted[2] = String.format("%,d", s.getCarfare());
                 salaryMapFormatted.put(s.getId(), salariesFormatted);
             }
             salaryFormatted[0] = String.format("%,d", salary.getClassSalary());
             salaryFormatted[1] = String.format("%,d", salary.getOfficeSalary());
-            salaryFormatted[2] = String.format("%,d", salary.getSupportSalary());
-            salaryFormatted[3] = String.format("%,d", salary.getCarfare());
+            salaryFormatted[2] = String.format("%,d", salary.getCarfare());
             if (bannerCode != null) {
                 model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
             }
@@ -1835,10 +1836,10 @@ public class HomeController {
                     lockStatus = "true";
                 }
                 try {
-                    sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary(), salary.getSupportSalary());
+                    sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary());
                     for (Work work : workList) {
                         setDouble = workService.calcSumSalary(work, salaryService.getByDate(UUID.fromString(userId), work.getDate()));
-                        supportSalaryMap.put(work.getId(), formatter.format(salaryService.getByDate(UUID.fromString(userId), work.getDate()).getSupportSalary()));
+                        supportSalaryMap.put(work.getId(), formatter.format(supportSalarySet.getSupportSalary(work)));
                         carfareMap.put(work.getId(), formatter.format(work.getCarfare()));
                         for (int i = 0; i < 16; i++) {
                             resultDouble[i]+= setDouble[i]; 
@@ -2368,7 +2369,7 @@ public class HomeController {
                         values[10] = Integer.toString(work.getOfficeTime()/60)+":"+String.format("%02d", work.getOfficeTime()%60);
                     }
                     if (work.getSupportSalary().equals("true")) {
-                        values[11] = Integer.toString(salaryService.getByDate(u.getId(), work.getDate()).getSupportSalary());
+                        values[11] = Integer.toString(supportSalarySet.getSupportSalary(work));
                     }
                     if (work.getCarfare() != 0) {
                         values[12] = Integer.toString(work.getCarfare());
@@ -2411,7 +2412,7 @@ public class HomeController {
                     sumInt[1] += 1;
                     sumInt[2] += work.getOfficeTime();
                     if (work.getSupportSalary().equals("true")) {
-                        sumInt[3] += salaryService.getByDate(u.getId(), work.getDate()).getSupportSalary();
+                        sumInt[3] += supportSalarySet.getSupportSalary(work);
                     }
                     sumInt[4] += work.getCarfare();
                     sumInt[5] += work.getOtherTime();

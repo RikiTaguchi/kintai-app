@@ -16,14 +16,17 @@ import com.meikokintai.kintai_app.model.Work;
 import com.meikokintai.kintai_app.repository.WorkRepository;
 import com.meikokintai.kintai_app.util.ClassSet;
 import com.meikokintai.kintai_app.util.TimeSet;
+import com.meikokintai.kintai_app.util.SupportSalarySet;
 
 @Service
 public class WorkService {
     
     private final WorkRepository workRepository;
+    private final SupportSalarySet supportSalarySet;
     
-    public WorkService(WorkRepository workRepository) {
+    public WorkService(WorkRepository workRepository, SupportSalarySet supportSalarySet) {
         this.workRepository = workRepository;
+        this.supportSalarySet = supportSalarySet;
     }
     
     public List<Work> findByUserId(UUID userId, Date dateFrom, Date dateTo) {
@@ -58,7 +61,7 @@ public class WorkService {
     }
     
     @Transactional
-    public int[] calcSumSalary(UUID userId, Date dateFrom, Date dateTo, int classSalary, int officeSalary, int supportSalary) throws Exception {
+    public int[] calcSumSalary(UUID userId, Date dateFrom, Date dateTo, int classSalary, int officeSalary) throws Exception {
         int result[] = new int[17];
         try {
             SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -71,7 +74,11 @@ public class WorkService {
             result[6] = (int)Math.ceil((double)(officeSalary*result[5])/(double)60);
             result[7] = workRepository.sumOtherTime(userId, sdFormat.format(dateFrom), sdFormat.format(dateTo));
             result[8] = (int)Math.ceil((double)(officeSalary*result[7])/(double)60);
-            result[9] = supportSalary * workRepository.sumSupportSalary(userId, sdFormat.format(dateFrom), sdFormat.format(dateTo));
+            result[9] = 0;
+            List<Work> workList = workRepository.findByUserId(userId, sdFormat.format(dateFrom), sdFormat.format(dateTo));
+            for (Work w : workList) {
+                result[9] += supportSalarySet.getSupportSalary(w);
+            }
             result[10] = 0;
             result[11] = workRepository.sumCarfare(userId, sdFormat.format(dateFrom), sdFormat.format(dateTo));
             result[12] = workRepository.sumOverTime(userId, sdFormat.format(dateFrom), sdFormat.format(dateTo));
@@ -98,7 +105,7 @@ public class WorkService {
         result[7] = (double)work.getOtherTime();
         result[8] = (double)(salary.getOfficeSalary()*result[7])/(double)60;
         if (work.getSupportSalary().equals("true")) {
-            result[9] = (double)salary.getSupportSalary();
+            result[9] = (double)(supportSalarySet.getSupportSalary(work));
         } else {
             result[9] = (double)0;
         }

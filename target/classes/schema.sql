@@ -55,7 +55,6 @@ CREATE TABLE IF NOT EXISTS salaries (
 	dateFrom varchar(10),
 	classSalary int,
 	officeSalary int,
-	supportSalary int,
 	carfare int
 );
 
