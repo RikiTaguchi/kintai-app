@@ -13,6 +13,7 @@ com/meikokintai/kintai_app/KintaiAppApplication.class
 com/meikokintai/kintai_app/model/Manager.class
 com/meikokintai/kintai_app/model/Work.class
 com/meikokintai/kintai_app/repository/WorkTemplateRepository.class
+com/meikokintai/kintai_app/util/SupportSalarySet.class
 com/meikokintai/kintai_app/repository/SalaryRepository.class
 com/meikokintai/kintai_app/service/LockService.class
 com/meikokintai/kintai_app/repository/ManagerRepository.class
