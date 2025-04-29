@@ -128,8 +128,16 @@
 					</table>
 
 					<table border="1" style="border-spacing: 0;" class="table table3">
-						<tr><th class="table6" rowspan = "2">交通費</th><td>①</td><td>②</td></tr>
-						<tr><td><span th:text = "${sumSalaryFormatted[17]}"></span></td><td></td></tr>
+						<tr>
+							<th class="table6" rowspan = "2">交通費</th>
+							<td>①</td><td>②</td>
+						</tr>
+						<tr>
+							<td>
+								<th:block th:if="${sumSalaryFormatted[17] != '0'}"><span th:text = "${sumSalaryFormatted[17]}"></span></th:block>
+							</td>
+							<td></td>
+						</tr>
 					</table>
 				</div>
 
