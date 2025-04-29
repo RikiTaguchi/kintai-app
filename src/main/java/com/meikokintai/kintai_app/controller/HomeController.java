@@ -15,8 +15,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
@@ -2255,12 +2253,12 @@ public class HomeController {
                 // 勤務情報の取得
                 List<Work> workList = workService.findByUserId(u.getId(), dateFrom, dateTo);
 
-                // 講師級シートの取得
+                // 講師給シートの取得
                 XSSFSheet sheet = workbook.getSheetAt(i + 1);
                 String sheetName = numberList[i]+u.getUserName().split(" ")[0];
                 workbook.setSheetName(workbook.getSheetIndex(sheet), sheetName);
 
-                // cellへデータ入力
+                // ヘッダー
                 String headers[] = new String[8];
                 int cellPointsInHeader[] = {4, 16, 25, 29, 33, 35, 40, 42};
                 for (int j = 0; j < headers.length; j++) {
@@ -2289,24 +2287,35 @@ public class HomeController {
                         cell.setCellValue(headers[j]);
                     }
                 }
+
+                // 交通費
                 Cell carfareCell = sheet.getRow(3).getCell(39);
                 int carfareTarget = salaryService.getByDate(u.getId(), year+"-"+month+"-25").getCarfare();
                 if (carfareTarget != 0) {
                     carfareCell.setCellValue(carfareTarget);
                 }
-                int sumInt[] = new int[11];
+
+                // 勤務情報
+                int sumInt[] = new int[12];
                 for (int j = 0; j < sumInt.length; j++) {
                     sumInt[j] = 0;
                 }
                 int rowIndex = 7;
                 int cellPointsInWork[] = {1, 4, 5, 8, 10, 13, 15, 17, 19, 21, 23, 25, 27, 29, 33, 35, 37, 39, 41, 43, 45};
                 for (Work work : workList) {
+                    // 初期化
                     String values[] = new String[21];
                     for (int j = 0; j < values.length; j++) {
                         values[j] = "";
                     }
-                    values[0] = String.valueOf(Integer.parseInt(work.getDate().split("-")[0]))+"/"+String.valueOf(Integer.parseInt(work.getDate().split("-")[1]))+"/"+String.valueOf(Integer.parseInt(work.getDate().split("-")[2]));
+
+                    // 勤務日
+                    values[0] = String.valueOf(Integer.parseInt(work.getDate().split("-")[1]))+"月"+String.valueOf(Integer.parseInt(work.getDate().split("-")[2]))+"日";
+                    
+                    // 曜日
                     values[1] = work.getDayOfWeek();
+
+                    // 勤務コマ
                     if (work.getClassM() == true) {
                         values[2] += "M";
                     }
@@ -2328,12 +2337,18 @@ public class HomeController {
                     if (work.getClassD() == true) {
                         values[2] += "D";
                     }
+
+                    // コマ数
                     if (work.getClassCount() != 0) {
                         values[3] = Integer.toString(work.getClassCount());
                     }
+
+                    // ヘルプ勤務教室
                     if (!work.getHelpArea().equals("")) {
                         values[4] = work.getHelpArea();
                     }
+
+                    // 授業業務開始時刻
                     if (!work.getTimeStart().equals("     ")) {
                         if (Integer.valueOf(work.getTimeStart().split(":")[0]) < 10) {
                             values[5] = Integer.toString(Integer.valueOf(work.getTimeStart().split(":")[0])) + ":" + work.getTimeStart().split(":")[1];
@@ -2341,6 +2356,8 @@ public class HomeController {
                             values[5] = work.getTimeStart();
                         }
                     }
+
+                    // 授業業務終了時刻
                     if (!work.getTimeEnd().equals("     ")) {
                         if (Integer.valueOf(work.getTimeEnd().split(":")[0]) < 10) {
                             values[6] = Integer.toString(Integer.valueOf(work.getTimeEnd().split(":")[0])) + ":" + work.getTimeEnd().split(":")[1];
@@ -2348,9 +2365,13 @@ public class HomeController {
                             values[6] = work.getTimeEnd();
                         }
                     }
+
+                    // 休憩時間
                     if (work.getBreakTime() != 0) {
                         values[7] = Integer.toString(work.getBreakTime()/60)+":"+String.format("%02d", work.getBreakTime()%60);
                     }
+
+                    // 事務業務開始時刻
                     if (!work.getOfficeTimeStart().equals("     ")) {
                         if (Integer.valueOf(work.getOfficeTimeStart().split(":")[0]) < 10) {
                             values[8] = Integer.toString(Integer.valueOf(work.getOfficeTimeStart().split(":")[0])) + ":" + work.getOfficeTimeStart().split(":")[1];
@@ -2358,6 +2379,8 @@ public class HomeController {
                             values[8] = work.getOfficeTimeStart();
                         }
                     }
+
+                    // 事務業務終了時刻
                     if (!work.getOfficeTimeEnd().equals("     ")) {
                         if (Integer.valueOf(work.getOfficeTimeEnd().split(":")[0]) < 10) {
                             values[9] = Integer.toString(Integer.valueOf(work.getOfficeTimeEnd().split(":")[0])) + ":" + work.getOfficeTimeEnd().split(":")[1];
@@ -2365,20 +2388,28 @@ public class HomeController {
                             values[9] = work.getOfficeTimeEnd();
                         }
                     }
+
+                    // 事務業務時間
                     if (work.getOfficeTime() != 0) {
                         values[10] = Integer.toString(work.getOfficeTime()/60)+":"+String.format("%02d", work.getOfficeTime()%60);
                     }
+
+                    // 日時手当
                     if (work.getSupportSalary().equals("true")) {
                         values[11] = Integer.toString(supportSalarySet.getSupportSalary(work));
                     }
+
+                    // 交通費
                     if (work.getCarfare() != 0) {
                         values[12] = Integer.toString(work.getCarfare());
-                    } else {
-                        values[12] = "0";
                     }
+
+                    // 研修・自習室
                     if (!work.getOtherWork().equals("")) {
                         values[13] = work.getOtherWork();
                     }
+
+                    // 研修・自習室開始時刻
                     if (!work.getOtherTimeStart().equals("     ")) {
                         if (Integer.valueOf(work.getOtherTimeStart().split(":")[0]) < 10) {
                             values[14] = Integer.toString(Integer.valueOf(work.getOtherTimeStart().split(":")[0])) + ":" + work.getOtherTimeStart().split(":")[1];
@@ -2386,6 +2417,8 @@ public class HomeController {
                             values[14] = work.getOtherTimeStart();
                         }
                     }
+
+                    // 研修・自習室終了時刻
                     if (!work.getOtherTimeEnd().equals("     ")) {
                         if (Integer.valueOf(work.getOtherTimeEnd().split(":")[0]) < 10) {
                             values[15] = Integer.toString(Integer.valueOf(work.getOtherTimeEnd().split(":")[0])) + ":" + work.getOtherTimeEnd().split(":")[1];
@@ -2393,62 +2426,103 @@ public class HomeController {
                             values[15] = work.getOtherTimeEnd();
                         }
                     }
+
+                    // 研修・自習室休憩時間
                     if (work.getOtherBreakTime() != 0) {
                         values[16] = Integer.toString(work.getOtherBreakTime()/60)+":"+String.format("%02d", work.getOtherBreakTime()%60);
                     }
+
+                    // 研修・自習室時間
                     if (work.getOtherTime() != 0) {
                         values[17] = Integer.toString(work.getOtherTime()/60)+":"+String.format("%02d", work.getOtherTime()%60);
                     }
+
+                    // 時間外
                     if (work.getOutOfTime() != 0) {
                         values[18] = Integer.toString(work.getOutOfTime()/60)+":"+String.format("%02d", work.getOutOfTime()%60);
                     }
+
+                    // 超過
                     if (work.getOverTime() != 0) {
                         values[19] = Integer.toString(work.getOverTime()/60)+":"+String.format("%02d", work.getOverTime()%60);
                     }
+
+                    // 深夜
                     if (work.getNightTime() != 0) {
                         values[20] = Integer.toString(work.getNightTime()/60)+":"+String.format("%02d", work.getNightTime()%60);
                     }
-                    sumInt[0] += work.getClassCount();
-                    sumInt[1] += 1;
-                    sumInt[2] += work.getOfficeTime();
+
+                    // 合計値
+                    sumInt[3] += work.getClassCount();
+                    sumInt[4] += 1;
+                    sumInt[5] += work.getOfficeTime();
                     if (work.getSupportSalary().equals("true")) {
-                        sumInt[3] += supportSalarySet.getSupportSalary(work);
+                        sumInt[6] += supportSalarySet.getSupportSalary(work);
                     }
-                    sumInt[4] += work.getCarfare();
-                    sumInt[5] += work.getOtherTime();
-                    sumInt[6] += work.getOutOfTime();
-                    sumInt[7] += work.getOverTime();
-                    sumInt[8] += work.getNightTime();
+                    sumInt[7] += work.getCarfare();
+                    sumInt[8] += work.getOtherTime();
+                    sumInt[9] += work.getOutOfTime();
+                    sumInt[10] += work.getOverTime();
+                    sumInt[11] += work.getNightTime();
+
+                    // セルへの入力
                     Row row = sheet.getRow(rowIndex);
                     if (row == null) {
                         row = sheet.createRow(rowIndex);
                     }
                     Cell cells[] = new Cell[values.length];
+                    int stringCells[] = {0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20};
                     for (int j = 0; j < cells.length; j++) {
                         cells[j] = row.getCell(cellPointsInWork[j]);
-                        if (cells[j] == null) {
-                            cells[j] = row.createCell(cellPointsInWork[j]);
+                        boolean found = false;
+                        for (int num : stringCells) {
+                            if (num == j) {
+                                found = true;
+                                break;
+                            }
                         }
-                        if (j == 0) {
-                            String infoDate[] = values[j].split("/");
-                            LocalDate localDate = LocalDate.of(Integer.parseInt(infoDate[0]), Integer.parseInt(infoDate[1]), Integer.parseInt(infoDate[2]));
-                            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());;
-                            cells[j].setCellValue(date);
-                        }
-                        if (j == 2 || j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9 || j == 13 || j == 14 || j == 15 || j == 16) {
+                        if (found) {
                             if (!values[j].equals("")) {
                                 cells[j].setCellValue(values[j]);
                             }
-                        } else if (j == 12) {
-                            if (Integer.valueOf(values[j]) != carfareTarget) {
-                                if (cells[j].getCellType() == CellType.FORMULA) {
-                                    cells[j].setBlank();
-                                    cells[j].setCellValue(Integer.valueOf(values[j]));
-                                }
+                        } else {
+                            if (!values[j].equals("")) {
+                                cells[j].setCellValue(Integer.valueOf(values[j]));
                             }
                         }
                     }
+
+                    // セルのスタイルを変更（3コマ以上の場合）
+                    if (work.getClassCount() > 2) {
+                        // 背景色を変更
+                        for (int j = 5; j < 8; j++) {
+                            Cell cellTarget = row.getCell(cellPointsInWork[j]);
+                            if (cellTarget != null) {
+                                CellStyle originalStyle = cellTarget.getCellStyle();
+                                CellStyle newStyle = workbook.createCellStyle();
+                                newStyle.cloneStyleFrom(originalStyle);
+                                newStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+                                newStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                                cellTarget.setCellStyle(newStyle);
+                            }
+                        }
+                    }
+
+                    // 次の列へ進む
                     rowIndex += 1;
+                }
+
+                // 合計値の入力
+                int cellPointsInSum[] = {1, 4, 7, 11, 15, 19, 23, 27, 31};
+                Row rowSum = sheet.getRow(3);
+                if (rowSum == null) {
+                    rowSum = sheet.createRow(3);
+                }
+                for (int j = 0; j < cellPointsInSum.length; j++) {
+                    Cell cellSum = rowSum.getCell(cellPointsInSum[j]);
+                    if (sumInt[j + 3] != 0) {
+                        cellSum.setCellValue(sumInt[j + 3]);
+                    }
                 }
 
                 // トップシートの入力
@@ -2456,15 +2530,15 @@ public class HomeController {
                 if (rowTop == null) {
                     rowTop = sheetTop.createRow(i + 33);
                 }
-                for (int j = 0; j < 13; j++) {
-                    Cell cellTop = rowTop.getCell(j);
-                    if (j == 1) {
+                for (int j = 0; j < sumInt.length; j++) {
+                    Cell cellTop = rowTop.getCell(j + 1);
+                    if (j == 0) {
                         // 講師No.
                         cellTop.setCellValue(u.getTeacherNo());
-                    } else if (j == 2) {
+                    } else if (j == 1) {
                         // 講師氏名
                         cellTop.setCellValue(u.getUserName());
-                    } else if (j == 3) {
+                    } else if (j == 2) {
                         // 退職日
                         if (!u.getState()) {
                             String retireYear = u.getRetireDate().split("-")[0];
@@ -2472,8 +2546,12 @@ public class HomeController {
                             String retireValue = retireYear + "年" + retireMonth + "月";
                             cellTop.setCellValue(retireValue);
                         }
+                    } else {
+                        cellTop.setCellValue(sumInt[j]);
                     }
                 }
+
+                // 退職済み講師のセルを編集
                 if (!u.getState()) {
                     for (int j = 1; j < 4; j++) {
                         Cell cellTop = rowTop.getCell(j);
@@ -2506,9 +2584,6 @@ public class HomeController {
                 row.getCell(33).setCellValue(Integer.parseInt(DateSet.getDateBefore(year, month)[1]));
                 row.getCell(40).setCellValue(Integer.parseInt(month));
             }
-
-            // ファイルオープン時に関数を再計算させる
-            workbook.setForceFormulaRecalculation(true);
 
             // Excelデータをレスポンスに書き込む
             workbook.write(response.getOutputStream());
