@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.poi.ss.usermodel.*;
@@ -188,10 +189,139 @@ public class HomeController {
             if (bannerCode != null) {
                 model.addAttribute("bannerMessage", BannerSet.getBannerMessage(bannerCode));
             }
+
+            // ダッシュボード関連の処理
+            Salary firstSalary = salaryService.getFirstSalary(UUID.fromString(userId));
+            int yearFirst = Integer.parseInt(DateSet.getYear(firstSalary.getDateFrom()));
+            int monthFirst = Integer.parseInt(DateSet.getMonth(firstSalary.getDateFrom()));
+            int yearLast = Integer.parseInt(DateSet.getYear(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH)));
+            int monthLast = Integer.parseInt(DateSet.getMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH)));
+
+            // リストの定義：[[年, 月, 給与, コマ数], [年, 月, 給与, コマ数], [年, 月, 給与, コマ数], ...]
+            List<int[]> salaryList = new ArrayList<>();
+
+            // 配列に給与情報を格納
+            for (int y = yearFirst; y <= yearLast; y++) {
+                int startMonth = (y == yearFirst) ? monthFirst : 1;
+                int endMonth   = (y == yearLast) ? monthLast : 12;
+                for (int m = startMonth; m <= endMonth; m++) {
+                    // 月次情報の格納
+                    int salaryByMonth[] = new int[19];
+
+                    // 給与明細の計算
+                    Date dateFrom;
+                    Date dateTo;
+                    if (m > 9) {
+                        dateFrom = DateSet.getDatePeriod(String.valueOf(y), String.valueOf(m))[0];
+                        dateTo = DateSet.getDatePeriod(String.valueOf(y), String.valueOf(m))[1];
+                    } else {
+                        dateFrom = DateSet.getDatePeriod(String.valueOf(y), "0" + String.valueOf(m))[0];
+                        dateTo = DateSet.getDatePeriod(String.valueOf(y), "0" + String.valueOf(m))[1];
+                    }
+
+                    // String yearBefore = DateSet.getDateBefore(String.valueOf(y), String.valueOf(m))[0];
+                    // String monthBefore = DateSet.getDateBefore(String.valueOf(y), String.valueOf(m))[1];
+
+                    // String yearNext = DateSet.getDateNext(yearNow, monthNow)[0];
+                    // String monthNext = DateSet.getDateNext(yearNow, monthNow)[1];
+
+                    Salary salary;
+                    if (m > 9) {
+                        salary = salaryService.getByDate(UUID.fromString(userId), y+"-"+m+"-26");
+                    } else {
+                        salary = salaryService.getByDate(UUID.fromString(userId), y+"-0"+m+"-26");
+                    }
+
+                    Map<UUID, Salary> salaryMap = new HashMap<>();
+                    int sumSalaryPre[] = new int[17];
+                    int sumSalary[] = new int[17];
+
+                    // String sumSalaryFormatted[] = new String[19];
+                    // NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+
+                    double setDouble[] = new double[16];
+                    double resultDouble[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+                    
+                    // IncomeTax incomeTax;
+                    // int incomeTaxValue = 0;
+                    // String incomeTaxFormatted;
+                    
+                    List<Work> workList = workService.findByUserId(UUID.fromString(userId), dateFrom, dateTo);
+                    
+                    try {
+                        sumSalary = workService.calcSumSalary(UUID.fromString(userId), dateFrom, dateTo, salary.getClassSalary(), salary.getOfficeSalary());
+                        for (Work work : workList) {
+                            setDouble = workService.calcSumSalary(work, salaryService.getByDate(UUID.fromString(userId), work.getDate()));
+                            salaryMap.put(work.getId(), salaryService.getByDate(UUID.fromString(userId), work.getDate()));
+                            for (int i = 0; i < 16; i++) {
+                                resultDouble[i]+= setDouble[i];
+                            }
+                        }
+                        for (int i = 0; i < 16; i++) {
+                            sumSalaryPre[i] = (int)Math.ceil(resultDouble[i]);
+                            if (i != 0 && i != 2 && i != 3 && i != 5 && i != 7 && i != 10 && i != 12 && i != 14) {
+                                sumSalaryPre[16] += sumSalaryPre[i];
+                            }
+                        }
+                        sumSalary[16] += sumSalaryPre[15] - sumSalary[15] + sumSalaryPre[13] - sumSalary[13] + sumSalaryPre[9] - sumSalary[9] + sumSalaryPre[8] - sumSalary[8] + sumSalaryPre[6] - sumSalary[6] + sumSalaryPre[4] - sumSalary[4];
+                        sumSalary[15] = sumSalaryPre[15];
+                        sumSalary[13] = sumSalaryPre[13];
+                        sumSalary[9] = sumSalaryPre[9];
+                        sumSalary[8] = sumSalaryPre[8];
+                        sumSalary[6] = sumSalaryPre[6];
+                        sumSalary[4] = sumSalaryPre[4];
+                        sumSalary[10] = sumSalaryPre[16] - sumSalary[16];
+                        sumSalary[16] += sumSalary[10];
+                    } catch (Exception e) {
+                        for (int i = 0; i < 17; i++) {
+                            sumSalary[i] = 0;
+                            sumSalaryPre[i]= 0;
+                        }
+                    }
+
+                    // if (tax.equals("on")) {
+                    //     int totalIncome = sumSalary[1] + sumSalary[4] + sumSalary[8] + sumSalary[6] + sumSalary[9] + sumSalary[10] + sumSalary[13]  + sumSalary[15];
+                    //     if (totalIncome >= 88000) {
+                    //         if (incomeTaxService.getByTotalIncome(totalIncome) != null) {
+                    //             incomeTax = incomeTaxService.getByTotalIncome(totalIncome);
+                    //             incomeTaxValue = incomeTax.getTax();
+                    //             sumSalary[16] -= incomeTaxValue;
+                    //         }
+                    //     }
+                    // }
+                    // incomeTaxFormatted = formatter.format(incomeTaxValue);
+
+                    // for (int i = 0; i < sumSalaryFormatted.length; i++) {
+                    //     if (i == 1 || i == 4 || i == 6 || i == 8 || i == 9 || i == 10 || i == 11 || i == 13 || i == 15 || i == 16) {
+                    //         sumSalaryFormatted[i] = formatter.format(sumSalary[i]);
+                    //     } else if (i == 17) {
+                    //         sumSalaryFormatted[i] = formatter.format(salary.getClassSalary());
+                    //     } else if (i == 18) {
+                    //         sumSalaryFormatted[i] = formatter.format(sumSalary[4] + sumSalary[8] + sumSalary[13] + sumSalary[15]);
+                    //     } else {
+                    //         sumSalaryFormatted[i] = Integer.toString(sumSalary[i]);
+                    //     }
+                    // }
+
+                    // データの格納
+                    salaryByMonth[0] = y;
+                    salaryByMonth[1] = m;
+                    for (int i = 2; i < sumSalary.length + 2; i++) {
+                        salaryByMonth[i] = sumSalary[i - 2];
+                    }
+                    salaryList.add(salaryByMonth);
+                }
+            }
+
+            // 基本情報
             model.addAttribute("user", user);
             model.addAttribute("manager", manager);
             model.addAttribute("year", year);
             model.addAttribute("month", month);
+
+            // 給与情報（2次元配列）
+            model.addAttribute("salaryList", salaryList);
+
             redirectAttributes.addAttribute("user", userId);
             return "index";
         } catch (Exception e) {
