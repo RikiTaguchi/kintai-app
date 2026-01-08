@@ -30,11 +30,20 @@ public class SupportSalarySet {
     // パターン、コマ数、年月日を引数に日時手当を計算する
     private int getResult(int pattern, int count, LocalDate date) {
         int result;
+        int salary1;
+        int salary2;
+        if (date.isBefore(LocalDate.of(2025, 10, 1))) {
+            salary1 = 390;
+            salary2 = 195;
+        } else {
+            salary1 = 410;
+            salary2 = 205;
+        }
         if (pattern == 0) {
             if (count == 0) {
                 result = 0;
             } else if (count < 4) {
-                result = 390;
+                result = salary1;
             } else {
                 result = 100 * count;
             }
@@ -42,18 +51,18 @@ public class SupportSalarySet {
             if (count == 0) {
                 result = 0;
             } else {
-                result = 390;
+                result = salary1;
             }
         } else if (pattern == 2) {
             if (count == 0) {
                 result = 0;
             } else if (count == 1) {
-                result = 195;
+                result = salary2;
             } else {
-                result = 390;
+                result = salary1;
             }
         } else {
-            result = 390;
+            result = salary1;
         }
         return result;
     }
