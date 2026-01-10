@@ -40,12 +40,22 @@ public class SupportSalarySet {
             salary2 = 205;
         }
         if (pattern == 0) {
-            if (count == 0) {
-                result = 0;
-            } else if (count < 4) {
-                result = salary1;
+            if (date.isBefore(LocalDate.of(2025, 10, 1))) {
+                if (count == 0) {
+                    result = 0;
+                } else if (count < 4) {
+                    result = salary1;
+                } else {
+                    result = 100 * count;
+                }
             } else {
-                result = 100 * count;
+                if (count == 0) {
+                    result = 0;
+                } else if (count < 5) {
+                    result = salary1;
+                } else {
+                    result = 100 * count;
+                }
             }
         } else if (pattern == 1) {
             if (count == 0) {
