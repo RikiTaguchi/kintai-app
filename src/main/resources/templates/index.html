@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css?v=1.0.1}" rel="stylesheet">
-		<link th:href="@{/css/index.css?v=1.0.2}" rel="stylesheet">
+		<link th:href="@{/css/index.css?v=1.0.1}" rel="stylesheet">
 		<link rel="apple-touch-icon" sizes="180x180" th:href="@{/img/icons/apple-touch-icon.png}">
 		<link rel="manifest" th:href="@{/manifest.json?v=1.0.0}">
 		<link rel="icon" th:href="@{/img/icons/favicon.ico}" type="image/x-icon">
@@ -26,7 +26,6 @@
 		<div class="header">
             <h1>
 				勤怠管理システム
-				<a th:href="@{/index(user=${user.id})}"></a>
 			</h1>
 			<img class="menu-button" src="/img/menu.svg">
         </div>
@@ -42,7 +41,7 @@
 
 			<div>
 				<!-- グラフ表示エリア -->
-				<div class="chartArea">
+				<div class="chartArea" style="display: none;">
 					<div class="chartHeader">
 						<h3 class="chartTitle">差引支給額の推移</h3>
 						<select id="yearSelect" class="yearSelect">
@@ -51,7 +50,7 @@
 					<canvas id="salaryChart" class="chartCanvas"></canvas>
 				</div>
 
-				<!-- 元のコメント・デバッグ用 -->
+				<!-- 元のコメント・一応残しておく -->
 				<th:block th:each = "s : ${salaryList}">
 					<!-- ここから編集対象 -->
 
@@ -85,6 +84,11 @@
 						});
 					}
 					/*[/]*/
+
+				// データがある場合のみグラフエリアを表示して描画
+				if (allData.length > 0) {
+					// グラフエリアを表示
+					document.querySelector('.chartArea').style.display = 'block';
 
 					// 年ごとにデータをグループ化
 					const yearlyData = {};
@@ -184,6 +188,7 @@
 
 					// 初期表示
 					updateChart();
+				}
 				</script>
 
 			</div>
