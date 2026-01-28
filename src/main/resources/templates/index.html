@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<title>勤怠管理システム</title>
 		<link th:href="@{/css/common.css?v=1.0.1}" rel="stylesheet">
-		<link th:href="@{/css/index.css?v=1.0.0}" rel="stylesheet">
+		<link th:href="@{/css/index.css?v=1.0.2}" rel="stylesheet">
 		<link rel="apple-touch-icon" sizes="180x180" th:href="@{/img/icons/apple-touch-icon.png}">
 		<link rel="manifest" th:href="@{/manifest.json?v=1.0.0}">
 		<link rel="icon" th:href="@{/img/icons/favicon.ico}" type="image/x-icon">
@@ -15,6 +15,7 @@
 		<meta name="theme-color" content="#ffffff">
 		<script th:src="@{/js/hamburgerMenu.js?v=1.0.0}" defer></script>
 		<script th:src="@{/js/banner.js?v=1.0.1}" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 	</head>
 
 	<body>
@@ -40,11 +41,21 @@
 		    </div>
 
 			<div>
+				<!-- グラフ表示エリア -->
+				<div class="chartArea">
+					<div class="chartHeader">
+						<h3 class="chartTitle">差引支給額の推移</h3>
+						<select id="yearSelect" class="yearSelect">
+						</select>
+					</div>
+					<canvas id="salaryChart" class="chartCanvas"></canvas>
+				</div>
 
+				<!-- 元のコメント・デバッグ用 -->
 				<th:block th:each = "s : ${salaryList}">
 					<!-- ここから編集対象 -->
 
-					<div style = "display: none;">
+					<div class="debugInfo">
 						<!-- 配列の詳細：[年, 月, コマ数, コマ数×コマ給（円）, 勤務日数, 時間外勤務(分), 時間外勤務(円), 事務業務(分), 事務業務(円), 研修/自習室(分), 研修/自習室(円), 日時手当（円）, その他（円）, 交通費（円）, 超過勤務（分）, 超過勤務（円）,深夜勤務(分) ,深夜勤務(円) , 差引支給額（円）] -->
 						<!--
 							s[0]：年
@@ -60,6 +71,120 @@
 
 					<!-- ここまで編集対象 -->
 				</th:block>
+
+				<!-- データを配列として格納 -->
+				<script th:inline="javascript">
+					// サーバーサイドからデータを取得
+					const allData = [];
+					/*[# th:each="s : ${salaryList}"]*/
+					if (/*[[${s[18]}]]*/ > 0) {
+						allData.push({
+							year: /*[[${s[0]}]]*/,
+							month: /*[[${s[1]}]]*/,
+							amount: /*[[${s[18]}]]*/
+						});
+					}
+					/*[/]*/
+
+					// 年ごとにデータをグループ化
+					const yearlyData = {};
+					allData.forEach(d => {
+						if (!yearlyData[d.year]) {
+							yearlyData[d.year] = [];
+						}
+						yearlyData[d.year].push(d);
+					});
+
+					// 年のリストを取得（降順）
+					const years = Object.keys(yearlyData).map(Number).sort((a, b) => b - a);
+					let currentYear = years[0]; // 最新年を初期表示
+					let chartInstance = null;
+
+					// 年選択プルダウンを生成
+					const yearSelect = document.getElementById('yearSelect');
+					years.forEach(year => {
+						const option = document.createElement('option');
+						option.value = year;
+						option.textContent = `${year}年`;
+						yearSelect.appendChild(option);
+					});
+
+					// プルダウン変更イベント
+					yearSelect.addEventListener('change', (e) => {
+						currentYear = parseInt(e.target.value);
+						updateChart();
+					});
+
+					// グラフを更新する関数
+					function updateChart() {
+						const data = yearlyData[currentYear] || [];
+						const labels = data.map(d => `${d.month}月`);
+						const amounts = data.map(d => d.amount);
+
+						if (chartInstance) {
+							// 既存のグラフを更新
+							chartInstance.data.labels = labels;
+							chartInstance.data.datasets[0].data = amounts;
+							chartInstance.update();
+						} else {
+							// 初回のグラフ作成
+							const ctx = document.getElementById('salaryChart');
+							chartInstance = new Chart(ctx, {
+								type: 'line',
+								data: {
+									labels: labels,
+									datasets: [{
+										label: '差引支給額',
+										data: amounts,
+										borderColor: '#3b82f6',
+										backgroundColor: 'rgba(59, 130, 246, 0.1)',
+										borderWidth: 2,
+										fill: true,
+										tension: 0.3,
+										pointRadius: 4,
+										pointHoverRadius: 6
+									}]
+								},
+								options: {
+									responsive: true,
+									maintainAspectRatio: true,
+									plugins: {
+										legend: {
+											display: false
+										},
+										tooltip: {
+											callbacks: {
+												label: function(context) {
+													return '¥' + context.parsed.y.toLocaleString();
+												}
+											}
+										}
+									},
+									scales: {
+										y: {
+											beginAtZero: false,
+											ticks: {
+												callback: function(value) {
+													return (value / 10000).toFixed(1) + '万円';
+												}
+											}
+										},
+										x: {
+											ticks: {
+												font: {
+													size: 11
+												}
+											}
+										}
+									}
+								}
+							});
+						}
+					}
+
+					// 初期表示
+					updateChart();
+				</script>
 
 			</div>
 		</div>
