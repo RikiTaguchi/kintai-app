@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>管理者マニュアル｜勤怠管理システム</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #e0e7ff;
+      --primary-dark: #3730a3;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #f9fafb;
+      --white: #ffffff;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --sidebar-w: 260px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    /* ===== HEADER ===== */
+    .header { position: sticky; top: 0; z-index: 100; background: var(--primary); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    .header-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .header-back { font-size: 13px; color: #c7d2fe; text-decoration: none; }
+    .header-back:hover { color: #fff; }
+
+    /* ===== LAYOUT ===== */
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; padding: 20px 0; }
+    .sidebar-section { padding: 0 16px 8px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 12px; display: flex; align-items: center; gap: 6px; }
+    .sidebar a { display: flex; align-items: center; gap: 8px; padding: 7px 20px; font-size: 13.5px; color: var(--text); text-decoration: none; border-left: 3px solid transparent; transition: all .15s; }
+    .sidebar a:hover { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); }
+    .sidebar a.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+    .sidebar-icon { font-size: 15px; }
+
+    /* ===== MAIN ===== */
+    .main { flex: 1; padding: 40px 48px; max-width: 900px; }
+    .main > section { margin-bottom: 64px; }
+    .section-anchor { display: block; position: relative; top: -72px; visibility: hidden; }
+
+    h1 { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .hero-sub { color: var(--text-muted); font-size: 15px; margin-bottom: 32px; }
+    h2 { font-size: 21px; font-weight: 700; color: var(--primary-dark); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--primary-light); display: flex; align-items: center; gap: 8px; }
+    h3 { font-size: 16px; font-weight: 700; color: var(--text); margin: 24px 0 12px; display: flex; align-items: center; gap: 8px; }
+    p { margin-bottom: 12px; font-size: 14.5px; }
+
+    /* ===== STEPS ===== */
+    .steps { list-style: none; counter-reset: step; }
+    .steps li { counter-increment: step; display: flex; gap: 14px; margin-bottom: 16px; }
+    .steps li::before { content: counter(step); min-width: 28px; height: 28px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .steps li .step-body { font-size: 14.5px; }
+    .steps li .step-body strong { display: block; margin-bottom: 2px; }
+
+    /* ===== MOCKUP ===== */
+    .mockup-wrap { margin: 20px 0; }
+    .mockup-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+    .mockup { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.08); max-width: 860px; }
+    .mockup-bar { height: 40px; background: #f3f4f6; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 6px; }
+    .mockup-bar-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mockup-bar-url { flex: 1; height: 22px; background: var(--white); border: 1px solid var(--border); border-radius: 6px; margin: 0 12px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: var(--text-muted); }
+    .mockup-body { padding: 20px; }
+    .mockup-header { background: var(--primary); color: #fff; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600; border-radius: 8px 8px 0 0; margin: -20px -20px 16px; }
+    .mockup-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .mockup-table th { background: #f9fafb; padding: 8px 12px; text-align: left; color: var(--text-muted); font-size: 12px; border-bottom: 1px solid var(--border); }
+    .mockup-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .mockup-table tr:last-child td { border-bottom: none; }
+    .mockup-row-hover { background: #f9fafb; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-gray { background: #f3f4f6; color: #374151; }
+    .mockup-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: var(--white); color: var(--text); border: 1px solid var(--border) !important; }
+    .btn-danger { background: #fff; color: var(--danger); border: 1px solid var(--border) !important; }
+    .mockup-form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .mockup-form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .mockup-input { height: 34px; border: 1px solid var(--border); border-radius: 8px; padding: 0 10px; font-size: 13px; color: var(--text-muted); display: flex; align-items: center; background: #f9fafb; }
+    .mockup-cal { display: grid; grid-template-columns: repeat(7,1fr); row-gap: 4px; text-align: center; }
+    .mockup-cal-dow { color: var(--text-muted); font-size: 11px; font-weight: 600; padding: 4px 0; }
+    .mockup-cal-cell { height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px; color: var(--text); }
+    .mockup-cal-sun { color: #ef4444; }
+    .mockup-cal-sat { color: #3b82f6; }
+    .mockup-cal-selected { background: var(--primary); color: #fff; font-weight: 700; }
+    .mockup-cal-disabled { color: #d1d5db; }
+    .mockup-sidebar { width: 200px; border-right: 1px solid var(--border); padding: 12px 0; flex-shrink: 0; }
+    .mockup-side-item { padding: 8px 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .mockup-side-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; border-left: 3px solid var(--primary); }
+    .flex-layout { display: flex; }
+
+    /* ===== TIP / NOTE / WARN ===== */
+    .tip, .note, .warn { display: flex; gap: 10px; padding: 12px 16px; border-radius: 10px; margin: 16px 0; font-size: 14px; }
+    .tip { background: #ecfdf5; border-left: 4px solid var(--success); }
+    .tip .icon { color: var(--success); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .note { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .note .icon { color: #3b82f6; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .warn { background: #fffbeb; border-left: 4px solid var(--warning); }
+    .warn .icon { color: var(--warning); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ===== FEATURE CARDS ===== */
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+    .feature-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .feature-card-icon { margin-bottom: 8px; color: var(--primary); display: flex; align-items: center; }
+    .feature-card-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .feature-card-desc { font-size: 13px; color: var(--text-muted); }
+
+    /* ===== QA ===== */
+    .qa-item { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+    .qa-q { background: #f3f4f6; padding: 14px 18px; font-weight: 600; font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+    .qa-q::before { content: "Q"; background: var(--primary); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .qa-a { padding: 14px 18px; font-size: 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+    .qa-a::before { content: "A"; background: var(--success); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ===== DIVIDER ===== */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { padding: 24px 20px; }
+      .feature-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-title">
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
+    管理者マニュアル
+  </div>
+  <a href="/manager/login" class="header-back">ログイン画面へ</a>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      はじめに
+    </div>
+    <a href="#overview">システム概要</a>
+    <a href="#login">ログイン・ログアウト</a>
+
+    <div class="sidebar-section">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      講師管理
+    </div>
+    <a href="#tutors-list">講師一覧の確認</a>
+    <a href="#tutors-register">講師の登録</a>
+    <a href="#tutors-edit">講師情報の編集</a>
+    <a href="#tutors-password">パスワードリセット</a>
+    <a href="#tutors-delete">講師の削除</a>
+
+    <div class="sidebar-section">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      勤務情報
+    </div>
+    <a href="#works-list">月次勤務一覧</a>
+    <a href="#works-register">勤務情報の登録</a>
+    <a href="#works-edit">編集・削除・コピー</a>
+
+    <div class="sidebar-section">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+      給与情報
+    </div>
+    <a href="#salary-register">給与情報の登録</a>
+    <a href="#salary-edit">給与情報の編集</a>
+
+    <div class="sidebar-section">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+      その他
+    </div>
+    <a href="#download">講師給フォームDL</a>
+    <a href="#account">アカウント設定</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <section>
+      <span class="section-anchor" id="overview"></span>
+      <h1>管理者マニュアル</h1>
+      <p class="hero-sub">教室長向け勤怠管理システムの操作ガイドです。</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <div class="feature-card-title">講師管理</div>
+          <div class="feature-card-desc">講師アカウントの登録・編集・削除、パスワードリセット</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
+          <div class="feature-card-title">勤務情報管理</div>
+          <div class="feature-card-desc">月次の勤務情報の確認・登録・編集・削除・一括コピー</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+          </div>
+          <div class="feature-card-title">給与情報管理</div>
+          <div class="feature-card-desc">各講師の時給・交通費の登録と給与フォームのダウンロード</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGIN -->
+    <section>
+      <span class="section-anchor" id="login"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        ログイン・ログアウト
+      </h2>
+
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        ログイン
+      </h3>
+      <ol class="steps">
+        <li><div class="step-body"><strong>ログイン画面を開く</strong>ブラウザで <a href="https://meikokintai.com/manager/login" target="_blank">https://meikokintai.com/manager/login</a> にアクセスします。</div></li>
+        <li><div class="step-body"><strong>ログインIDとパスワードを入力</strong>管理者登録時に設定したログインIDとパスワードを入力してください。</div></li>
+        <li><div class="step-body"><strong>「ログイン」ボタンをクリック</strong>認証に成功すると、講師一覧画面に移動します。</div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">ログイン画面</div>
+        <div class="mockup" style="max-width:400px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/login</div></div>
+          <div style="padding:32px;background:#f9fafb;display:flex;flex-direction:column;align-items:center;gap:16px;">
+            <div style="width:52px;height:52px;background:#e0e7ff;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#4f46e5;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"></path></svg>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:18px;font-weight:700;">管理者ログイン</div>
+              <div style="font-size:12px;color:#6b7280;margin-top:2px;">勤怠管理システム</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;width:100%;display:flex;flex-direction:column;gap:12px;">
+              <div class="mockup-form-row"><div class="mockup-form-label">ログインID</div><div class="mockup-input">ログインIDを入力</div></div>
+              <div class="mockup-form-row"><div class="mockup-form-label">パスワード</div><div class="mockup-input">••••••••</div></div>
+              <button class="mockup-btn btn-primary" style="width:100%;justify-content:center;">ログイン</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        ログアウト
+      </h3>
+      <ol class="steps">
+        <li><div class="step-body"><strong>左メニュー下部のアカウントメニューをクリック</strong>サイドバー下部の「管理者情報」「ログアウト」が表示されます。</div></li>
+        <li><div class="step-body"><strong>「ログアウト」をクリック</strong>セッションが終了し、ログイン画面に戻ります。</div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">サイドバー下部（アカウントメニュー）</div>
+        <div class="mockup" style="max-width:220px;">
+          <div style="padding:10px;background:#fff;">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:#374151;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              管理者情報
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:13px;color:#374151;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              ログアウト
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TUTORS LIST -->
+    <section>
+      <span class="section-anchor" id="tutors-list"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        講師一覧の確認
+      </h2>
+      <p>左サイドメニューの「講師管理」から、自教室に所属する全講師の一覧を確認できます。</p>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">講師一覧画面</div>
+        <div class="mockup">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/tutors</div></div>
+          <div style="display:flex;">
+            <div class="mockup-sidebar">
+              <div class="mockup-side-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> ダッシュボード</div>
+              <div class="mockup-side-item active"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> 講師管理</div>
+              <div class="mockup-side-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg> 勤務管理</div>
+            </div>
+            <div style="flex:1;padding:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-size:15px;font-weight:700;">講師管理</span><button class="mockup-btn btn-primary" style="font-size:12px;">+ 講師を登録</button></div>
+              <div class="mockup-input" style="max-width:280px;margin-bottom:12px;color:#9ca3af;font-size:11px;white-space:nowrap;">名前・ログインID・講師番号で検索</div>
+              <table class="mockup-table">
+                <thead><tr><th>講師No.</th><th>氏名</th><th>ログインID</th><th>状態</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td style="color:#4f46e5;font-weight:600;">田中 太郎</td><td>tanaka</td><td><span class="badge badge-green">在籍中</span></td><td><button class="mockup-btn btn-secondary" style="font-size:11px;">編集</button> <button class="mockup-btn btn-danger" style="font-size:11px;">削除</button></td></tr>
+                  <tr class="mockup-row-hover"><td>2</td><td style="color:#4f46e5;font-weight:600;">鈴木 花子</td><td>suzuki</td><td><span class="badge badge-green">在籍中</span></td><td><button class="mockup-btn btn-secondary" style="font-size:11px;">編集</button> <button class="mockup-btn btn-danger" style="font-size:11px;">削除</button></td></tr>
+                  <tr><td>3</td><td style="color:#4f46e5;font-weight:600;">佐藤 次郎</td><td>sato</td><td><span class="badge badge-gray">退職済</span></td><td><button class="mockup-btn btn-secondary" style="font-size:11px;">編集</button> <button class="mockup-btn btn-danger" style="font-size:11px;">削除</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip"><span>退職済みの講師も一覧に表示されます。ステータスで在籍中と退職済みを区別できます。</span></div>
+    </section>
+
+    <!-- TUTORS REGISTER -->
+    <section>
+      <span class="section-anchor" id="tutors-register"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        講師の登録
+      </h2>
+      <ol class="steps">
+        <li><div class="step-body"><strong>「+ 講師を登録」ボタンをクリック</strong>講師管理画面の右上にあるボタンをクリックします。</div></li>
+        <li><div class="step-body"><strong>必要情報を入力</strong>以下の項目を入力してください。<br><br>
+          <table class="mockup-table" style="margin-top:6px;"><thead><tr><th>項目</th><th>説明</th></tr></thead><tbody>
+            <tr><td>ログインID</td><td>講師がログインに使用するID（英数字）</td></tr>
+            <tr><td>パスワード</td><td>初期パスワード（8〜50文字）</td></tr>
+            <tr><td>氏名（姓・名）</td><td>講師の氏名</td></tr>
+            <tr><td>講師No.</td><td>※任意（後から変更できます）</td></tr>
+          </tbody></table>
+        </div></li>
+        <li><div class="step-body"><strong>「登録」ボタンをクリック</strong>登録が完了すると、講師情報詳細画面に移動します。</div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">講師登録画面</div>
+        <div class="mockup" style="max-width:480px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/tutors/register</div></div>
+          <div style="padding:20px;background:#f9fafb;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:12px;">講師登録</div>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">講師情報</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">姓 <span style="color:#dc2626;">*</span></div><div class="mockup-input">例: 山田</div></div>
+                <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">名 <span style="color:#dc2626;">*</span></div><div class="mockup-input">例: 太郎</div></div>
+              </div>
+              <div class="mockup-form-row"><div class="mockup-form-label">講師No.</div><div class="mockup-input">例: 1</div></div>
+              <div class="mockup-form-row"><div class="mockup-form-label">ログインID <span style="color:#dc2626;">*</span></div><div class="mockup-input">ログインIDを入力</div></div>
+              <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">パスワード <span style="color:#dc2626;">*</span></div><div class="mockup-input">8文字以上</div></div>
+            </div>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">給与情報</div>
+              <div class="mockup-form-row"><div class="mockup-form-label">適用開始日 <span style="color:#dc2626;">*</span></div><div class="mockup-input"></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">コマ給（円） <span style="color:#dc2626;">*</span></div><div class="mockup-input">例: 1500</div></div>
+                <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">事務給（円） <span style="color:#dc2626;">*</span></div><div class="mockup-input">例: 1200</div></div>
+              </div>
+              <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">交通費（円/日） <span style="color:#dc2626;">*</span></div><div class="mockup-input">例: 500</div></div>
+            </div>
+            <div style="display:flex;gap:8px;"><button class="mockup-btn btn-primary">登録</button><button class="mockup-btn btn-secondary">キャンセル</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note"><span>登録後に講師本人にログインIDと初期パスワードを伝えてください。初回ログイン後、パスワードの変更を推奨します。</span></div>
+    </section>
+
+    <!-- TUTORS EDIT -->
+    <section>
+      <span class="section-anchor" id="tutors-edit"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        講師情報の編集
+      </h2>
+      <ol class="steps">
+        <li><div class="step-body"><strong>講師管理画面から対象講師の氏名をクリック</strong>講師情報詳細画面に移動します。</div></li>
+        <li><div class="step-body"><strong>「編集」ボタンをクリック</strong>講師情報詳細画面の編集ボタンから編集画面を開きます。</div></li>
+        <li><div class="step-body"><strong>情報を修正して「更新」をクリック</strong>氏名・講師No・退職ステータスなどを変更できます。</div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">講師情報編集画面（退職済みを選択した状態）</div>
+        <div class="mockup" style="max-width:440px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/tutors/.../edit</div></div>
+          <div style="padding:20px;background:#f9fafb;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:12px;">講師情報編集</div>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">姓 <span style="color:#dc2626;">*</span></div><div class="mockup-input">田中</div></div>
+                <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">名 <span style="color:#dc2626;">*</span></div><div class="mockup-input">太郎</div></div>
+              </div>
+              <div class="mockup-form-row"><div class="mockup-form-label">講師No.</div><div class="mockup-input">1</div></div>
+              <div class="mockup-form-row">
+                <div class="mockup-form-label">在籍状態 <span style="color:#dc2626;">*</span></div>
+                <div style="display:flex;gap:16px;margin-top:4px;font-size:13px;color:#374151;">
+                  <label style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #9ca3af;display:inline-block;"></span>在籍中</label>
+                  <label style="display:flex;align-items:center;gap:6px;color:#4f46e5;font-weight:600;"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #4f46e5;background:radial-gradient(circle,#4f46e5 40%,transparent 45%);display:inline-block;"></span>退職済</label>
+                </div>
+              </div>
+              <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">退職日 <span style="color:#dc2626;">*</span></div><div class="mockup-input">2026-08-31</div></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;"><button class="mockup-btn btn-primary">保存</button><button class="mockup-btn btn-secondary">キャンセル</button></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        退職処理
+      </h3>
+      <p>編集画面で「退職済み」を選択し、退職日を設定することで退職処理ができます。退職処理後もデータは保持されます。</p>
+
+      <div class="warn"><span>講師のログインID変更時は、必ず対象の講師へ変更後のIDを共有してください。</span></div>
+    </section>
+
+    <!-- TUTORS PASSWORD -->
+    <section>
+      <span class="section-anchor" id="tutors-password"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+        講師のパスワードリセット
+      </h2>
+      <p>講師がパスワードを忘れた場合、管理者が新しいパスワードを設定できます。</p>
+      <ol class="steps">
+        <li><div class="step-body"><strong>対象講師の詳細画面を開く</strong>講師管理画面 → 対象講師の氏名をクリックします。</div></li>
+        <li><div class="step-body"><strong>「パスワードをリセット」ボタンをクリック</strong></div></li>
+        <li><div class="step-body"><strong>新しいパスワードを2回入力して「リセットする」をクリック</strong>入力したパスワードが即座に設定されます。</div></li>
+        <li><div class="step-body"><strong>新しいパスワードを対象講師に伝える</strong></div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">パスワードリセットモーダル</div>
+        <div class="mockup" style="max-width:440px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/tutors/...</div></div>
+          <div style="padding:24px;position:relative;">
+            <div style="background:rgba(0,0,0,.35);position:absolute;inset:0;border-radius:0 0 12px 12px;"></div>
+            <div style="position:relative;background:#fff;border-radius:14px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.18);">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;"><span style="font-size:15px;font-weight:700;">パスワードをリセット</span><span style="color:#9ca3af;font-size:14px;">×</span></div>
+              <div style="font-size:12px;color:#6b7280;margin-bottom:14px;"><strong style="color:#111827;font-weight:600;">田中 太郎</strong> の新しいパスワードを設定します。</div>
+              <div class="mockup-form-row"><div class="mockup-form-label">新しいパスワード <span style="color:#dc2626;">*</span></div><div class="mockup-input">8文字以上</div></div>
+              <div class="mockup-form-row"><div class="mockup-form-label">新しいパスワード（確認） <span style="color:#dc2626;">*</span></div><div class="mockup-input">もう一度入力</div></div>
+              <div style="display:flex;gap:8px;margin-top:14px;">
+                <button class="mockup-btn btn-primary" style="flex:1;justify-content:center;">リセットする</button>
+                <button class="mockup-btn btn-secondary" style="flex:1;justify-content:center;">キャンセル</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip"><span>現在のパスワードを確認することなく新しいパスワードを設定できます。緊急時以外は使用しないことを推奨します。</span></div>
+    </section>
+
+    <!-- TUTORS DELETE -->
+    <section>
+      <span class="section-anchor" id="tutors-delete"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+        講師の削除
+      </h2>
+      <p>講師アカウントを完全に削除します。削除すると勤務情報やテンプレートなど、紐づくすべてのデータが削除されます。</p>
+      <ol class="steps">
+        <li><div class="step-body"><strong>対象講師の詳細画面を開く</strong></div></li>
+        <li><div class="step-body"><strong>「アカウント削除」ボタンをクリック</strong></div></li>
+        <li><div class="step-body"><strong>確認ダイアログで「削除」をクリック</strong></div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">削除確認ダイアログ</div>
+        <div class="mockup" style="max-width:360px;">
+          <div style="padding:20px;background:#f3f4f6;">
+            <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.15);">
+              <div style="font-size:15px;font-weight:700;margin-bottom:8px;">講師を削除しますか？</div>
+              <div style="font-size:13px;color:#6b7280;margin-bottom:16px;">田中 太郎 を削除します。この操作は取り消せません。</div>
+              <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="mockup-btn btn-secondary">キャンセル</button>
+                <button class="mockup-btn" style="background:#dc2626;color:#fff;">削除</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="warn"><span>削除したデータは復元できません。退職処理（退職済みフラグ）と削除は異なります。データを残したい場合は退職処理をご利用ください。</span></div>
+    </section>
+
+    <!-- WORKS LIST -->
+    <section>
+      <span class="section-anchor" id="works-list"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        月次勤務一覧の確認
+      </h2>
+      <p>左メニューの「勤務管理」から、特定の講師・年月を選択して勤務情報を一覧で確認できます。</p>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">勤務管理画面</div>
+        <div class="mockup">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/works/...</div></div>
+          <div style="padding:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:15px;font-weight:700;">勤務管理</span>
+              <div style="display:flex;gap:8px;">
+                <button class="mockup-btn btn-primary" style="font-size:11px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                  講師給フォームをDL
+                </button>
+                <button class="mockup-btn btn-primary" style="font-size:11px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16m8-8H4"></path></svg>
+                  勤務を登録
+                </button>
+              </div>
+            </div>
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:12px;display:flex;gap:16px;">
+              <div><div style="font-size:11px;color:#6b7280;margin-bottom:4px;">講師</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;font-size:13px;">田中 太郎 ▼</div></div>
+              <div><div style="font-size:11px;color:#6b7280;margin-bottom:4px;">年</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;font-size:13px;">2025年 ▼</div></div>
+              <div><div style="font-size:11px;color:#6b7280;margin-bottom:4px;">月</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;font-size:13px;">8月 ▼</div></div>
+            </div>
+            <table class="mockup-table">
+              <thead><tr><th>勤務日</th><th>コマ</th><th>ヘルプ教室</th><th>授業</th><th>事務</th><th>研修・その他</th><th>手当</th><th>交通費</th></tr></thead>
+              <tbody>
+                <tr><td>8/1（木）</td><td>KSA</td><td style="color:#9ca3af;">-</td><td>16:00〜20:30</td><td>—</td><td>—</td><td>¥1,200</td><td>¥350</td></tr>
+                <tr class="mockup-row-hover"><td>8/3（土）</td><td>MSAB</td><td style="color:#9ca3af;">-</td><td>14:00〜21:00</td><td>21:00〜22:00</td><td>—</td><td>¥2,100</td><td>¥350</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <p>勤務情報の行をクリックすると、詳細モーダルが開きます。詳細モーダルから編集・削除・コピーができます。</p>
+    </section>
+
+    <!-- WORKS REGISTER -->
+    <section>
+      <span class="section-anchor" id="works-register"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        勤務情報の登録
+      </h2>
+      <ol class="steps">
+        <li><div class="step-body"><strong>対象講師の勤務一覧画面を開く</strong>講師選択後、「勤務を登録」ボタンをクリックします。</div></li>
+        <li><div class="step-body"><strong>勤務日・勤務教室・交通費を入力</strong></div></li>
+        <li><div class="step-body"><strong>授業業務を入力</strong>担当コマをトグルで選択します。3コマ以上の場合は開始・終了時刻と休憩時間の入力が必要です。</div></li>
+        <li><div class="step-body"><strong>必要に応じて事務業務・その他業務を追加</strong>「＋ 事務業務を追加」「＋ その他業務を追加」ボタンで入力欄を追加できます。</div></li>
+        <li><div class="step-body"><strong>「登録」ボタンをクリック</strong></div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">勤務情報登録画面（抜粋）</div>
+        <div class="mockup" style="max-width:460px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/works/.../register</div></div>
+          <div style="padding:20px;background:#f9fafb;">
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:12px;">
+              <div class="mockup-form-row"><div class="mockup-form-label">対象講師 <span style="color:#dc2626;">*</span></div><div class="mockup-input">講師を選択 ▼</div></div>
+              <div class="mockup-form-row"><div class="mockup-form-label">勤務日 <span style="color:#dc2626;">*</span></div><div class="mockup-input">2026-08-15</div></div>
+              <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">勤務教室 <span style="color:#dc2626;">*</span></div><div class="mockup-input">勤務教室を選択 ▼</div></div>
+            </div>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+              <div style="background:#e0e7ff;padding:10px 14px;font-size:13px;font-weight:700;color:#3730a3;">授業業務</div>
+              <div style="padding:14px;">
+                <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;">担当コマ</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+                  <div style="border:1px solid #d1d5db;border-radius:8px;padding:5px 2px;text-align:center;font-size:11px;font-weight:700;color:#374151;">M<br><span style="font-weight:400;color:#9ca3af;font-size:9px;">09:10-</span></div>
+                  <div style="border:1px solid #4f46e5;background:#4f46e5;color:#fff;border-radius:8px;padding:5px 2px;text-align:center;font-size:11px;font-weight:700;">K<br><span style="font-weight:400;font-size:9px;">10:50-</span></div>
+                  <div style="border:1px solid #4f46e5;background:#4f46e5;color:#fff;border-radius:8px;padding:5px 2px;text-align:center;font-size:11px;font-weight:700;">S<br><span style="font-weight:400;font-size:9px;">13:10-</span></div>
+                  <div style="border:1px solid #d1d5db;border-radius:8px;padding:5px 2px;text-align:center;font-size:11px;font-weight:700;color:#374151;">A<br><span style="font-weight:400;color:#9ca3af;font-size:9px;">14:50-</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip"><span><strong>コマについて：</strong> M・K・S・A・B・C・D の7コマを選択できます。2コマ以下の場合は開始・終了時刻の入力は不要です。</span></div>
+    </section>
+
+    <!-- WORKS EDIT -->
+    <section>
+      <span class="section-anchor" id="works-edit"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        勤務情報の編集・削除・コピー
+      </h2>
+
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+        編集・削除
+      </h3>
+      <ol class="steps">
+        <li><div class="step-body"><strong>勤務一覧の行をクリックして詳細モーダルを開く</strong></div></li>
+        <li><div class="step-body"><strong>「編集」または「削除」ボタンをクリック</strong>削除の場合は確認ダイアログが表示されます。</div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">勤務詳細モーダル</div>
+        <div class="mockup" style="max-width:460px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/works/...</div></div>
+          <div style="padding:16px;position:relative;">
+            <div style="background:rgba(0,0,0,.35);position:absolute;inset:0;border-radius:0 0 12px 12px;"></div>
+            <div style="position:relative;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e5e7eb;"><span style="font-size:15px;font-weight:700;">勤務詳細</span><span style="color:#9ca3af;font-size:14px;">×</span></div>
+              <div style="padding:16px 18px;">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;font-size:12px;">
+                  <div><div style="color:#9ca3af;font-size:10px;">勤務日</div><div style="font-weight:600;">2026/08/17（月）</div></div>
+                  <div><div style="color:#9ca3af;font-size:10px;">勤務教室</div><div style="font-weight:600;">横浜</div></div>
+                  <div><div style="color:#9ca3af;font-size:10px;">交通費</div><div style="font-weight:600;">¥400</div></div>
+                </div>
+                <div style="background:#eef2ff;border-radius:10px;padding:10px 12px;">
+                  <div style="font-size:12px;font-weight:700;color:#3730a3;margin-bottom:6px;">授業業務</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                    <span style="background:#4f46e5;color:#fff;font-size:10px;padding:2px 6px;border-radius:6px;">K（10:50〜12:20）</span>
+                    <span style="background:#4f46e5;color:#fff;font-size:10px;padding:2px 6px;border-radius:6px;">S（13:10〜14:40）</span>
+                  </div>
+                </div>
+              </div>
+              <div style="border-top:1px solid #f3f4f6;padding:12px 18px;display:flex;align-items:center;gap:8px;">
+                <button class="mockup-btn" style="background:none;color:#dc2626;font-size:12px;padding:6px 8px;">削除</button>
+                <button class="mockup-btn btn-secondary" style="font-size:12px;margin-left:auto;">他の日付にコピー</button>
+                <button class="mockup-btn btn-secondary" style="font-size:12px;">編集</button>
+                <button class="mockup-btn btn-secondary" style="font-size:12px;">閉じる</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        他の日付に一括コピー
+      </h3>
+      <p>同じ勤務パターンを複数日付に一括登録することができます。</p>
+      <ol class="steps">
+        <li><div class="step-body"><strong>コピー元の勤務詳細モーダルを開く</strong></div></li>
+        <li><div class="step-body"><strong>「他の日付にコピー」ボタンをクリック</strong></div></li>
+        <li><div class="step-body"><strong>カレンダーからコピー先の日付を複数選択</strong>グレーアウトされた日付はすでに勤務が登録されており選択不可です。月をまたいだ選択も可能です。</div></li>
+        <li><div class="step-body"><strong>「コピーする」ボタンをクリック</strong>選択した全日付に同じ内容で勤務情報が登録されます。</div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">一括コピーモーダル</div>
+        <div class="mockup" style="max-width:460px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/works/...</div></div>
+          <div style="padding:16px;position:relative;">
+            <div style="background:rgba(0,0,0,.35);position:absolute;inset:0;border-radius:0 0 12px 12px;"></div>
+            <div style="position:relative;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e5e7eb;"><span style="font-size:15px;font-weight:700;">コピーする日付を選択</span><span style="color:#9ca3af;font-size:14px;">×</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 18px;">
+                <span style="color:#6b7280;font-size:14px;">‹</span>
+                <span style="font-size:14px;font-weight:600;">2025年8月</span>
+                <span style="color:#6b7280;font-size:14px;">›</span>
+              </div>
+              <div style="padding:0 18px 14px;">
+                <div class="mockup-cal">
+                  <div class="mockup-cal-dow">日</div><div class="mockup-cal-dow">月</div><div class="mockup-cal-dow">火</div><div class="mockup-cal-dow">水</div><div class="mockup-cal-dow">木</div><div class="mockup-cal-dow">金</div><div class="mockup-cal-dow">土</div>
+                  <div></div><div></div><div></div><div></div><div></div>
+                  <div class="mockup-cal-cell">1</div><div class="mockup-cal-cell mockup-cal-sat">2</div>
+                  <div class="mockup-cal-cell mockup-cal-sun">3</div><div class="mockup-cal-cell">4</div><div class="mockup-cal-cell mockup-cal-selected">5</div><div class="mockup-cal-cell mockup-cal-selected">6</div><div class="mockup-cal-cell">7</div><div class="mockup-cal-cell mockup-cal-disabled">8</div><div class="mockup-cal-cell mockup-cal-sat">9</div>
+                  <div class="mockup-cal-cell mockup-cal-sun">10</div><div class="mockup-cal-cell">11</div><div class="mockup-cal-cell">12</div><div class="mockup-cal-cell">13</div><div class="mockup-cal-cell">14</div><div class="mockup-cal-cell">15</div><div class="mockup-cal-cell mockup-cal-sat">16</div>
+                  <div class="mockup-cal-cell mockup-cal-sun">17</div><div class="mockup-cal-cell">18</div><div class="mockup-cal-cell">19</div><div class="mockup-cal-cell">20</div><div class="mockup-cal-cell">21</div><div class="mockup-cal-cell">22</div><div class="mockup-cal-cell mockup-cal-sat">23</div>
+                  <div class="mockup-cal-cell mockup-cal-sun">24</div><div class="mockup-cal-cell">25</div><div class="mockup-cal-cell">26</div><div class="mockup-cal-cell">27</div><div class="mockup-cal-cell">28</div><div class="mockup-cal-cell">29</div><div class="mockup-cal-cell mockup-cal-sat">30</div>
+                  <div class="mockup-cal-cell mockup-cal-sun">31</div>
+                </div>
+              </div>
+              <div style="border-top:1px solid #f3f4f6;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:13px;color:#6b7280;">2日選択中</span>
+                <div style="display:flex;gap:6px;"><button class="mockup-btn btn-secondary" style="font-size:12px;">キャンセル</button><button class="mockup-btn btn-primary" style="font-size:12px;">コピーする</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SALARY REGISTER -->
+    <section>
+      <span class="section-anchor" id="salary-register"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+        給与情報の登録
+      </h2>
+      <p>勤務情報を登録するには、事前に講師の給与情報（時給・交通費）を登録する必要があります。</p>
+      <ol class="steps">
+        <li><div class="step-body"><strong>講師詳細画面の「給与情報を登録」ボタンをクリック</strong>または勤務管理画面の警告バナーのリンクから遷移できます。</div></li>
+        <li><div class="step-body"><strong>以下の情報を入力する</strong>
+          <table class="mockup-table" style="margin-top:8px;"><thead><tr><th>項目</th><th>説明</th></tr></thead><tbody>
+            <tr><td>適用開始日</td><td>この給与設定を適用する開始日</td></tr>
+            <tr><td>コマ給（円）</td><td>授業業務1コマ当たりの給与</td></tr>
+            <tr><td>事務給（円）</td><td>事務業務の時給</td></tr>
+            <tr><td>交通費（円）</td><td>1日あたりの往復交通費</td></tr>
+          </tbody></table>
+        </div></li>
+        <li><div class="step-body"><strong>「登録」ボタンをクリック</strong></div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">給与情報登録画面（抜粋）</div>
+        <div class="mockup" style="max-width:420px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/salaries/.../register</div></div>
+          <div style="padding:20px;background:#fff;">
+            <div class="mockup-form-row"><div class="mockup-form-label">適用開始日 <span style="color:#dc2626;">*</span></div><div class="mockup-input">2026-08-01</div></div>
+            <div class="mockup-form-row"><div class="mockup-form-label">授業時給（円） <span style="color:#dc2626;">*</span></div><div class="mockup-input">1800</div></div>
+            <div class="mockup-form-row"><div class="mockup-form-label">事務給（円） <span style="color:#dc2626;">*</span></div><div class="mockup-input">1200</div></div>
+            <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label">交通費（円） <span style="color:#dc2626;">*</span></div><div class="mockup-input">400</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip"><span>給与改定の際は新しい適用開始日で追加登録してください。過去の給与情報は変更されません。</span></div>
+    </section>
+
+    <!-- SALARY EDIT -->
+    <section>
+      <span class="section-anchor" id="salary-edit"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        給与情報の編集・削除
+      </h2>
+      <p>講師詳細画面の下部「給与情報」セクションから確認・編集・削除が可能です。</p>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">講師詳細画面「給与情報」セクション（抜粋）</div>
+        <div class="mockup" style="max-width:520px;">
+          <table class="mockup-table">
+            <thead><tr><th>適用開始日</th><th>コマ給</th><th>事務給</th><th>交通費</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>2026/08/01（土）</td><td>¥1,800</td><td>¥1,200</td><td>¥400</td><td style="white-space:nowrap;"><button class="mockup-btn btn-secondary" style="font-size:11px;padding:4px 8px;">編集</button> <button class="mockup-btn" style="font-size:11px;padding:4px 8px;background:none;color:#dc2626;">削除</button></td></tr>
+              <tr><td>2025/04/01（火）</td><td>¥1,700</td><td>¥1,100</td><td>¥400</td><td style="white-space:nowrap;"><button class="mockup-btn btn-secondary" style="font-size:11px;padding:4px 8px;">編集</button> <button class="mockup-btn" style="font-size:11px;padding:4px 8px;background:none;color:#dc2626;">削除</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="warn"><span>既に勤務情報が参照している給与情報は削除できません。該当する勤務情報を先に削除してから給与情報を削除してください。</span></div>
+    </section>
+
+    <!-- DOWNLOAD -->
+    <section>
+      <span class="section-anchor" id="download"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        講師給フォームのダウンロード
+      </h2>
+      <p>指定した年月の全講師の勤務・給与データを Excel ファイルとしてダウンロードできます。</p>
+      <ol class="steps">
+        <li><div class="step-body"><strong>勤務管理画面で年月を選択</strong></div></li>
+        <li><div class="step-body"><strong>「講師給フォームをDL」ボタンをクリック</strong>ファイルの生成には数秒かかる場合があります。</div></li>
+        <li><div class="step-body"><strong>ダウンロードされた .xlsx ファイルを確認</strong>ファイル名: <code>講師給フォーム(教室No+教室名)yyyy.mm.xlsx</code></div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">勤務管理画面 右上ボタン（抜粋）</div>
+        <div class="mockup" style="max-width:200px;">
+          <div style="padding:14px;background:#fff;display:flex;gap:8px;">
+            <button class="mockup-btn btn-primary" style="font-size:12px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              講師給フォームをDL
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="note"><span>出力されるシートはトップシート（月次集計）＋ 講師ごとのシートです。最大18名まで対応しています。</span></div>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section>
+      <span class="section-anchor" id="account"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        アカウント設定
+      </h2>
+
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        管理者情報の確認・編集
+      </h3>
+      <ol class="steps">
+        <li><div class="step-body"><strong>左メニュー下部の「管理者情報」をクリック</strong></div></li>
+        <li><div class="step-body"><strong>「編集」ボタンをクリック</strong>氏名・ログインID・所属教室を変更できます。</div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">管理者情報画面（抜粋）</div>
+        <div class="mockup" style="max-width:380px;">
+          <div class="mockup-bar"><div class="mockup-bar-dot" style="background:#ef4444"></div><div class="mockup-bar-dot" style="background:#f59e0b"></div><div class="mockup-bar-dot" style="background:#10b981"></div><div class="mockup-bar-url">https://meikokintai.com/manager/detail</div></div>
+          <div style="padding:16px;background:#fff;">
+            <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;"><span style="color:#6b7280;">氏名</span><span style="font-weight:600;">田中 花子</span></div>
+              <div style="display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;"><span style="color:#6b7280;">教室</span><span style="font-weight:600;">横浜（0）</span></div>
+              <div style="display:flex;justify-content:space-between;padding:9px 14px;font-size:12px;"><span style="color:#6b7280;">ログインID</span><span style="font-weight:600;">tanaka_h</span></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="mockup-btn btn-secondary" style="font-size:11px;">編集</button>
+              <button class="mockup-btn btn-secondary" style="font-size:11px;">パスワードを変更</button>
+              <button class="mockup-btn" style="font-size:11px;background:#dc2626;color:#fff;">アカウント削除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        パスワードの変更
+      </h3>
+      <ol class="steps">
+        <li><div class="step-body"><strong>マイページの「パスワードを変更」ボタンをクリック</strong></div></li>
+        <li><div class="step-body"><strong>現在のパスワードと新しいパスワードを入力</strong>新しいパスワードは8〜50文字で設定してください。</div></li>
+        <li><div class="step-body"><strong>「変更する」ボタンをクリック</strong></div></li>
+      </ol>
+
+      <div class="mockup-wrap">
+        <div class="mockup-label">パスワード変更モーダル</div>
+        <div class="mockup" style="max-width:340px;">
+          <div style="padding:16px;position:relative;">
+            <div style="background:rgba(0,0,0,.35);position:absolute;inset:0;border-radius:0 0 12px 12px;"></div>
+            <div style="position:relative;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e5e7eb;"><span style="font-size:14px;font-weight:700;">パスワードを変更</span><span style="color:#9ca3af;font-size:14px;">×</span></div>
+              <div style="padding:14px 18px;">
+                <div class="mockup-form-row"><div class="mockup-form-label" style="font-size:10px;">現在のパスワード</div><div class="mockup-input" style="font-size:11px;">現在のパスワードを入力</div></div>
+                <div class="mockup-form-row"><div class="mockup-form-label" style="font-size:10px;">新しいパスワード</div><div class="mockup-input" style="font-size:11px;">8文字以上</div></div>
+                <div class="mockup-form-row" style="margin-bottom:0;"><div class="mockup-form-label" style="font-size:10px;">新しいパスワード（確認）</div><div class="mockup-input" style="font-size:11px;">もう一度入力</div></div>
+              </div>
+              <div style="border-top:1px solid #f3f4f6;padding:12px 18px;display:flex;justify-content:flex-end;gap:6px;">
+                <button class="mockup-btn btn-secondary" style="font-size:12px;">キャンセル</button>
+                <button class="mockup-btn btn-primary" style="font-size:12px;">変更する</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section>
+      <span class="section-anchor" id="faq"></span>
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        FAQ
+      </h2>
+
+      <div class="qa-item">
+        <div class="qa-q">ログインできない</div>
+        <div class="qa-a">ログインIDとパスワードを再確認してください。パスワードを忘れた場合は、システム管理者にお問い合わせください。</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">講師がパスワードを忘れた</div>
+        <div class="qa-a">管理者が講師詳細画面の「パスワードをリセット」から新しいパスワードを設定できます。現在のパスワードの確認は不要です。設定後、新しいパスワードを講師本人に伝えてください。</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">勤務情報が登録できない</div>
+        <div class="qa-a">講師の給与情報（時給・交通費）が未登録の場合、勤務情報を登録できません。先に給与情報を登録してください。勤務管理画面に「給与情報が登録されていません」という警告バナーが表示されている場合は、バナーに表示されるリンクから遷移できます。</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">給与情報を削除できない</div>
+        <div class="qa-a">その給与情報を参照している勤務情報が存在する場合は削除できません。該当期間の勤務情報をすべて削除してから給与情報を削除してください。</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">Excel ファイルがダウンロードできない</div>
+        <div class="qa-a">ブラウザのポップアップブロック設定を確認してください。また、ログイン認証が切れている場合は再ログインしてから再試行してください。</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // アクティブリンクのハイライト
+  const links = document.querySelectorAll('.sidebar a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        if (!id) return;
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar a[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-56px 0px -70% 0px' });
+  document.querySelectorAll('.section-anchor').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

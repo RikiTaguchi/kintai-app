@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.api.mapper.template.LessonTemplateDetailMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into lesson_template_details (
+            template_id,
+            start_time,
+            end_time,
+            break_minutes,
+            period_code_m,
+            period_code_k,
+            period_code_s,
+            period_code_a,
+            period_code_b,
+            period_code_c,
+            period_code_d
+        )
+        values (
+            #{templateId},
+            #{startTime},
+            #{endTime},
+            #{breakMinutes},
+            #{periodCodeM},
+            #{periodCodeK},
+            #{periodCodeS},
+            #{periodCodeA},
+            #{periodCodeB},
+            #{periodCodeC},
+            #{periodCodeD}
+        )
+    </insert>
+
+    <update id="update">
+        update
+            lesson_template_details
+        set
+            start_time = #{startTime},
+            end_time = #{endTime},
+            break_minutes = #{breakMinutes},
+            period_code_m = #{periodCodeM},
+            period_code_k = #{periodCodeK},
+            period_code_s = #{periodCodeS},
+            period_code_a = #{periodCodeA},
+            period_code_b = #{periodCodeB},
+            period_code_c = #{periodCodeC},
+            period_code_d = #{periodCodeD}
+        where
+            template_id = #{templateId}
+    </update>
+
+</mapper>

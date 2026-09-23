@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.api.mapper.work.OfficeWorkDetailMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into office_work_details (
+            work_id,
+            start_time,
+            end_time
+        )
+        values (
+            #{workId},
+            #{startTime},
+            #{endTime}
+        )
+    </insert>
+
+    <update id="update">
+        update
+            office_work_details
+        set
+            start_time = #{startTime},
+            end_time = #{endTime}
+        where
+            work_id = #{workId}
+    </update>
+
+</mapper>

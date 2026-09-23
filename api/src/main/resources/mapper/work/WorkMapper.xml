@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.api.mapper.work.WorkMapper">
+
+    <resultMap id="WorkEntityResultMap" type="WorkEntity">
+        <id property="id" column="id"/>
+        <result property="tutorId" column="tutor_id"/>
+        <result property="classroomId" column="classroom_id"/>
+        <result property="classroomName" column="classroom_name"/>
+        <result property="classroomNumber" column="classroom_number"/>
+        <result property="workingDate" column="working_date"/>
+        <result property="transportationFee" column="transportation_fee"/>
+
+        <association property="lessonWorkDetailEntity" javaType="LessonWorkDetailEntity">
+            <id property="id" column="lesson_id"/>
+            <result property="workId" column="lesson_work_id"/>
+            <result property="startTime" column="lesson_start_time"/>
+            <result property="endTime" column="lesson_end_time"/>
+            <result property="breakMinutes" column="lesson_break_minutes"/>
+            <result property="periodCodeM" column="lesson_period_code_m"/>
+            <result property="periodCodeK" column="lesson_period_code_k"/>
+            <result property="periodCodeS" column="lesson_period_code_s"/>
+            <result property="periodCodeA" column="lesson_period_code_a"/>
+            <result property="periodCodeB" column="lesson_period_code_b"/>
+            <result property="periodCodeC" column="lesson_period_code_c"/>
+            <result property="periodCodeD" column="lesson_period_code_d"/>
+        </association>
+
+        <association property="officeWorkDetailEntity" javaType="OfficeWorkDetailEntity">
+            <id property="id" column="office_id"/>
+            <result property="workId" column="office_work_id"/>
+            <result property="startTime" column="office_start_time"/>
+            <result property="endTime" column="office_end_time"/>
+        </association>
+
+        <association property="otherWorkDetailEntity" javaType="OtherWorkDetailEntity">
+            <id property="id" column="other_id"/>
+            <result property="workId" column="other_work_id"/>
+            <result property="startTime" column="other_start_time"/>
+            <result property="endTime" column="other_end_time"/>
+            <result property="breakMinutes" column="other_break_minutes"/>
+            <result property="description" column="other_description"/>
+        </association>
+    </resultMap>
+
+    <select id="selectAll" resultMap="WorkEntityResultMap">
+        select
+            w1.id,
+            w1.tutor_id,
+            c.id as classroom_id,
+            c.name as classroom_name,
+            c.classroom_number,
+            w1.working_date,
+            w1.transportation_fee,
+
+            w2.id as lesson_id,
+            w2.work_id as lesson_work_id,
+            w2.start_time as lesson_start_time,
+            w2.end_time as lesson_end_time,
+            w2.break_minutes as lesson_break_minutes,
+            w2.period_code_m as lesson_period_code_m,
+            w2.period_code_k as lesson_period_code_k,
+            w2.period_code_s as lesson_period_code_s,
+            w2.period_code_a as lesson_period_code_a,
+            w2.period_code_b as lesson_period_code_b,
+            w2.period_code_c as lesson_period_code_c,
+            w2.period_code_d as lesson_period_code_d,
+
+            w3.id as office_id,
+            w3.work_id as office_work_id,
+            w3.start_time as office_start_time,
+            w3.end_time as office_end_time,
+
+            w4.id as other_id,
+            w4.work_id as other_work_id,
+            w4.start_time as other_start_time,
+            w4.end_time as other_end_time,
+            w4.break_minutes as other_break_minutes,
+            w4.description as other_description
+        from
+            works as w1
+        left join
+            lesson_work_details as w2 on w1.id = w2.work_id
+        left join
+            office_work_details as w3 on w1.id = w3.work_id
+        left join
+            other_work_details as w4 on w1.id = w4.work_id
+        left join
+            classrooms as c on w1.classroom_id = c.id
+        where
+            w1.tutor_id = #{tutorId}
+            and w1.working_date between #{dateFrom} and #{dateTo}
+    </select>
+
+    <select id="select" resultMap="WorkEntityResultMap">
+        select
+            w1.id,
+            w1.tutor_id,
+            c.id as classroom_id,
+            c.name as classroom_name,
+            c.classroom_number,
+            w1.working_date,
+            w1.transportation_fee,
+
+            w2.id as lesson_id,
+            w2.work_id as lesson_work_id,
+            w2.start_time as lesson_start_time,
+            w2.end_time as lesson_end_time,
+            w2.break_minutes as lesson_break_minutes,
+            w2.period_code_m as lesson_period_code_m,
+            w2.period_code_k as lesson_period_code_k,
+            w2.period_code_s as lesson_period_code_s,
+            w2.period_code_a as lesson_period_code_a,
+            w2.period_code_b as lesson_period_code_b,
+            w2.period_code_c as lesson_period_code_c,
+            w2.period_code_d as lesson_period_code_d,
+
+            w3.id as office_id,
+            w3.work_id as office_work_id,
+            w3.start_time as office_start_time,
+            w3.end_time as office_end_time,
+
+            w4.id as other_id,
+            w4.work_id as other_work_id,
+            w4.start_time as other_start_time,
+            w4.end_time as other_end_time,
+            w4.break_minutes as other_break_minutes,
+            w4.description as other_description
+        from
+            works as w1
+        left join
+            lesson_work_details as w2 on w1.id = w2.work_id
+        left join
+            office_work_details as w3 on w1.id = w3.work_id
+        left join
+            other_work_details as w4 on w1.id = w4.work_id
+        left join
+            classrooms as c on w1.classroom_id = c.id
+        where
+            w1.id = #{workId}
+    </select>
+
+    <select id="existsByTutorIdAndWorkingDate" resultType="boolean">
+        select count(*) > 0
+        from works
+        where tutor_id = #{tutorId}
+          and working_date = #{workingDate}
+          <if test="excludeId != null">
+            and id != #{excludeId}
+          </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into works
+            (tutor_id, classroom_id, working_date, transportation_fee)
+        values
+            (#{tutorId}, #{classroomId}, #{workingDate}, #{transportationFee})
+    </insert>
+
+    <update id="update">
+        update
+            works
+        set
+            classroom_id = #{classroomId},
+            working_date = #{workingDate},
+            transportation_fee = #{transportationFee}
+        where
+            id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from works
+        where id = #{workId}
+    </delete>
+
+</mapper>

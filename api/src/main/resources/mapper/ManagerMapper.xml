@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.api.mapper.ManagerMapper">
+
+    <select id="select" resultType="com.example.api.mapper.entity.ManagerEntity">
+        select
+            m.id,
+            a.id as accountId,
+            a.login_id,
+            a.password,
+            c.id as classroomId,
+            c.name as classroomName,
+            c.classroom_number,
+            m.first_name,
+            m.last_name
+        from
+            managers as m
+        left join
+            accounts as a on a.id = m.account_id
+        left join
+            classrooms as c on c.id = m.classroom_id
+        where
+            m.id = #{managerId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into managers
+            (account_id, classroom_id, first_name, last_name)
+        values
+            (#{accountId}, #{classroomId}, #{firstName}, #{lastName})
+    </insert>
+
+    <update id="update">
+        update
+            managers
+        set
+            classroom_id = #{classroomId},
+            first_name = #{firstName},
+            last_name = #{lastName}
+        where
+            id = #{id}
+    </update>
+
+</mapper>

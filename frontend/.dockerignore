@@ -1,0 +1,9 @@
+node_modules
+.next
+coverage
+out
+.vscode
+.idea
+*.log
+.DS_Store
+tsconfig.tsbuildinfo

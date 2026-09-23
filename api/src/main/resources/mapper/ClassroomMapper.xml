@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.api.mapper.ClassroomMapper">
+
+    <select id="selectAll" resultType="com.example.api.mapper.entity.ClassroomEntity">
+        select
+            id,
+            name,
+            classroom_number
+        from
+            classrooms
+    </select>
+
+    <select id="select" resultType="com.example.api.mapper.entity.ClassroomEntity">
+        select
+            id,
+            name,
+            classroom_number
+        from
+            classrooms
+        where
+            id = #{classroomId}
+    </select>
+
+</mapper>

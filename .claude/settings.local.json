@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs cat -n)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(python3 analyze_excel.py)",
+      "Bash(python3 /tmp/analyze_tutor_sheet_fixed.py)",
+      "Bash(python3 -)",
+      "Bash(python3)",
+      "Bash(python3 *)",
+      "Bash(node -e ' *)",
+      "Bash(cp \"/Users/riki_taguchi/Desktop/kintai-app/Excel/講師給フォーム_東戸塚2026.8 \\(19\\).xlsx\" dl.xlsx)",
+      "Bash(unzip -o dl.xlsx -d dl_unzipped)",
+      "Bash(xargs ls -la)",
+      "Bash(xargs cat)",
+      "Bash(xargs ls)",
+      "Bash(./mvnw compile *)",
+      "Bash(npm -v)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(xargs -I{} echo {})",
+      "Bash(git check-ignore *)",
+      "WebSearch",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
+    ]
+  }
+}

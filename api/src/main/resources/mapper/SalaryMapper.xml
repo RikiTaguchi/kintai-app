@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.api.mapper.SalaryMapper">
+
+    <select id="selectEarliestEffectiveDate" resultType="java.time.LocalDate">
+        select
+            min(effective_date)
+        from
+            salaries
+        where
+            tutor_id = #{tutorId}
+    </select>
+
+    <select id="selectAll" resultType="com.example.api.mapper.entity.SalaryEntity">
+        select
+            id,
+            tutor_id,
+            effective_date,
+            lesson_wage,
+            office_wage,
+            transportation_fee
+        from
+            salaries
+        where
+            tutor_id = #{tutorId}
+        order by
+            effective_date desc
+    </select>
+
+    <select id="select" resultType="com.example.api.mapper.entity.SalaryEntity">
+        select
+            id,
+            tutor_id,
+            effective_date,
+            lesson_wage,
+            office_wage,
+            transportation_fee
+        from
+            salaries
+        where
+            id = #{salaryId}
+    </select>
+
+    <select id="existsByTutorIdAndEffectiveDate" resultType="boolean">
+        select count(*) > 0
+        from salaries
+        where tutor_id = #{tutorId}
+          and effective_date = #{effectiveDate}
+          <if test="excludeId != null">
+            and id != #{excludeId}
+          </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into salaries
+            (tutor_id, effective_date, lesson_wage, office_wage, transportation_fee)
+        values
+            (#{tutorId}, #{effectiveDate}, #{lessonWage}, #{officeWage}, #{transportationFee})
+    </insert>
+
+    <update id="update">
+        update
+            salaries
+        set
+            effective_date = #{effectiveDate},
+            lesson_wage = #{lessonWage},
+            office_wage = #{officeWage},
+            transportation_fee = #{transportationFee}
+        where
+            id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from salaries
+        where id = #{salaryId}
+    </delete>
+
+</mapper>

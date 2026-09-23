@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.api.mapper.template.TemplateMapper">
+
+    <resultMap id="TemplateEntityResultMap" type="TemplateEntity">
+        <id property="id" column="id"/>
+        <result property="tutorId" column="tutor_id"/>
+        <result property="title" column="title"/>
+        <result property="classroomId" column="classroom_id"/>
+        <result property="classroomName" column="classroom_name"/>
+        <result property="classroomNumber" column="classroom_number"/>
+        <result property="transportationFee" column="transportation_fee"/>
+
+        <association property="lessonTemplateDetailEntity" javaType="LessonTemplateDetailEntity">
+            <id property="id" column="lesson_id"/>
+            <result property="templateId" column="lesson_template_id"/>
+            <result property="startTime" column="lesson_start_time"/>
+            <result property="endTime" column="lesson_end_time"/>
+            <result property="breakMinutes" column="lesson_break_minutes"/>
+            <result property="periodCodeM" column="lesson_period_code_m"/>
+            <result property="periodCodeK" column="lesson_period_code_k"/>
+            <result property="periodCodeS" column="lesson_period_code_s"/>
+            <result property="periodCodeA" column="lesson_period_code_a"/>
+            <result property="periodCodeB" column="lesson_period_code_b"/>
+            <result property="periodCodeC" column="lesson_period_code_c"/>
+            <result property="periodCodeD" column="lesson_period_code_d"/>
+        </association>
+
+        <association property="officeTemplateDetailEntity" javaType="OfficeTemplateDetailEntity">
+            <id property="id" column="office_id"/>
+            <result property="templateId" column="office_template_id"/>
+            <result property="startTime" column="office_start_time"/>
+            <result property="endTime" column="office_end_time"/>
+        </association>
+
+        <association property="otherTemplateDetailEntity" javaType="OtherTemplateDetailEntity">
+            <id property="id" column="other_id"/>
+            <result property="templateId" column="other_template_id"/>
+            <result property="startTime" column="other_start_time"/>
+            <result property="endTime" column="other_end_time"/>
+            <result property="breakMinutes" column="other_break_minutes"/>
+            <result property="description" column="other_description"/>
+        </association>
+    </resultMap>
+
+    <select id="selectAll" resultMap="TemplateEntityResultMap">
+        select
+            t1.id,
+            t1.tutor_id,
+            t1.title,
+            c.id as classroom_id,
+            c.name as classroom_name,
+            c.classroom_number,
+            t1.transportation_fee,
+
+            t2.id as lesson_id,
+            t2.template_id as lesson_template_id,
+            t2.start_time as lesson_start_time,
+            t2.end_time as lesson_end_time,
+            t2.break_minutes as lesson_break_minutes,
+            t2.period_code_m as lesson_period_code_m,
+            t2.period_code_k as lesson_period_code_k,
+            t2.period_code_s as lesson_period_code_s,
+            t2.period_code_a as lesson_period_code_a,
+            t2.period_code_b as lesson_period_code_b,
+            t2.period_code_c as lesson_period_code_c,
+            t2.period_code_d as lesson_period_code_d,
+
+            t3.id as office_id,
+            t3.template_id as office_template_id,
+            t3.start_time as office_start_time,
+            t3.end_time as office_end_time,
+
+            t4.id as other_id,
+            t4.template_id as other_template_id,
+            t4.start_time as other_start_time,
+            t4.end_time as other_end_time,
+            t4.break_minutes as other_break_minutes,
+            t4.description as other_description
+        from
+            templates as t1
+        left join
+            lesson_template_details as t2 on t1.id = t2.template_id
+        left join
+            office_template_details as t3 on t1.id = t3.template_id
+        left join
+            other_template_details as t4 on t1.id = t4.template_id
+        left join
+            classrooms as c on t1.classroom_id = c.id
+        where
+            t1.tutor_id = #{tutorId}
+    </select>
+
+    <select id="select" resultMap="TemplateEntityResultMap">
+        select
+            t1.id,
+            t1.tutor_id,
+            t1.title,
+            c.id as classroom_id,
+            c.name as classroom_name,
+            c.classroom_number,
+            t1.transportation_fee,
+
+            t2.id as lesson_id,
+            t2.template_id as lesson_template_id,
+            t2.start_time as lesson_start_time,
+            t2.end_time as lesson_end_time,
+            t2.break_minutes as lesson_break_minutes,
+            t2.period_code_m as lesson_period_code_m,
+            t2.period_code_k as lesson_period_code_k,
+            t2.period_code_s as lesson_period_code_s,
+            t2.period_code_a as lesson_period_code_a,
+            t2.period_code_b as lesson_period_code_b,
+            t2.period_code_c as lesson_period_code_c,
+            t2.period_code_d as lesson_period_code_d,
+
+            t3.id as office_id,
+            t3.template_id as office_template_id,
+            t3.start_time as office_start_time,
+            t3.end_time as office_end_time,
+
+            t4.id as other_id,
+            t4.template_id as other_template_id,
+            t4.start_time as other_start_time,
+            t4.end_time as other_end_time,
+            t4.break_minutes as other_break_minutes,
+            t4.description as other_description
+        from
+            templates as t1
+        left join
+            lesson_template_details as t2 on t1.id = t2.template_id
+        left join
+            office_template_details as t3 on t1.id = t3.template_id
+        left join
+            other_template_details as t4 on t1.id = t4.template_id
+        left join
+            classrooms as c on t1.classroom_id = c.id
+        where
+            t1.id = #{templateId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into templates
+            (tutor_id, title, classroom_id, transportation_fee)
+        values
+            (#{tutorId}, #{title}, #{classroomId}, #{transportationFee})
+    </insert>
+
+    <update id="update">
+        update
+            templates
+        set
+            title = #{title},
+            classroom_id = #{classroomId},
+            transportation_fee = #{transportationFee}
+        where
+            id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from templates
+        where id = #{templateId}
+    </delete>
+
+</mapper>
