@@ -22,6 +22,10 @@ services:
       context: ./frontend
       args:
         API_BASE_URL: http://api:8080
+    environment:
+      # Route Handler（/api/excel/payslips 等）がサーバーサイドでバックエンドを参照するため
+      # ビルド ARG（rewrite 用）と別途ランタイムでも必要
+      API_BASE_URL: http://api:8080
     ports:
       - "3000:3000"
     depends_on:

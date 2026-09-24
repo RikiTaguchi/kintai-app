@@ -9,7 +9,8 @@ import {
   type RowValues,
 } from "@/lib/excelCalc";
 
-const BACKEND = "http://localhost:8080";
+// docker-compose ではコンテナ名（api）で解決し、ローカル開発では localhost を使う
+const BACKEND = process.env.API_BASE_URL ?? "http://localhost:8080";
 const CIRCLED = [
   "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨",
   "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱",
