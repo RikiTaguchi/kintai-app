@@ -33,6 +33,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* ダブルタップズーム・タップ遅延の防止（PWA アプリ利用想定） */
+  touch-action: manipulation;
+  /* iOS の向き変更時などの自動テキスト拡大防止 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @keyframes slide-in-from-right-a {

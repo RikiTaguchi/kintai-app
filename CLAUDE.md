@@ -168,6 +168,43 @@ exceljs はシートファイル名（`xl/worksheets/sheet1.xml` 等）を `shee
 - 非表示列（`hidden="1"`）はスケーリング対象外
 - トップシートの N 列（`min="14"` の `<col>` 要素）は出力から削除する
 
+## 7.5 PWA（ホーム画面追加 / スタンドアロン）の実装メモ
+
+### ファイル構成
+
+- **共通ビルダー**: `frontend/src/lib/pwaManifest.ts`（`buildManifest("manager" | "tutor")` がロール別Manifestを生成）
+- **manifest 配信**: `frontend/src/app/{manager,tutor}/manifest.webmanifest/route.ts`（Route Handler。Next.js の manifest.ts 規約はルート直下のみのため）
+- **manifest 紐付け**: `frontend/src/app/{manager,tutor}/layout.tsx` の `metadata.manifest`
+- **認証除外**: `frontend/src/proxy.ts` の matcher が `manifest.webmanifest` を否定先読みで除外（Android Chrome が未認証で manifest を fetch するため）
+
+### ロール別 manifest の設計
+
+- **id**: `/manager/` と `/tutor/` で別値を指定。**同一オリジンに複数 PWA を共存させるには id の差異が必須**（Chrome/Edge は id をキーにインストール済みアプリを識別する）
+- **start_url**: 各ロールのホーム（`/manager/`・`/tutor/`）。ログイン後そのまま機能へ入れるようにする。未ログインなら middleware が各ロールの `/login` へリダイレクトする
+- **scope**: ロールのルートパスと同一（`/manager/`・`/tutor/`）
+- **display**: `standalone`。iOS Safari では standalone のみが PWA表示モードとして有効
+- **display_override**: `["standalone"]`。standalone が無理な場合に browser へのフォールバックを抑制
+
+### manifest キャッシュ方針
+
+Route Handler が `Cache-Control: no-store, no-cache, must-revalidate` を返す。
+これは iOS Safari / 一部ブラウザが過去に取得した manifest を長期間保持し、別ロールからA2HSした際に古いmanifestを参照してしまう事故を防ぐための保険。
+
+### 旧 iOS 向け apple メタ
+
+`metadata.appleWebApp.capable: true` は `<meta name="mobile-web-app-capable">` のみを出力するため、
+旧 iOS Safari が参照する `<meta name="apple-mobile-web-app-capable">` は `metadata.other` で明示的に出力する
+（`frontend/src/app/{manager,tutor}/layout.tsx` の `other["apple-mobile-web-app-capable"]` 参照）。
+
+### トラブルシューティング
+
+**「/tutor/login からホームに追加したのに /manager/login が起動する」** 場合の確認ポイント:
+
+1. 各ログインページの `<link rel="manifest">` が正しいロールのmanifestを指しているかを確認（view-source で確認可能）
+2. `/{role}/manifest.webmanifest` を直接開き、`start_url` と `id` がロール固有であるかを確認
+3. iOS 側で既存のホーム画面アイコン・Web App を削除してから再試行（Safari が過去のmanifestを記憶している可能性）
+4. ホーム画面アイコン名でロールを識別できる（`short_name` が「勤怠管理(管理者)」／「勤怠管理(講師)」）
+
 ## 8. 勤務情報の一括コピー機能の実装メモ
 
 ### ファイル構成

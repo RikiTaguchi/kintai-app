@@ -26,6 +26,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // PWA（ホーム画面追加後のアプリ利用）でピンチ/ダブルタップズームを無効化
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   // ブラウザのアドレスバー等のUI色（ライト/ダークで出し分け）
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
