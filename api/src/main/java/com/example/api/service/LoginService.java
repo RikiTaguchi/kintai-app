@@ -2,7 +2,6 @@ package com.example.api.service;
 
 import java.time.Duration;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,12 +32,6 @@ public class LoginService {
     private final AuthenticationManager authenticationManager;
     private final ManagerService managerService;
     private final TutorService tutorService;
-
-    @Value("${cookie.secure:false}")
-    private boolean cookieSecure;
-
-    @Value("${cookie.same-site:Lax}")
-    private String cookieSameSite;
 
     public ManagerDto loginManager(
         ManagerDto dto,
@@ -117,10 +110,10 @@ public class LoginService {
 
         ResponseCookie roleCookie = ResponseCookie.from("user_role", role)
             .path("/")
-            .maxAge(Duration.ofDays(1))
+            .maxAge(Duration.ofDays(30))
             .httpOnly(true)
-            .secure(cookieSecure)
-            .sameSite(cookieSameSite)
+            .secure(true)
+            .sameSite("Lax")
             .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, roleCookie.toString());

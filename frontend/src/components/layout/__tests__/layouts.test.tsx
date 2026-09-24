@@ -23,9 +23,9 @@ function renderWithAuth(
   ui: React.ReactNode,
   user?: { loginId: string; classroomName: string } | null
 ) {
-  // AuthProvider は sessionStorage.user_info から hydrate する
+  // AuthProvider は localStorage.user_info から hydrate する
   if (user) {
-    sessionStorage.setItem(
+    localStorage.setItem(
       "user_info",
       JSON.stringify({
         id: "u-1",

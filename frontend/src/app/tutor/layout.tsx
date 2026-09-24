@@ -1,13 +1,23 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-import TutorLayout from "@/components/layout/TutorLayout";
+import type { Metadata, Viewport } from "next";
 import { ReactNode } from "react";
+import TutorChrome from "./TutorChrome";
 
-const PUBLIC_PATHS = ["/tutor/login"];
+export const metadata: Metadata = {
+  // 講師用 PWA マニフェスト（Route Handler で配信）を紐付ける
+  manifest: "/tutor/manifest.webmanifest",
+  appleWebApp: {
+    // ホーム画面追加時にブラウザUIを非表示（スタンドアロン）にする
+    capable: true,
+    statusBarStyle: "default",
+    title: "勤怠管理（講師）",
+  },
+};
+
+export const viewport: Viewport = {
+  // 講師テーマ（teal-600）でブラウザUIを着色
+  themeColor: [{ color: "#0d9488" }],
+};
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  if (PUBLIC_PATHS.includes(pathname)) return <>{children}</>;
-  return <TutorLayout>{children}</TutorLayout>;
+  return <TutorChrome>{children}</TutorChrome>;
 }

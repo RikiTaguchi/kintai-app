@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { config as proxyConfig } from "@/proxy";
 
 // next/server は Edge 依存を持つため、テストでは NextResponse/NextRequest を
 // 手務扱いの最小実装でモックする。proxy.ts のロジックは response の
@@ -122,6 +123,24 @@ describe("proxy middleware", () => {
     it("ルート / は素通し", () => {
       const res = proxy(makeRequest("/"));
       expect(res).toEqual({ __kind: "next" });
+    });
+  });
+
+  describe("manifest 除外（リグレッション監視）", () => {
+    // PWA manifest は未認証で取得できる必要がある（Android は Cookie なしで fetch する）。
+    // matcher が manifest.webmanifest を弾かなくなった場合、PWA 追加が壊れる静かな退行を
+    // 防ぐため、matcher の設定に除外条件が残っていることを継続的に検証する。
+    it("matcher が manifest.webmanifest を除外条件に含めている", () => {
+      const matcher = proxyConfig.matcher as string[];
+      // 両ロールとも manifest 除外条件（否定先読み）を含む matcher であること
+      const hasExclusionFor = (rolePath: "manager" | "tutor") =>
+        matcher.some(
+          (p) =>
+            p.startsWith(`/${rolePath}/`) &&
+            p.includes("manifest\\.webmanifest")
+        );
+      expect(hasExclusionFor("manager")).toBe(true);
+      expect(hasExclusionFor("tutor")).toBe(true);
     });
   });
 });

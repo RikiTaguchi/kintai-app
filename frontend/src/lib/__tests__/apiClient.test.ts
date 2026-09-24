@@ -22,7 +22,7 @@ function setHref(href: string) {
 // （configurable: false かつ Object.defineProperty 不可）。
 // そのため production コードの `location.href = ...` による遷移は
 // jsdom では何も起きない。ここでは「location.href に代入されているか」を
-// sessionStorage がユーザー情報消去に使われている点と合わせて観測する
+// localStorage がユーザー情報消去に使われている点と合わせて観測する
 // ことで、「401 → 遷移するブランチに入ったこと」を間接的に検証する。
 
 // -----------------------------------------------------------------------------
@@ -161,12 +161,12 @@ describe("apiClient", () => {
     // 代入する。jsdom では location の setter をモックできないため、
     // 遷移 URL 自体は確認できないが、代わりに：
     //   ・認証エラー必須メッセージが投げられること
-    //   ・sessionStorage の user_info が削除されること（遷移分岐に入った証）
+    //   ・localStorage の user_info が削除されること（遷移分岐に入った証）
     // の2点で各パターンを固定する。遷移 URL の選択ロジック（/manager/* と
     // その他の判定）は E2E/手動で確認要（本ユニットテストでは検証不能）。
 
     it("/tutor/* 以外のパスで 401 → 認証エラーで再ログインを促す（user_info 削除）", async () => {
-      sessionStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
+      localStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
       vi.stubGlobal(
         "fetch",
         vi.fn().mockResolvedValue(mockJsonResponse({ status: 401 }))
@@ -176,11 +176,11 @@ describe("apiClient", () => {
       await expect(apiClient("/api/test")).rejects.toThrow(
         "認証エラーが発生しました。再ログインしてください。"
       );
-      expect(sessionStorage.getItem("user_info")).toBeNull();
+      expect(localStorage.getItem("user_info")).toBeNull();
     });
 
     it("/tutor/* のパスで 401 → 認証エラーで再ログインを促す（user_info 削除）", async () => {
-      sessionStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
+      localStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
       vi.stubGlobal(
         "fetch",
         vi.fn().mockResolvedValue(mockJsonResponse({ status: 401 }))
@@ -190,11 +190,11 @@ describe("apiClient", () => {
       await expect(apiClient("/api/test")).rejects.toThrow(
         "認証エラーが発生しました。再ログインしてください。"
       );
-      expect(sessionStorage.getItem("user_info")).toBeNull();
+      expect(localStorage.getItem("user_info")).toBeNull();
     });
 
     it("既に /login に居るとき 401 → user_info は削除されない（遷移もしない分岐）", async () => {
-      sessionStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
+      localStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
       vi.stubGlobal(
         "fetch",
         vi.fn().mockResolvedValue(mockJsonResponse({ status: 401 }))
@@ -204,12 +204,12 @@ describe("apiClient", () => {
       await expect(apiClient("/api/test")).rejects.toThrow(
         "認証エラーが発生しました。再ログインしてください。"
       );
-      // production: 遷移をしないので sessionStorage も消されない
-      expect(sessionStorage.getItem("user_info")).not.toBeNull();
+      // production: 遷移をしないので localStorage も消されない
+      expect(localStorage.getItem("user_info")).not.toBeNull();
     });
 
     it("/manager/register で 401 → user_info は削除されない", async () => {
-      sessionStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
+      localStorage.setItem("user_info", JSON.stringify({ id: "u-1" }));
       vi.stubGlobal(
         "fetch",
         vi.fn().mockResolvedValue(mockJsonResponse({ status: 401 }))
@@ -219,7 +219,7 @@ describe("apiClient", () => {
       await expect(apiClient("/api/test")).rejects.toThrow(
         "認証エラーが発生しました。再ログインしてください。"
       );
-      expect(sessionStorage.getItem("user_info")).not.toBeNull();
+      expect(localStorage.getItem("user_info")).not.toBeNull();
     });
 
     it("401 レスポンスはパスに関わらず必ず認証エラーメッセージを投げる", async () => {

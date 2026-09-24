@@ -40,12 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = sessionStorage.getItem("user_info");
+    const savedUser = localStorage.getItem("user_info");
     if (savedUser) {
       try {
         setUser(JSON.parse(savedUser));
       } catch (e) {
-        sessionStorage.removeItem("user_info");
+        localStorage.removeItem("user_info");
       }
     }
     setIsLoading(false);
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     const fullUserData = { ...userData, role } as AuthUser;
     setUser(fullUserData);
-    sessionStorage.setItem("user_info", JSON.stringify(fullUserData));
+    localStorage.setItem("user_info", JSON.stringify(fullUserData));
   };
 
   const logout = async () => {
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // API失敗時もローカル状態はクリアしてリダイレクト
     } finally {
         setUser(null);
-        sessionStorage.removeItem('user_info');
+        localStorage.removeItem('user_info');
         window.location.href = isManager ? '/manager/login' : '/tutor/login';
     }
   };

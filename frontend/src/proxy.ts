@@ -48,7 +48,8 @@ export default function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/manager/:path*",
-    "/tutor/:path*",
+    // PWA の manifest.webmanifest は認証チェックから除外（Android が未認証で取得するため）
+    "/manager/:path((?!manifest\\.webmanifest$).*)",
+    "/tutor/:path((?!manifest\\.webmanifest$).*)",
   ],
 };

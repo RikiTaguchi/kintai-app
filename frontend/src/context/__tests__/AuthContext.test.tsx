@@ -66,40 +66,40 @@ const wrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(AuthProvider, null, children);
 
 beforeEach(() => {
-  sessionStorage.clear();
+  localStorage.clear();
 });
 
 describe("AuthContext", () => {
-  it("sessionStorage に user_info がない初期状態は user=null, isLoading 経由で false に遷移する", async () => {
+  it("localStorage に user_info がない初期状態は user=null, isLoading 経由で false に遷移する", async () => {
     render(React.createElement(AuthProvider, null, React.createElement(Consumer)));
     // mount 直後は useEffect 前後で isLoading の遷移があるため、最終的に false に落ち着く
     await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
     expect(screen.getByTestId("user").textContent).toBe("null");
   });
 
-  it("hydrate: sessionStorage の有効な JSON から user を復元する", async () => {
-    sessionStorage.setItem("user_info", JSON.stringify(TUTOR_DATA));
+  it("hydrate: localStorage の有効な JSON から user を復元する", async () => {
+    localStorage.setItem("user_info", JSON.stringify(TUTOR_DATA));
     render(React.createElement(AuthProvider, null, React.createElement(Consumer)));
     await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
     expect(screen.getByTestId("user").textContent).toBe("tutor1");
   });
 
   it("hydrate 失敗: 破損 JSON は取り除かれ user は null", async () => {
-    sessionStorage.setItem("user_info", "{broken");
+    localStorage.setItem("user_info", "{broken");
     render(React.createElement(AuthProvider, null, React.createElement(Consumer)));
     await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
     expect(screen.getByTestId("user").textContent).toBe("null");
-    expect(sessionStorage.getItem("user_info")).toBeNull();
+    expect(localStorage.getItem("user_info")).toBeNull();
   });
 
-  it("login() で user がセットされ sessionStorage も更新される", async () => {
+  it("login() で user がセットされ localStorage も更新される", async () => {
     render(React.createElement(AuthProvider, null, React.createElement(Consumer)));
     await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
 
     act(() => screen.getByRole("button", { name: "login" }).click());
 
     await waitFor(() => expect(screen.getByTestId("user").textContent).toBe("tutor1"));
-    const stored = sessionStorage.getItem("user_info");
+    const stored = localStorage.getItem("user_info");
     expect(stored).not.toBeNull();
     expect(JSON.parse(String(stored)).role).toBe("ROLE_TUTOR");
   });
@@ -115,11 +115,11 @@ describe("AuthContext", () => {
     ));
 
     expect(result.current.user?.role).toBe("ROLE_MANAGER");
-    expect(JSON.parse(String(sessionStorage.getItem("user_info"))).role).toBe("ROLE_MANAGER");
+    expect(JSON.parse(String(localStorage.getItem("user_info"))).role).toBe("ROLE_MANAGER");
   });
 
-  it("logout() で user が null になり sessionStorage も空になる", async () => {
-    sessionStorage.setItem("user_info", JSON.stringify(TUTOR_DATA));
+  it("logout() で user が null になり localStorage も空になる", async () => {
+    localStorage.setItem("user_info", JSON.stringify(TUTOR_DATA));
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
@@ -132,13 +132,13 @@ describe("AuthContext", () => {
     await act(() => result.current.logout());
 
     expect(result.current.user).toBeNull();
-    expect(sessionStorage.getItem("user_info")).toBeNull();
+    expect(localStorage.getItem("user_info")).toBeNull();
   });
 
   it("logout() は user.role が MANAGER なら /api/managers/logout を叩く", async () => {
     // CSRF トークンが既に設定されていれば /api/csrf は叩かれず、そのまま本リクエストが飛ぶ
     document.cookie = "XSRF-TOKEN=preset";
-    sessionStorage.setItem("user_info", JSON.stringify(MANAGER_DATA));
+    localStorage.setItem("user_info", JSON.stringify(MANAGER_DATA));
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -152,7 +152,7 @@ describe("AuthContext", () => {
   });
 
   it("logout() で API が失敗してもローカル状態はクリアされる", async () => {
-    sessionStorage.setItem("user_info", JSON.stringify(TUTOR_DATA));
+    localStorage.setItem("user_info", JSON.stringify(TUTOR_DATA));
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network")));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -161,7 +161,7 @@ describe("AuthContext", () => {
     await act(() => result.current.logout());
 
     expect(result.current.user).toBeNull();
-    expect(sessionStorage.getItem("user_info")).toBeNull();
+    expect(localStorage.getItem("user_info")).toBeNull();
   });
 
   it("Provider 外で useAuth を使うと例外を投げる", () => {

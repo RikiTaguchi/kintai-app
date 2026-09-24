@@ -2,7 +2,6 @@ package com.example.api.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -25,13 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
-    @Value("${cookie.secure:false}")
-    private boolean cookieSecure;
-
-    @Value("${cookie.same-site:Lax}")
-    private String cookieSameSite;
-
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -51,8 +44,8 @@ public class SecurityConfig {
                         .path("/")
                         .maxAge(Duration.ZERO)
                         .httpOnly(true)
-                        .secure(cookieSecure)
-                        .sameSite(cookieSameSite)
+                        .secure(true)
+                        .sameSite("Lax")
                         .build();
                     response.addHeader(HttpHeaders.SET_COOKIE, roleCookie.toString());
                 })

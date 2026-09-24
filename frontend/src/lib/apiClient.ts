@@ -39,7 +39,7 @@ export async function apiClient<T>(input: RequestInfo | URL, init?: RequestInit)
       !window.location.pathname.startsWith("/manager/register")
     ) {
       const isManager = window.location.pathname.startsWith("/manager");
-      sessionStorage.removeItem("user_info");
+      localStorage.removeItem("user_info");
       window.location.href = isManager ? "/manager/login" : "/tutor/login";
     }
     throw new Error("認証エラーが発生しました。再ログインしてください。");

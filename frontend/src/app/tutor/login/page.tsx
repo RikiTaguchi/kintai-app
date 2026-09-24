@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -8,14 +8,24 @@ import { loginTutor } from "@/lib/api";
 import { inputClass } from "@/components/ui/FormField";
 import Button from "@/components/ui/Button";
 import { getErrorMessage } from "@/lib/utils";
+import { saveCredentials, loadCredentials, clearCredentials } from "@/lib/credentialStorage";
 
 export default function TutorLoginPage() {
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
+  const [saveLoginInfo, setSaveLoginInfo] = useState(true);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    const saved = loadCredentials("tutor");
+    if (saved) {
+      setLoginId(saved.loginId);
+      setPassword(saved.password);
+    }
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -23,6 +33,11 @@ export default function TutorLoginPage() {
     setIsLoading(true);
     try {
       const res = await loginTutor({ loginId, password });
+      if (saveLoginInfo) {
+        saveCredentials("tutor", loginId, password);
+      } else {
+        clearCredentials("tutor");
+      }
       login(res, "ROLE_TUTOR");
       router.replace("/tutor/works");
     } catch (err) {
@@ -74,6 +89,16 @@ export default function TutorLoginPage() {
                 placeholder="パスワードを入力"
               />
             </div>
+
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={saveLoginInfo}
+                onChange={(e) => setSaveLoginInfo(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">ログイン情報を保存する</span>
+            </label>
 
             {error && (
               <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/40 rounded-lg px-3 py-2">{error}</p>
