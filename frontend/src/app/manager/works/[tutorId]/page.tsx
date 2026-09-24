@@ -61,7 +61,7 @@ function TutorWorksContent({ tutorId }: { tutorId: string }) {
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      const res = await fetch(`/api/excel/payslips?year=${year}&month=${month}`);
+      const res = await fetch(`/excel/payslips?year=${year}&month=${month}`);
       if (res.redirected) {
         window.location.href = res.url;
         return;

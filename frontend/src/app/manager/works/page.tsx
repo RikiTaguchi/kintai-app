@@ -25,7 +25,7 @@ export default function ManagerWorksPage() {
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      const res = await fetch(`/api/excel/payslips?year=${year}&month=${month}`);
+      const res = await fetch(`/excel/payslips?year=${year}&month=${month}`);
       if (res.redirected) { window.location.href = res.url; return; }
       if (!res.ok) throw new Error("ダウンロードに失敗しました");
       const blob = await res.blob();

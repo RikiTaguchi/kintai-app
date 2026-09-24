@@ -132,7 +132,7 @@ frontend/src/app/
 
 ### ファイル構成
 
-- **API Route**: `frontend/src/app/api/excel/payslips/route.ts`（Next.js Route Handler）
+- **API Route**: `frontend/src/app/excel/payslips/route.ts`（Next.js Route Handler。URL は `/excel/payslips`。本番 nginx が `location /api/` を Java に proxy するため `/api` プレフィックスは付けない）
 - **テンプレート**: `frontend/templates/excelTemplate.xlsx`（`public/` 配下には置かず URL 直アクセスを防ぐ）
 - テンプレートの読み込みは `path.join(process.cwd(), "templates", "excelTemplate.xlsx")` で行う（`process.cwd()` は Next.js 実行時 `frontend/` を指す）
 

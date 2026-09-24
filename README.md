@@ -368,9 +368,10 @@ frontend/src/
 | `useConfirm<T>` | 削除確認ダイアログの表示制御を汎用化したジェネリック Hook |
 | `useToast` | `ToastContext` から `addToast` を取得するショートカット Hook |
 
-#### 講師給フォーム出力（`app/api/excel/payslips/route.ts`）
+#### 講師給フォーム出力（`app/excel/payslips/route.ts`）
 
-- 管理者画面の勤務管理ページから `GET /api/excel/payslips?year=&month=` を呼び出して XLSX をダウンロードする Next.js Route Handler
+- 管理者画面の勤務管理ページから `GET /excel/payslips?year=&month=` を呼び出して XLSX をダウンロードする Next.js Route Handler
+ - 本番 nginx が `location /api/ { proxy_pass http://api:8080 }` で `/api/*` を Java へ横流しするため、Route Handler の URL から `/api` プレフィックスを外している
 - `frontend/templates/excelTemplate.xlsx` をベーステンプレートとして exceljs でデータを書き込み、JSZip で OOXML（ZIP 構造）を直接修正して出力する
   - exceljs が Form Control（VML チェックボックス）を欠落させるため、テンプレートの `xl/drawings/`, `xl/ctrlProps/` を JSZip で直接コピーして復元している
   - 表示サイズ調整（列幅スケーリング・ゼロ表示抑制・印刷設定など）も JSZip の XML 直接操作で行っている
@@ -826,7 +827,7 @@ server.port=${SERVER_PORT:8080}
 
 #### 2. フロントエンド：バックエンド URL の環境変数化
 
-`next.config.ts` と `app/api/excel/payslips/route.ts` にハードコードされている `http://localhost:8080` を、共通の環境変数（例: `BACKEND_INTERNAL_URL`）に切り出す。同一 VPS 上で稼働させる限り値自体は `http://127.0.0.1:8080` のまま変わらないが、設定を 1 箇所に外出しすることで将来の構成変更に対応しやすくする。
+`next.config.ts` と `app/excel/payslips/route.ts` にハードコードされている `http://localhost:8080` を、共通の環境変数（例: `BACKEND_INTERNAL_URL`）に切り出す。同一 VPS 上で稼働させる限り値自体は `http://127.0.0.1:8080` のまま変わらないが、設定を 1 箇所に外出しすることで将来の構成変更に対応しやすくする。
 
 #### 3. 初期データの確認
 
