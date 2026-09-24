@@ -1,6 +1,6 @@
 import { useRef, useCallback, useEffect } from "react";
 
-const SWIPE_THRESHOLD = 50;
+const SWIPE_THRESHOLD = 100;
 
 export type SwipeHandlers = {
   onTouchStart: (e: React.TouchEvent) => void;
