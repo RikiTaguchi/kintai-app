@@ -24,11 +24,6 @@ function setTimeFrac(ws: ExcelJS.Worksheet, row: number, col: number, val: numbe
   c.numFmt = "h:mm";
 }
 
-function workingDateToDate(dateStr: string): Date {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d));
-}
-
 function dateToWeekday(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);
   return WEEKDAYS[new Date(y, m - 1, d).getDay()];
@@ -195,10 +190,9 @@ export async function GET(request: NextRequest) {
         continue;
       }
 
-      // B: 日付
-      const dc = ws.getCell(row, 2);
-      dc.value = workingDateToDate(w.workingDate);
-      dc.numFmt = "m/d";
+      // B: 日付（"m月d日" 形式の文字列として挿入）
+      const [, m, d] = w.workingDate.split("-").map(Number);
+      ws.getCell(row, 2).value = `${m}月${d}日`;
 
       // E: 曜日
       ws.getCell(row, 5).value = dateToWeekday(w.workingDate);
