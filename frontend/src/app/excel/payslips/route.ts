@@ -14,6 +14,8 @@ const BACKEND = process.env.API_BASE_URL ?? "http://localhost:8080";
 const CIRCLED = [
   "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨",
   "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱",
+  "⑲", "⑳", "㉑", "㉒", "㉓", "㉔", "㉕", "㉖", "㉗",
+  "㉘", "㉙", "㉚",
 ];
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -78,7 +80,7 @@ export async function GET(request: NextRequest) {
     topWs.getCell(1, 11).value = classroomName; // K1: 教室名
   }
 
-  tutorData.slice(0, 18).forEach(({ tutor, works, salaries }, idx) => {
+  tutorData.slice(0, 30).forEach(({ tutor, works, salaries }, idx) => {
     const sheetName = `${CIRCLED[idx]}${tutor.lastName}`;
     const ws = wb.getWorksheet(`sheet${idx + 1}`);
     if (!ws) return;
@@ -273,14 +275,13 @@ export async function GET(request: NextRequest) {
     }
   });
 
-  // 講師数 < 18 の場合、余分なシートを「①新採用」形式に改名してヘッダーだけ挿入
-  // ①②③…⑱ の Unicode 丸数字（i=0→①, i=17→⑱）
-  const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱";
-  const usedSheetCount = Math.min(tutorData.length, 18);
-  for (let i = usedSheetCount; i < 18; i++) {
+  // 講師数 < 30 の場合、余分なシートを「①新採用」形式に改名してヘッダーだけ挿入
+  // ①②③… の Unicode 丸数字（CIRCLED と同一値）
+  const usedSheetCount = Math.min(tutorData.length, 30);
+  for (let i = usedSheetCount; i < 30; i++) {
     const emptyWs = wb.getWorksheet(`sheet${i + 1}`);
     if (!emptyWs) continue;
-    emptyWs.name = `${CIRCLED_NUMS[i]}新採用${i - usedSheetCount + 1}`;
+    emptyWs.name = `${CIRCLED[i]}新採用${i - usedSheetCount + 1}`;
     emptyWs.getCell(1, 5).value = classroomName;  // E1: 教室名
     emptyWs.getCell(1, 26).value = year;           // Z1: 年
     emptyWs.getCell(1, 30).value = month;          // AD1: 月
@@ -472,7 +473,7 @@ export async function GET(request: NextRequest) {
       /<definedName name="_xlnm\.Print_Area" localSheetId="0">[^<]*<\/definedName>\n?/g,
       ""
     );
-    const topPrintArea = `<definedName name="_xlnm.Print_Area" localSheetId="0">'トップ '!$A$1:$M$51</definedName>`;
+    const topPrintArea = `<definedName name="_xlnm.Print_Area" localSheetId="0">'トップ '!$A$1:$M$63</definedName>`;
     wbXmlFixed = wbXmlFixed.replace("</definedNames>", `${topPrintArea}</definedNames>`);
     zip.file("xl/workbook.xml", wbXmlFixed);
   }
