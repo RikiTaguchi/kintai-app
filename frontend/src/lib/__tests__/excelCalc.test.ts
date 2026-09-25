@@ -256,8 +256,8 @@ describe("computeRow", () => {
     expect(computeRow(w).AY).toBeNull();
   });
 
-  it("AY が 10h を超えると AR が発火", () => {
-    // 8:00 - 19:00 = 11:00 = 660分 → 10h を 60 分超過
+  it("AY が 8h を超えると AR が発火", () => {
+    // 8:00 - 19:00 = 11:00 = 660分 → 8h を 180 分超過
     const w = {
       ...baseWork,
       lessonWorkDetail: {
@@ -269,7 +269,38 @@ describe("computeRow", () => {
     };
     const r = computeRow(w);
     expect(min(r.AY!)).toBe(660);
-    expect(min(r.AR!)).toBe(60);
+    expect(min(r.AR!)).toBe(180);
+  });
+
+  it("AY がちょうど 8h の場合は AR は発火しない", () => {
+    // 9:00 - 17:00 = 8:00 = 480分 → 8h ちょうど（超過なし）
+    const w = {
+      ...baseWork,
+      lessonWorkDetail: {
+        startTime: "09:00:00",
+        endTime: "17:00:00",
+        breakMinutes: 0,
+        periodCodes: [],
+      },
+    };
+    const r = computeRow(w);
+    expect(min(r.AY!)).toBe(480);
+    expect(r.AR).toBeNull();
+  });
+
+  it("AY が 8h を 1 分超過すると AR が発火", () => {
+    // 9:00 - 17:01 = 8:01 = 481分 → 8h を 1 分超過
+    const w = {
+      ...baseWork,
+      lessonWorkDetail: {
+        startTime: "09:00:00",
+        endTime: "17:01:00",
+        breakMinutes: 0,
+        periodCodes: [],
+      },
+    };
+    const r = computeRow(w);
+    expect(min(r.AR!)).toBe(1);
   });
 
   it("深夜: 授業 21:00 終了 → 0 / 23:30 終了 → 90分", () => {
@@ -369,8 +400,8 @@ describe("computeRow", () => {
     expect(NIGHT_START).toBeCloseTo(22 / 24, 10);
   });
 
-  it("OVERTIME_THRESHOLD は 10 / 24", () => {
-    expect(OVERTIME_THRESHOLD).toBeCloseTo(10 / 24, 10);
+  it("OVERTIME_THRESHOLD は 8 / 24", () => {
+    expect(OVERTIME_THRESHOLD).toBeCloseTo(8 / 24, 10);
   });
 });
 

@@ -11,8 +11,8 @@
 export const LESSON_UNIT = 100 / 1440; // 1:40 per period
 /** 教材等のバッファ時間（予定時間超過を「時間外」とみなさないゆとり） */
 export const LESSON_BUFFER = 20 / 1440; // 0:20 buffer
-/** 通常勤務の上限（10 時間） */
-export const OVERTIME_THRESHOLD = 10 / 24; // 10:00
+/** 通常勤務の上限（8 時間） */
+export const OVERTIME_THRESHOLD = 8 / 24; // 8:00
 /** 深夜割増の開始時刻（22:00） */
 export const NIGHT_START = 22 / 24; // 22:00
 
@@ -83,7 +83,7 @@ export interface RowValues {
   X: number | null; // office duration (V-T)
   AN: number | null; // training duration (AJ-AH-AL)
   AP: number | null; // overtime (positive only)
-  AR: number | null; // excess overtime (AY > 10h)
+  AR: number | null; // excess overtime (AY > 8h)
   AY: number | null; // total work time
   AZ: number; // lesson night portion
   BA: number; // office night portion
