@@ -95,3 +95,19 @@ body {
 .month-slide-prev-b {
   animation: slide-in-from-left-b 280ms ease-out;
 }
+
+/* ネイティブ date/time input の最小幅によるはみ出し防止（特に iOS Safari 対策） */
+input[type="date"],
+input[type="time"] {
+  min-width: 0;
+  max-width: 100%;
+  /* iOS Safari でブラウザデフォルトの最小幅を解除 */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* iOS Safari のネイティブ date/time input は疑似要素で最小幅を持つため明示的に解除 */
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  min-width: 0;
+}
