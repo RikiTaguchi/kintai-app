@@ -72,25 +72,37 @@ describe("minFrac", () => {
 });
 
 describe("nightPortion", () => {
-  it("深夜 0:00 終了（= fraction 1.0） → 2時間分", () => {
-    // 22:00 から 24:00 までの 2 時間
-    expect(min(nightPortion(1.0))).toBe(120);
+  it("22:00 〜 0:00（深夜帯全体） → 2時間分", () => {
+    // 22:00 開始で 24:00 終了（= fraction 1.0）の 2 時間
+    expect(min(nightPortion(22 / 24, 1.0))).toBe(120);
   });
 
-  it("22:00 ちょうど → 0", () => {
-    expect(nightPortion(22 / 24)).toBe(0);
+  it("22:00 ちょうど開始・終了 → 0", () => {
+    expect(nightPortion(22 / 24, 22 / 24)).toBe(0);
   });
 
-  it("21:59 → 0（深夜帯手前）", () => {
-    expect(nightPortion((21 * 60 + 59) / 1440)).toBe(0);
+  it("21:59 終了 → 0（深夜帯手前）", () => {
+    expect(nightPortion(18 / 24, (21 * 60 + 59) / 1440)).toBe(0);
   });
 
-  it("22:30 終了 → 30分", () => {
-    expect(min(nightPortion((22 * 60 + 30) / 1440))).toBe(30);
+  it("22:00 〜 22:30 終了 → 30分", () => {
+    expect(min(nightPortion(22 / 24, (22 * 60 + 30) / 1440))).toBe(30);
+  });
+
+  it("21:00 〜 23:00 → 60分（22:00 以降のみ計上）", () => {
+    expect(min(nightPortion(21 / 24, 23 / 24))).toBe(60);
+  });
+
+  it("22:30 〜 23:30 → 60分（開始が22時以降）", () => {
+    expect(
+      min(nightPortion((22 * 60 + 30) / 1440, (23 * 60 + 30) / 1440))
+    ).toBe(60);
   });
 
   it("null → 0", () => {
-    expect(nightPortion(null)).toBe(0);
+    expect(nightPortion(null, null)).toBe(0);
+    expect(nightPortion(22 / 24, null)).toBe(0);
+    expect(nightPortion(null, 23 / 24)).toBe(0);
   });
 });
 
@@ -338,6 +350,27 @@ describe("computeRow", () => {
     expect(min(r.BB)).toBe(0);
     expect(min(r.BC)).toBe(60);
     expect(min(r.AT!)).toBe(60);
+  });
+
+  it("深夜帯に開始する勤務 → 開始時刻を考慮した深夜時間を計上", () => {
+    // 22:30 開始 〜 23:30 終了 → 深夜は 23:30 − 22:30 = 60分
+    const w = {
+      lessonWorkDetail: {
+        startTime: null,
+        endTime: null,
+        breakMinutes: null,
+        periodCodes: [],
+      },
+      officeWorkDetail: { startTime: "22:30:00", endTime: "23:30:00" },
+      otherWorkDetail: {
+        startTime: null,
+        endTime: null,
+        breakMinutes: null,
+        description: null,
+      },
+    };
+    const r = computeRow(w);
+    expect(min(r.BA)).toBe(60);
   });
 
   it("事務 X = V - T", () => {

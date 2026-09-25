@@ -436,6 +436,66 @@ class PayslipServiceTest {
             assertEquals(6, r.getOvertimePremiumDto().getMinutes());
             assertEquals(16, r.getOvertimePremiumDto().getAmount());
         }
+
+        @Test
+        @DisplayName("授業+事務の合計で超過判定 → 合計が8h超で超過発動")
+        void includesOfficeInTotal() {
+            // 授業 9:00-16:00 = 420分、事務 17:00-18:30 = 90分、合計 510分 > 480 → 超過30分
+            WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            work.setLessonWorkDetailDto(lesson(t(9, 0), t(16, 0), 0, List.of("S")));
+            work.setOfficeWorkDetailDto(office(t(17, 0), t(18, 30)));
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
+
+            PayslipDto r = payslipService.create(List.of(work));
+            assertEquals(30, r.getOvertimePremiumDto().getMinutes());
+            // 30分 × (2000/100) × 0.25 = 150円
+            assertEquals(150, r.getOvertimePremiumDto().getAmount());
+        }
+
+        @Test
+        @DisplayName("授業+その他(研修)の合計で超過判定 → 合計が8h超で超過発動")
+        void includesOtherInTotal() {
+            // 授業 9:00-15:00 = 360分、研修 16:00-19:00 = 180分(休憩0)、合計 540分 > 480 → 超過60分
+            WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            work.setLessonWorkDetailDto(lesson(t(9, 0), t(15, 0), 0, List.of("S")));
+            work.setOtherWorkDetailDto(other(t(16, 0), t(19, 0), 0, "研修"));
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
+
+            PayslipDto r = payslipService.create(List.of(work));
+            assertEquals(60, r.getOvertimePremiumDto().getMinutes());
+            // 60分 × (2000/100) × 0.25 = 300円
+            assertEquals(300, r.getOvertimePremiumDto().getAmount());
+        }
+
+        @Test
+        @DisplayName("3カテゴリ合計でちょうど480分 → 超過なし")
+        void exactlyAtBorderAcrossCategories() {
+            // 授業 300分 + 事務 120分 + 研修 60分 = 480分ちょうど → 超過なし
+            WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            work.setLessonWorkDetailDto(lesson(t(9, 0), t(14, 0), 0, List.of("S")));   // 300
+            work.setOfficeWorkDetailDto(office(t(15, 0), t(17, 0)));                   // 120
+            work.setOtherWorkDetailDto(other(t(18, 0), t(19, 0), 0, "x"));             // 60
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
+
+            PayslipDto r = payslipService.create(List.of(work));
+            assertEquals(0, r.getOvertimePremiumDto().getMinutes());
+        }
+
+        @Test
+        @DisplayName("事務のみの日 → 事務のみでも8h超で超過発動")
+        void officeOnlyDayCanTrigger() {
+            // 事務 9:00-18:00 = 540分 > 480 → 超過60分
+            WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            work.setOfficeWorkDetailDto(office(t(9, 0), t(18, 0)));
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
+
+            PayslipDto r = payslipService.create(List.of(work));
+            assertEquals(60, r.getOvertimePremiumDto().getMinutes());
+        }
     }
 
     @Nested
@@ -479,6 +539,18 @@ class PayslipServiceTest {
 
             PayslipDto r = payslipService.create(List.of(work));
             assertEquals(0, r.getNightShiftPremiumDto().getMinutes());
+        }
+
+        @Test
+        @DisplayName("22時ちょうど開始 → 全て深夜として計上")
+        void startingExactlyAtNightStart() {
+            WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            work.setLessonWorkDetailDto(lesson(t(22, 0), t(23, 0), 0, List.of("S")));
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
+
+            PayslipDto r = payslipService.create(List.of(work));
+            assertEquals(60, r.getNightShiftPremiumDto().getMinutes());
         }
 
         @Test

@@ -41,12 +41,14 @@ export function minFrac(mins: number | null | undefined): number | null {
 }
 
 /**
- * 終了時刻 t が深夜に跨ぐ分の長さを返す。
- * t が 22:00 以前であれば 0、それ以降は `t - NIGHT_START`。
+ * [start, end] のうち 22:00 以降に該当する分の長さを返す。
+ * start / end が null の場合や、深夜帯に交差しない場合は 0。
  */
-export function nightPortion(t: number | null): number {
-  if (t == null || t <= NIGHT_START) return 0;
-  return t - NIGHT_START;
+export function nightPortion(start: number | null, end: number | null): number {
+  if (start == null || end == null) return 0;
+  const s = Math.max(start, NIGHT_START);
+  const e = Math.max(end, NIGHT_START);
+  return Math.max(0, e - s);
 }
 
 /**
@@ -135,9 +137,9 @@ export function computeRow(w: {
   const totalWork = lessonTime + officeTime + trainingTime;
   const AY = totalWork > 1e-9 ? totalWork : null;
 
-  const AZ = nightPortion(P);
-  const BA = nightPortion(V);
-  const BB = nightPortion(AJ);
+  const AZ = nightPortion(N, P);
+  const BA = nightPortion(T, V);
+  const BB = nightPortion(AH, AJ);
   const BC = AZ + BA + BB;
 
   let AR: number | null = null;

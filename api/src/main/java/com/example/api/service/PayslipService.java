@@ -176,48 +176,58 @@ public class PayslipService {
 
     /**
      * 超過勤務割増をスケール値（分 × lessonWage × 60 × 25）で返す。
-     * 計算時給は事務給ではなく授業給を用い、100分あたりの登録値を60分あたりに換算してから割増率0.25を掛ける。
+     * 超過時間は「授業+事務+その他」の総実働時間が 8h を超えた部分を対象とする。
+     * 計算時給は一律 授業給(100分あたり)を60分あたりに換算したものとし、割増率0.25を掛ける。
      * 日次の端数処理は行わず、月合計の最後に一度だけ円へ切り上げ換算する。
      */
     private long calculateOvertimePremiumScaled(WorkDto work, SalaryDto salary) {
-        var detail = work.getLessonWorkDetailDto();
-        if (detail.getStartTime() == null || detail.getEndTime() == null) {
-            return 0;
-        }
+        int excessMinutes = calculateOvertimeExcessMinutes(work);
+        // 分 × 授業給(100分あたり) × 60/100(時給換算) × 25/100(割増率) を整数スケールで保持
+        return (long) excessMinutes * salary.getLessonWage() * 60 * 25;
+    }
 
-        int overtime = Math.max(
-            (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() -
-            detail.getBreakMinutes()),
-            0
-        );
-
-        if (overtime > PremiumPayContents.OVER_TIME_BORDER_LINE) {
-            int excessMinutes = overtime - PremiumPayContents.OVER_TIME_BORDER_LINE;
-            // 分 × 授業給(100分あたり) × 60/100(時給換算) × 25/100(割増率) を整数スケールで保持
-            return (long) excessMinutes * salary.getLessonWage() * 60 * 25;
+    /**
+     * 超過勤務割増の対象分数のみを返す（表示用の minutes 集計に使用）。
+     * 「授業+事務+その他」の総実働時間が 8h を超えた部分を超過とみなす。
+     */
+    private int calculateOvertimeExcessMinutes(WorkDto work) {
+        int totalMinutes = sumTotalWorkMinutes(work);
+        if (totalMinutes > PremiumPayContents.OVER_TIME_BORDER_LINE) {
+            return totalMinutes - PremiumPayContents.OVER_TIME_BORDER_LINE;
         }
         return 0;
     }
 
     /**
-     * 超過勤務割増の対象分数のみを返す（表示用の minutes 集計に使用）。
+     * 勤務1件あたりの実働時間（lesson + office + other の合計）を分で返す。
+     * 授業・その他は休憩分数を控除する。
      */
-    private int calculateOvertimeExcessMinutes(WorkDto work) {
-        var detail = work.getLessonWorkDetailDto();
-        if (detail.getStartTime() == null || detail.getEndTime() == null) {
-            return 0;
+    private int sumTotalWorkMinutes(WorkDto work) {
+        int total = 0;
+        var lesson = work.getLessonWorkDetailDto();
+        if (lesson.getStartTime() != null && lesson.getEndTime() != null) {
+            total += Math.max(
+                (int) (Duration.between(lesson.getStartTime(), lesson.getEndTime()).toMinutes()
+                    - (lesson.getBreakMinutes() != null ? lesson.getBreakMinutes() : 0)),
+                0
+            );
         }
-
-        int overtime = Math.max(
-            (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() -
-            detail.getBreakMinutes()),
-            0
-        );
-
-        if (overtime > PremiumPayContents.OVER_TIME_BORDER_LINE) {
-            return overtime - PremiumPayContents.OVER_TIME_BORDER_LINE;
+        var office = work.getOfficeWorkDetailDto();
+        if (office.getStartTime() != null && office.getEndTime() != null) {
+            total += Math.max(
+                (int) Duration.between(office.getStartTime(), office.getEndTime()).toMinutes(),
+                0
+            );
         }
-        return 0;
+        var other = work.getOtherWorkDetailDto();
+        if (other.getStartTime() != null && other.getEndTime() != null) {
+            total += Math.max(
+                (int) (Duration.between(other.getStartTime(), other.getEndTime()).toMinutes()
+                    - (other.getBreakMinutes() != null ? other.getBreakMinutes() : 0)),
+                0
+            );
+        }
+        return total;
     }
 
     /**
@@ -243,10 +253,11 @@ public class PayslipService {
     private int calculateNightMinutes(LocalTime start, LocalTime end) {
         if (start == null || end == null) return 0;
 
-        if (start.isAfter(PremiumPayContents.NIGHT_START_TIME)) {
-            return (int) Duration.between(start, end).toMinutes();
-        } else if (end.isAfter(PremiumPayContents.NIGHT_START_TIME)) {
-            return (int) Duration.between(PremiumPayContents.NIGHT_START_TIME, end).toMinutes();
+        LocalTime startCapped = start.isBefore(PremiumPayContents.NIGHT_START_TIME)
+            ? PremiumPayContents.NIGHT_START_TIME
+            : start;
+        if (end.isAfter(startCapped)) {
+            return (int) Duration.between(startCapped, end).toMinutes();
         }
         return 0;
     }
