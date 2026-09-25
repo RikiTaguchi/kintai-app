@@ -152,14 +152,14 @@ public class PayslipService {
         if (detail.getStartTime() != null && detail.getEndTime() != null) {
             int overtime = Math.max(
                 (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() -
-                LessonContents.LESSON_PREPARING_MINUTES -
                 detail.getBreakMinutes()),
                 0
             );
 
             if (overtime > PremiumPayContents.OVER_TIME_BORDER_LINE) {
-                item.setAmount(item.getAmount() + (int) (overtime * salary.getOfficeWage() * PremiumPayContents.PREMIUM_PAY_RATE));
-                item.setMinutes(item.getMinutes() + overtime);
+                int excessMinutes = overtime - PremiumPayContents.OVER_TIME_BORDER_LINE;
+                item.setAmount(item.getAmount() + (int) (excessMinutes * salary.getOfficeWage() * PremiumPayContents.PREMIUM_PAY_RATE));
+                item.setMinutes(item.getMinutes() + excessMinutes);
             }
         }
     }

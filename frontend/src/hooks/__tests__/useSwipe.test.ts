@@ -18,54 +18,54 @@ function touchEndEvent(x: number): React.TouchEvent {
 }
 
 describe("useSwipe", () => {
-  it("右→左に 51px 以上で onNext が呼ばれる", () => {
+  it("右→左に 101px 以上で onNext が呼ばれる", () => {
     const onNext = vi.fn();
     const onPrev = vi.fn();
     const { result } = renderHook(() => useSwipe(onPrev, onNext));
 
     act(() => result.current.onTouchStart(touchEvent(200)));
-    act(() => result.current.onTouchEnd(touchEndEvent(149)));
+    act(() => result.current.onTouchEnd(touchEndEvent(99)));
 
     expect(onNext).toHaveBeenCalledTimes(1);
     expect(onPrev).not.toHaveBeenCalled();
   });
 
-  it("左→右に 51px 以上で onPrev が呼ばれる", () => {
+  it("左→右に 101px 以上で onPrev が呼ばれる", () => {
     const onNext = vi.fn();
     const onPrev = vi.fn();
     const { result } = renderHook(() => useSwipe(onPrev, onNext));
 
     act(() => result.current.onTouchStart(touchEvent(100)));
-    act(() => result.current.onTouchEnd(touchEndEvent(151)));
+    act(() => result.current.onTouchEnd(touchEndEvent(201)));
 
     expect(onPrev).toHaveBeenCalledTimes(1);
     expect(onNext).not.toHaveBeenCalled();
   });
 
-  it("ちょうど 50px は未満（改行）扱いでハンドラは呼ばれない", () => {
+  it("ちょうど 100px は発動しない（閾値は厳密超過）", () => {
     const onNext = vi.fn();
     const onPrev = vi.fn();
     const { result } = renderHook(() => useSwipe(onPrev, onNext));
 
-    act(() => result.current.onTouchStart(touchEvent(100)));
-    act(() => result.current.onTouchEnd(touchEndEvent(50)));
+    act(() => result.current.onTouchStart(touchEvent(200)));
+    act(() => result.current.onTouchEnd(touchEndEvent(100)));
 
     expect(onNext).not.toHaveBeenCalled();
     expect(onPrev).not.toHaveBeenCalled();
   });
 
-  it("閾値以下のスワイプ（+-49px）は何も起きない", () => {
+  it("閾値以下のスワイプ（+-99px）は何も起きない", () => {
     const onNext = vi.fn();
     const onPrev = vi.fn();
     const { result } = renderHook(() => useSwipe(onPrev, onNext));
 
     act(() => result.current.onTouchStart(touchEvent(100)));
-    act(() => result.current.onTouchEnd(touchEndEvent(149)));
+    act(() => result.current.onTouchEnd(touchEndEvent(199)));
     expect(onNext).not.toHaveBeenCalled();
     expect(onPrev).not.toHaveBeenCalled();
 
     act(() => result.current.onTouchStart(touchEvent(100)));
-    act(() => result.current.onTouchEnd(touchEndEvent(51)));
+    act(() => result.current.onTouchEnd(touchEndEvent(1)));
     expect(onNext).not.toHaveBeenCalled();
     expect(onPrev).not.toHaveBeenCalled();
   });
@@ -105,7 +105,7 @@ describe("useSwipe", () => {
     rerender({ next: onNextV2 });
 
     act(() => result.current.onTouchStart(touchEvent(200)));
-    act(() => result.current.onTouchEnd(touchEndEvent(100)));
+    act(() => result.current.onTouchEnd(touchEndEvent(99)));
 
     expect(onNextV1).not.toHaveBeenCalled();
     expect(onNextV2).toHaveBeenCalledTimes(1);

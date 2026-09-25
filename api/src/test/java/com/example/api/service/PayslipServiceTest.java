@@ -340,19 +340,17 @@ class PayslipServiceTest {
         @Test
         @DisplayName("総勤務 610分(break0) → 残業590分ではなく超過判定で600を超えた分だけが計上")
         void over600Minutes() {
-            // 勤務 13:00-23:30 = 630分, 準備20, 休憩10 → 600分. 残業 = 600 - 20 - 10 = 570 → 600超でない
-            // テスト対象は overtime の計算式。実装を見直す: 残業時間itselfが600を超えること前提
-            // わかりやすいケース: 勤務 9:00-22:00 = 780分, prep=20, break=20 → 740
-            // 740 > 600 なら残業740分が計上（0.25倍）。
+            // 勤務 9:00-22:00 = 780分, 休憩20 → overtime = 780 - 20 = 760 (> 600) で発動
+            // 超過分のみが計上される: excess = 760 - 600 = 160
             WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
             work.setLessonWorkDetailDto(lesson(t(9, 0), t(22, 0), 20, List.of("S", "A", "B")));
             when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
                 salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
 
             PayslipDto r = payslipService.create(List.of(work));
-            // overtime = 780 - 20 - 20 = 740 (> 600) → amount = 740*1000*0.25 = 185000 → ceil/60 = 3084
-            assertEquals(740, r.getOvertimePremiumDto().getMinutes());
-            assertEquals((int) Math.ceil((double) (740 * 1000 * 0.25) / 60), r.getOvertimePremiumDto().getAmount());
+            // overtime = 780 - 20 = 760 (> 600) → excess = 160 → amount = 160*1000*0.25 = 40000 → ceil/60 = 667
+            assertEquals(160, r.getOvertimePremiumDto().getMinutes());
+            assertEquals((int) Math.ceil((double) (160 * 1000 * 0.25) / 60), r.getOvertimePremiumDto().getAmount());
         }
 
         @Test

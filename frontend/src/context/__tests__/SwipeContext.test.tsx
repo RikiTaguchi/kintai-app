@@ -42,13 +42,13 @@ describe("SwipeContext", () => {
 
     act(() => {
       result.current.onTouchStart({ touches: [{ clientX: 200 }] } as never);
-      result.current.onTouchEnd({ changedTouches: [{ clientX: 100 }] } as never);
+      result.current.onTouchEnd({ changedTouches: [{ clientX: 99 }] } as never);
     });
     expect(onNext).toHaveBeenCalledTimes(1);
 
     act(() => {
       result.current.onTouchStart({ touches: [{ clientX: 100 }] } as never);
-      result.current.onTouchEnd({ changedTouches: [{ clientX: 200 }] } as never);
+      result.current.onTouchEnd({ changedTouches: [{ clientX: 201 }] } as never);
     });
     expect(onPrev).toHaveBeenCalledTimes(1);
   });
@@ -66,7 +66,7 @@ describe("SwipeContext", () => {
 
     act(() => {
       result.current.onTouchStart({ touches: [{ clientX: 200 }] } as never);
-      result.current.onTouchEnd({ changedTouches: [{ clientX: 100 }] } as never);
+      result.current.onTouchEnd({ changedTouches: [{ clientX: 99 }] } as never);
     });
     expect(onNext).toHaveBeenCalledTimes(1);
 
@@ -75,7 +75,7 @@ describe("SwipeContext", () => {
 
     act(() => {
       result.current.onTouchStart({ touches: [{ clientX: 200 }] } as never);
-      result.current.onTouchEnd({ changedTouches: [{ clientX: 100 }] } as never);
+      result.current.onTouchEnd({ changedTouches: [{ clientX: 99 }] } as never);
     });
     expect(onNext).not.toHaveBeenCalled();
   });
