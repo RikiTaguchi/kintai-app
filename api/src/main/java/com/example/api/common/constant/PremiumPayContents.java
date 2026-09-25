@@ -11,6 +11,6 @@ public class PremiumPayContents {
 
     public static final LocalTime NIGHT_START_TIME = LocalTime.of(22, 0);
 
-    public static final Integer OVER_TIME_BORDER_LINE = 60 * 10;
+    public static final Integer OVER_TIME_BORDER_LINE = 60 * 8;
 
 }
