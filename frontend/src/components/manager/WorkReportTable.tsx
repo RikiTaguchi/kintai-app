@@ -56,7 +56,7 @@ function AllowanceCell({ amount }: { amount: number }) {
 }
 
 const HEAD_BASE =
-  "px-3 py-2 font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap text-center align-middle border border-gray-200 dark:border-gray-700";
+  "px-3 py-2 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap text-center align-middle border border-gray-200 dark:border-gray-700";
 
 /** 縦2行結合の見出しセル */
 function HeadRowSpan({ children, colSpan = 1, fixed = false }: { children: React.ReactNode; colSpan?: number; fixed?: boolean }) {
@@ -148,7 +148,7 @@ export default function WorkReportTable({ tutor, year, month }: Props) {
   return (
     <div className="max-w-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto p-1.5">
       <table className="min-w-full w-max text-sm border-collapse table-fixed bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-        <thead className="bg-gray-100 dark:bg-gray-950 border-b-2 border-gray-300 dark:border-gray-600">
+        <thead className="bg-gray-50 dark:bg-gray-800 border-b-2 border-gray-300 dark:border-gray-600">
           <tr>
             <HeadRowSpan colSpan={2}>勤務日</HeadRowSpan>
             <HeadRowSpan>勤務コマ</HeadRowSpan>

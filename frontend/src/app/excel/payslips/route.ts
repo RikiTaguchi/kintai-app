@@ -53,9 +53,19 @@ export async function GET(request: NextRequest) {
   if (!tutors.length) {
     return NextResponse.json({ error: "No tutors found" }, { status: 404 });
   }
+  // 講師番号の昇順で出力する（在籍・退職に関係なく同じ並びで処理する）
+  // tutorNumber は INTEGER だが、API 応答にない/数値変換できない場合は未設定として末尾に回す
+  const tutorNumberOrder = (t: any) => {
+    if (t?.tutorNumber == null || t.tutorNumber === "") return Number.MAX_SAFE_INTEGER;
+    const n = Number(t.tutorNumber);
+    return Number.isNaN(n) ? Number.MAX_SAFE_INTEGER : n;
+  };
+  const sortedTutors = [...tutors].sort(
+    (a, b) => tutorNumberOrder(a) - tutorNumberOrder(b)
+  );
 
   const tutorData = await Promise.all(
-    tutors.map(async (tutor: any) => {
+    sortedTutors.map(async (tutor: any) => {
       const [worksRes, salariesRes] = await Promise.all([
         fetch(`${BACKEND}/api/works/${tutor.id}?year=${year}&month=${month}`, { headers }),
         fetch(`${BACKEND}/api/salaries/${tutor.id}`, { headers }),
