@@ -26,6 +26,20 @@ public class PayslipService {
 
     private final SalaryMapper salaryMapper;
 
+    /**
+     * 超過勤務割増のスケール分母。
+     * 授業給(100分あたり)を60分(時給)へ換算して割増率を掛けるため、
+     * 分 × lessonWage × 60 × 25 を累積し、最後に (100 × 60 × 100) で割って円に換算する。
+     * （25/100 = 割増率 0.25、小数誤差を避けるため整数演算で保持する）
+     */
+    private static final long OVERTIME_SCALE_DENOMINATOR = 100L * 60 * 100;
+
+    /**
+     * 深夜割増のスケール分母。
+     * 分 × officeWage × 25 を累積し、最後に (60 × 100) で割って円に換算する。
+     */
+    private static final long NIGHT_SCALE_DENOMINATOR = 60L * 100;
+
     public PayslipDto create(List<WorkDto> works) {
 
         if (works.isEmpty()) {
@@ -65,8 +79,11 @@ public class PayslipService {
         int lessonPay = 0;
         int periodCount = 0;
         int dailyAllowance = 0;
-        int officeWorkPay = 0;
+        long officeWorkPay = 0;
         int transportationFee = 0;
+        // 割増系を含む全項目は小数点以下を保持できるスケール値（long）で累積し、最後に一度だけ円へ切り上げ換算する
+        long overtimePremiumScaled = 0;
+        long nightShiftPremiumScaled = 0;
 
         for (WorkDto work : works) {
             SalaryDto salary = findSalaryForWork(sortedSalaries, work);
@@ -86,9 +103,13 @@ public class PayslipService {
 
             accumulateOutsideHoursWork(work, salary, outsideHoursWork);
 
-            accumulateOvertimePremium(work, salary, overtimePremium);
+            overtimePremiumScaled += calculateOvertimePremiumScaled(work, salary);
+            overtimePremium.setMinutes(
+                overtimePremium.getMinutes() + calculateOvertimeExcessMinutes(work));
 
-            accumulateNightShiftPremium(work, salary, nightShiftPremium);
+            nightShiftPremiumScaled += calculateNightShiftPremiumScaled(work, salary);
+            nightShiftPremium.setMinutes(
+                nightShiftPremium.getMinutes() + calculateNightMinutesForWork(work));
 
             transportationFee += work.getTransportationFee();
         }
@@ -96,11 +117,13 @@ public class PayslipService {
         dto.setLessonPay(lessonPay);
         dto.setPeriodCount(periodCount);
         dto.setDailyAllowance(dailyAllowance);
-        dto.setOfficeWorkPay((int) Math.ceil((double) officeWorkPay / 60));
+        dto.setOfficeWorkPay(toYenCeil(officeWorkPay));
         dto.setTrainingAndStudyRoomDto(formatMinuteItem(trainingAndStudyRoom));
         dto.setOutsideHoursWorkDto(formatMinuteItem(outsideHoursWork));
-        dto.setOvertimePremiumDto(formatMinuteItem(overtimePremium));
-        dto.setNightShiftPremiumDto(formatMinuteItem(nightShiftPremium));
+        overtimePremium.setAmount(toYenCeil(overtimePremiumScaled, OVERTIME_SCALE_DENOMINATOR));
+        dto.setOvertimePremiumDto(overtimePremium);
+        nightShiftPremium.setAmount(toYenCeil(nightShiftPremiumScaled, NIGHT_SCALE_DENOMINATOR));
+        dto.setNightShiftPremiumDto(nightShiftPremium);
         dto.setOtherPay(0);
         dto.setTransportationFee(transportationFee);
 
@@ -115,10 +138,14 @@ public class PayslipService {
             .orElse(null);
     }
 
-    private int calculateOfficeWorkPay(WorkDto work, SalaryDto salary) {
+    /**
+     * 事務給を「分 × 時給」のスケール（1/60円単位）で返す。
+     * 日次で円への端数処理は行わず、月合計の最後に一度だけ切り上げる。
+     */
+    private long calculateOfficeWorkPay(WorkDto work, SalaryDto salary) {
         var detail = work.getOfficeWorkDetailDto();
         if (detail.getStartTime() != null && detail.getEndTime() != null) {
-            return (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() * salary.getOfficeWage());
+            return Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() * salary.getOfficeWage();
         }
         return 0;
     }
@@ -127,7 +154,7 @@ public class PayslipService {
         var detail = work.getOtherWorkDetailDto();
         if (detail.getStartTime() != null && detail.getEndTime() != null) {
             int minutes = (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() - detail.getBreakMinutes());
-            item.setAmount(item.getAmount() + (minutes * salary.getOfficeWage()));
+            item.setScaledAmount(item.getScaledAmount() + (long) minutes * salary.getOfficeWage());
             item.setMinutes(item.getMinutes() + minutes);
         }
     }
@@ -142,36 +169,75 @@ public class PayslipService {
                 detail.getBreakMinutes()),
                 0
             );
-            item.setAmount(item.getAmount() + (outsideHours * salary.getOfficeWage()));
+            item.setScaledAmount(item.getScaledAmount() + (long) outsideHours * salary.getOfficeWage());
             item.setMinutes(item.getMinutes() + outsideHours);
         }
     }
 
-    private void accumulateOvertimePremium(WorkDto work, SalaryDto salary, PayslipItemDto item) {
+    /**
+     * 超過勤務割増をスケール値（分 × lessonWage × 60 × 25）で返す。
+     * 計算時給は事務給ではなく授業給を用い、100分あたりの登録値を60分あたりに換算してから割増率0.25を掛ける。
+     * 日次の端数処理は行わず、月合計の最後に一度だけ円へ切り上げ換算する。
+     */
+    private long calculateOvertimePremiumScaled(WorkDto work, SalaryDto salary) {
         var detail = work.getLessonWorkDetailDto();
-        if (detail.getStartTime() != null && detail.getEndTime() != null) {
-            int overtime = Math.max(
-                (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() -
-                detail.getBreakMinutes()),
-                0
-            );
-
-            if (overtime > PremiumPayContents.OVER_TIME_BORDER_LINE) {
-                int excessMinutes = overtime - PremiumPayContents.OVER_TIME_BORDER_LINE;
-                item.setAmount(item.getAmount() + (int) (excessMinutes * salary.getOfficeWage() * PremiumPayContents.PREMIUM_PAY_RATE));
-                item.setMinutes(item.getMinutes() + excessMinutes);
-            }
+        if (detail.getStartTime() == null || detail.getEndTime() == null) {
+            return 0;
         }
+
+        int overtime = Math.max(
+            (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() -
+            detail.getBreakMinutes()),
+            0
+        );
+
+        if (overtime > PremiumPayContents.OVER_TIME_BORDER_LINE) {
+            int excessMinutes = overtime - PremiumPayContents.OVER_TIME_BORDER_LINE;
+            // 分 × 授業給(100分あたり) × 60/100(時給換算) × 25/100(割増率) を整数スケールで保持
+            return (long) excessMinutes * salary.getLessonWage() * 60 * 25;
+        }
+        return 0;
     }
 
-    private void accumulateNightShiftPremium(WorkDto work, SalaryDto salary, PayslipItemDto item) {
+    /**
+     * 超過勤務割増の対象分数のみを返す（表示用の minutes 集計に使用）。
+     */
+    private int calculateOvertimeExcessMinutes(WorkDto work) {
+        var detail = work.getLessonWorkDetailDto();
+        if (detail.getStartTime() == null || detail.getEndTime() == null) {
+            return 0;
+        }
+
+        int overtime = Math.max(
+            (int) (Duration.between(detail.getStartTime(), detail.getEndTime()).toMinutes() -
+            detail.getBreakMinutes()),
+            0
+        );
+
+        if (overtime > PremiumPayContents.OVER_TIME_BORDER_LINE) {
+            return overtime - PremiumPayContents.OVER_TIME_BORDER_LINE;
+        }
+        return 0;
+    }
+
+    /**
+     * 深夜割増をスケール値（分 × officeWage × 25）で返す。
+     * 日次の端数処理は行わず、月合計の最後に一度だけ円へ切り上げ換算する。
+     */
+    private long calculateNightShiftPremiumScaled(WorkDto work, SalaryDto salary) {
+        long nightMinutes = calculateNightMinutesForWork(work);
+        return nightMinutes * salary.getOfficeWage() * 25;
+    }
+
+    /**
+     * 勤務1件あたりの深夜対象分数（lesson / office / other の合計）を返す。
+     */
+    private int calculateNightMinutesForWork(WorkDto work) {
         int nightMinutes = 0;
         nightMinutes += calculateNightMinutes(work.getLessonWorkDetailDto().getStartTime(), work.getLessonWorkDetailDto().getEndTime());
         nightMinutes += calculateNightMinutes(work.getOfficeWorkDetailDto().getStartTime(), work.getOfficeWorkDetailDto().getEndTime());
         nightMinutes += calculateNightMinutes(work.getOtherWorkDetailDto().getStartTime(), work.getOtherWorkDetailDto().getEndTime());
-
-        item.setAmount(item.getAmount() + (int) (nightMinutes * salary.getOfficeWage() * PremiumPayContents.PREMIUM_PAY_RATE));
-        item.setMinutes(item.getMinutes() + nightMinutes);
+        return nightMinutes;
     }
 
     private int calculateNightMinutes(LocalTime start, LocalTime end) {
@@ -186,8 +252,18 @@ public class PayslipService {
     }
 
     private PayslipItemDto formatMinuteItem(PayslipItemDto item) {
-        item.setAmount((int) Math.ceil((double) item.getAmount() / 60));
+        item.setAmount(toYenCeil(item.getScaledAmount()));
         return item;
+    }
+
+    /** 1/60円スケール値を円へ切り上げ換算する（分 × 時給 のスケール）。 */
+    private int toYenCeil(long scaledAmount) {
+        return toYenCeil(scaledAmount, 60L);
+    }
+
+    /** 任意スケール値を円へ切り上げ換算する。 */
+    private int toYenCeil(long scaledAmount, long denominator) {
+        return (int) Math.ceil((double) scaledAmount / denominator);
     }
 
 }

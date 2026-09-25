@@ -253,6 +253,25 @@ class PayslipServiceTest {
             PayslipDto r = payslipService.create(List.of(work));
             assertEquals(0, r.getOfficeWorkPay());
         }
+
+        @Test
+        @DisplayName("複数日の事務勤務(30分×2日, 時給1001円) → 日次切り捨てせず累積後に切り上げ")
+        void fractionAccumulatesAcrossDays() {
+            // officeWage=1001 → 30分あたり 500.5円/日
+            // 旧来の日次切り上げなら 501円 × 2日 = 1002円
+            // 新実装は累積後に一度だけ切り上げ → 1001円
+            WorkDto w1 = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            w1.setOfficeWorkDetailDto(office(t(18, 0), t(18, 30)));
+            WorkDto w2 = workBase(tutorId, LocalDate.of(2026, 1, 11));
+            w2.setOfficeWorkDetailDto(office(t(18, 0), t(18, 30)));
+
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1001, 0)));
+
+            PayslipDto r = payslipService.create(List.of(w1, w2));
+            // (30+30) × 1001 = 60060 → /60 = 1001.0 → 1001円
+            assertEquals(1001, r.getOfficeWorkPay());
+        }
     }
 
     @Nested
@@ -334,31 +353,31 @@ class PayslipServiceTest {
     }
 
     @Nested
-    @DisplayName("残業手当 (>600分, 0.25倍)")
+    @DisplayName("残業手当 (>480分,, 授業給ベースの0.25倍)")
     class OvertimePremium {
 
         @Test
-        @DisplayName("総勤務 610分(break0) → 残業590分ではなく超過判定で600を超えた分だけが計上")
-        void over600Minutes() {
-            // 勤務 9:00-22:00 = 780分, 休憩20 → overtime = 780 - 20 = 760 (> 600) で発動
-            // 超過分のみが計上される: excess = 760 - 600 = 160
+        @DisplayName("480分超 → 超過分のみ計上（授業給を60分換算した時給で計算）")
+        void over480Minutes() {
+            // 勤務 9:00-18:00 = 540分, 休憩20 → total = 520 (> 480) で発動
+            // 超過分: 520 - 480 = 40分
+            // 金額 = 40分 × (2000円/100分) × 0.25 = 40×20×0.25 = 200円
             WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
-            work.setLessonWorkDetailDto(lesson(t(9, 0), t(22, 0), 20, List.of("S", "A", "B")));
+            work.setLessonWorkDetailDto(lesson(t(9, 0), t(18, 0), 20, List.of("S", "A", "B")));
             when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
                 salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
 
             PayslipDto r = payslipService.create(List.of(work));
-            // overtime = 780 - 20 = 760 (> 600) → excess = 160 → amount = 160*1000*0.25 = 40000 → ceil/60 = 667
-            assertEquals(160, r.getOvertimePremiumDto().getMinutes());
-            assertEquals((int) Math.ceil((double) (160 * 1000 * 0.25) / 60), r.getOvertimePremiumDto().getAmount());
+            assertEquals(40, r.getOvertimePremiumDto().getMinutes());
+            assertEquals(200, r.getOvertimePremiumDto().getAmount());
         }
 
         @Test
-        @DisplayName("総勤務 500分 → 残業判定外で0")
+        @DisplayName("総勤務 470分 → 閾値未満で0")
         void underBorder() {
+            // 勤務 13:00-21:20 = 500分, 休憩30 → total = 470 <= 480
             WorkDto work = workBase(tutorId, LocalDate.of(2026, 1, 10));
-            work.setLessonWorkDetailDto(lesson(t(13, 0), t(21, 20), 0, List.of("S", "A", "B")));
-            // duration=500, prep=20, break=0 → 480 < 600
+            work.setLessonWorkDetailDto(lesson(t(13, 0), t(21, 20), 30, List.of("S", "A", "B")));
             when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
                 salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1000, 0)));
 
@@ -377,6 +396,45 @@ class PayslipServiceTest {
 
             PayslipDto r = payslipService.create(List.of(work));
             assertEquals(0, r.getOvertimePremiumDto().getMinutes());
+        }
+
+        @Test
+        @DisplayName("授業給(100分あたり)2160円・超過140分と60分の2日 → 合計200分・1080円")
+        void lessonWageBasedAccumulation() {
+            // 1日目: 9:00-19:20(620分), 休憩0 → 超過 620-480 = 140分
+            // 2日目: 9:00-18:00(540分), 休憩0 → 超過 540-480 = 60分
+            WorkDto w1 = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            w1.setLessonWorkDetailDto(lesson(t(9, 0), t(19, 20), 0, List.of("S")));
+            WorkDto w2 = workBase(tutorId, LocalDate.of(2026, 1, 11));
+            w2.setLessonWorkDetailDto(lesson(t(9, 0), t(18, 0), 0, List.of("S")));
+
+            // lessonWage=2160(100分あたり), officeWage=1000（officeWageが使われないことの検証を兼ねる）
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2160, 1000, 0)));
+
+            PayslipDto r = payslipService.create(List.of(w1, w2));
+            // 超過200分 × (2160円/100分) × 0.25 = 200 × 21.6 × 0.25 = 1080円
+            assertEquals(200, r.getOvertimePremiumDto().getMinutes());
+            assertEquals(1080, r.getOvertimePremiumDto().getAmount());
+        }
+
+        @Test
+        @DisplayName("端数が出る授業給・複数日 → 日次切り捨せず累積後に切り上げ")
+        void fractionAccumulatesThenCeils() {
+            // lessonWage=1001(100分) → 分単価10.01円、割増2.5025円/分
+            // 1日3分超過 × 2日 = 6分 → 6 × 1001 × 60 × 25 / 600000 = 15.015円 → ceil 16円
+            // (旧来の日次切捨てなら 7.5円→7円 × 2日 = 14円)
+            WorkDto w1 = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            w1.setLessonWorkDetailDto(lesson(t(9, 0), t(17, 3), 0, List.of("S"))); // 超過3分
+            WorkDto w2 = workBase(tutorId, LocalDate.of(2026, 1, 11));
+            w2.setLessonWorkDetailDto(lesson(t(9, 0), t(17, 3), 0, List.of("S"))); // 超過3分
+
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 1001, 1000, 0)));
+
+            PayslipDto r = payslipService.create(List.of(w1, w2));
+            assertEquals(6, r.getOvertimePremiumDto().getMinutes());
+            assertEquals(16, r.getOvertimePremiumDto().getAmount());
         }
     }
 
@@ -450,6 +508,26 @@ class PayslipServiceTest {
 
             PayslipDto r = payslipService.create(List.of(work));
             assertEquals(0, r.getNightShiftPremiumDto().getMinutes());
+        }
+
+        @Test
+        @DisplayName("深夜1分×2日(時給1001円) → 日次切り捨てせず累積後に切り上げ")
+        void fractionAccumulatesAcrossDays() {
+            // 深夜1分/日 × 2日, officeWage=1001
+            // 旧来は (int)(1*1001*0.25)=250(1/60円) → 日次で円換算せず内部保持→ceil(500/60)=9円
+            // 新実装はスケール累積: 2分 × 1001 × 25 = 50050 → ceil(50050/6000) = ceil(8.34...) = 9円
+            // （いずれも9円だが、経路がスケール累積であることを検証）
+            WorkDto w1 = workBase(tutorId, LocalDate.of(2026, 1, 10));
+            w1.setOfficeWorkDetailDto(office(t(23, 0), t(23, 1)));
+            WorkDto w2 = workBase(tutorId, LocalDate.of(2026, 1, 11));
+            w2.setOfficeWorkDetailDto(office(t(23, 0), t(23, 1)));
+
+            when(salaryMapper.selectAll(tutorId)).thenReturn(List.of(
+                salary(UUID.randomUUID(), tutorId, LocalDate.of(2020, 1, 1), 2000, 1001, 0)));
+
+            PayslipDto r = payslipService.create(List.of(w1, w2));
+            assertEquals(2, r.getNightShiftPremiumDto().getMinutes());
+            assertEquals(9, r.getNightShiftPremiumDto().getAmount());
         }
     }
 
